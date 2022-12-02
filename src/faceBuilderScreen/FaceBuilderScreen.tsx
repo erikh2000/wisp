@@ -1,15 +1,16 @@
-import { CanvasComponent, publishEvent, Topic, loadFaceFromUrl, AttentionController, BlinkController } from "sl-web-face";
-import Canvas from "./ui/Canvas";
-import EmotionSelector from "./ui/EmotionSelector";
-import LidLevelSelector from "./ui/LidLevelSelector";
-import VisemeSelector from "./ui/VisemeSelector";
-import SaySelector from "./ui/SaySelector";
-import styles from './App.module.css';
+import Canvas from "ui/Canvas";
+import EmotionSelector from "ui/EmotionSelector";
+import LidLevelSelector from "ui/LidLevelSelector";
+import VisemeSelector from "ui/VisemeSelector";
+import SaySelector from "ui/SaySelector";
+import styles from './FaceBuilderScreen.module.css';
 
 import React, {useEffect} from 'react';
 
+import { CanvasComponent, publishEvent, Topic, loadFaceFromUrl, AttentionController, BlinkController } from "sl-web-face";
+
 let head:CanvasComponent|null = null;
-let isInitialized:boolean = false;
+let isInitialized = false;
 const blinkController = new BlinkController();
 const attentionController = new AttentionController();
 
@@ -33,13 +34,13 @@ function _onClick(event:any) {
   publishEvent(Topic.ATTENTION, {dx, dy});
 }
 
-function App() {
+function FaceBuilderScreen() {
   useEffect(() => {
     if (isInitialized) return;
-    _init();
-    isInitialized = true;
+    _init()
+      .then(() => isInitialized = true);
   }, []);
-
+  
   return (
     <div className={styles.app} onClick={_onClick}>
       <div className={styles.configPanel}>
@@ -53,4 +54,4 @@ function App() {
   );
 }
 
-export default App;
+export default FaceBuilderScreen;

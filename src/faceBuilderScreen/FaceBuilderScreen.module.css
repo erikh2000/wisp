@@ -13,3 +13,8 @@
 .configPanel {
     flex-shrink: 1;
 }
+
+.waveform {
+    width: 100%;
+    height: 25rem;
+}

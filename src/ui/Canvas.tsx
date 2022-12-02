@@ -16,8 +16,6 @@ function _updateCanvasDimensions(container:HTMLDivElement, setContainerDimension
   setContainerDimensions(nextDimensions);
 }
 
-let isInitialized = false;
-
 function Canvas(props:IProps) {
   const [containerDimensions, setContainerDimensions] = useState<[number,number]|null>(null);
   const { className, onDraw, onMouseMove, isAnimated } = props;
@@ -27,8 +25,7 @@ function Canvas(props:IProps) {
 
   useEffect(() => {
     const container:HTMLDivElement|null = containerRef?.current;
-    if (!container || isInitialized) return;
-    isInitialized = true;
+    if (!container) return;
     _updateCanvasDimensions(container, setContainerDimensions);
     window.addEventListener('resize', () => _updateCanvasDimensions(container, setContainerDimensions), false);
   }, []);

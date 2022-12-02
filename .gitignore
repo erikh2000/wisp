@@ -2,13 +2,16 @@
 # Project-Specific Exclusions
 #
 
+# language models
+public/models/
+
 # dist directories
-build
-dist
-docs/dist
+build/
+dist/
+docs/dist/
 
 # source assets
-workAssets 
+workAssets/ 
 
 #
 # General-Purpose Exclusions
