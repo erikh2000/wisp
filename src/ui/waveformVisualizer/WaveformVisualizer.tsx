@@ -82,7 +82,12 @@ const _drawAmplitudeMarkers = (context:CanvasRenderingContext2D, markers:IWavefo
 const _drawTimeMarkersOfType = (context:CanvasRenderingContext2D, markers:IWaveformTimeMarker[], beginSampleNo:number,
                                 endSampleNo:number, markerType:string, isBackground:boolean) => {
   const RANGE_SERIF_HEIGHT = 10;
-  const topY = BORDER_HEIGHT, bottomY = context.canvas.height - BORDER_HEIGHT;
+  const SECONDARY_MARGIN_HEIGHT = 15; // context.canvas.height * .05; 
+  const topY = markerType === MarkerType.Primary 
+    ? BORDER_HEIGHT : BORDER_HEIGHT + SECONDARY_MARGIN_HEIGHT;
+  const bottomY = markerType === MarkerType.Primary
+    ? context.canvas.height - BORDER_HEIGHT 
+    : context.canvas.height - BORDER_HEIGHT - SECONDARY_MARGIN_HEIGHT;
   const innerWidth = context.canvas.width - (BORDER_WIDTH * 2);
   context.strokeStyle = markerType === MarkerType.Primary ? PRIMARY_MARKER_STYLE : SECONDARY_MARKER_STYLE;
   context.font = '15px san-serif';
