@@ -1,13 +1,12 @@
 import styles from './LipzGeneratorScreen.module.css';
-import {generateLipzTextFromAudioBuffer, init, PhonemeTimeline} from "./lipzGenerationUtil";
 import IWaveformAmplitudeMarker from "ui/waveformVisualizer/WaveformAmplitudeMarker";
 import IWaveformBlockMarker from "ui/waveformVisualizer/WaveformBlockMarker";
 import IWaveformTimeMarker, {MarkerType} from "ui/waveformVisualizer/WaveformTimeMarker";
 import WaveformVisualizer from "ui/waveformVisualizer/WaveformVisualizer";
 
 import React, {useEffect, useState} from 'react';
-import { WordTimeline } from 'sl-web-speech';
-import {loadWavFromUrl, mSecsToSampleCount} from "sl-web-face";
+import { WordTimeline, generateLipzTextFromAudioBuffer, init, PhonemeTimeline, wavToLipzTextFilename } from 'sl-web-speech';
+import {mSecsToSampleCount, loadWavFromFileSystem} from "sl-web-audio";
 
 let isInitialized = false;
 
@@ -16,18 +15,40 @@ async function _init():Promise<void> {
   return init();
 }
 
-async function _extract(setSamples:any, setSampleRate:any, setWordTimeline:any, setPhonemeTimeline:any) {
-  if (!isInitialized) return;
-  const audioBuffer = await loadWavFromUrl('/speech/male3.wav');
-  
+async function _openWav(setSamples:any, setSampleRate:any, setWordTimeline:any, setPhonemeTimeline:any, setLipzSuggestedFilename:any, setLipzText:any) {
+  const wavFileData = await loadWavFromFileSystem();
+  if (!wavFileData) return;
+  const { audioBuffer, filename } = wavFileData;
+
   const debugCapture:any = {};
   const lipzText = await generateLipzTextFromAudioBuffer(audioBuffer, debugCapture);
-  console.log(`[${lipzText}]`);
-  console.log(debugCapture.wordTimeline);
   setWordTimeline(debugCapture.wordTimeline);
   setPhonemeTimeline(debugCapture.phonemeTimeline);
   setSamples(audioBuffer.getChannelData(0));
   setSampleRate(audioBuffer.sampleRate);
+  setLipzText(lipzText);
+  const suggestedLipzTextFilename = wavToLipzTextFilename(filename);
+  setLipzSuggestedFilename(suggestedLipzTextFilename);
+}
+
+async function _saveLipz(lipzText:string, suggestedFilename:string):Promise<void> {
+  try {
+    const saveFileOptions = {
+      suggestedName:suggestedFilename,
+      excludeAcceptAllOption: true,
+      multiple:false,
+      types: [{
+        description: 'Lipz Files',
+        accept: {'text/plain': ['.lipz.txt']}
+      }]
+    };
+    const fileHandle:FileSystemFileHandle = await (window as any).showSaveFilePicker(saveFileOptions);
+    const writable = await (fileHandle as any).createWritable();
+    await writable.write(lipzText);
+    return writable.close();
+  } catch(err) {
+    console.error(err);
+  }
 }
 
 type Markers = {
@@ -69,11 +90,13 @@ function _createMarkersFromTimelines(wordTimeline:WordTimeline, phonemeTimeline:
 }
 
 function LipzGeneratorScreen() {
+  const [lipzText, setLipzText] = useState<string|null>(null);
   const [samples, setSamples] = useState<Float32Array|null>(null);
   const [sampleRate, setSampleRate] = useState<number>(0);
   const [wordTimeline, setWordTimeline] = useState<WordTimeline>([]);
   const [phonemeTimeline, setPhonemeTimeline] = useState<PhonemeTimeline>([]);
   const [markers, setMarkers] = useState<Markers>(_createEmptyMarkers());
+  const [lipzSuggestedFilename, setLipzSuggestedFilename] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -105,9 +128,14 @@ function LipzGeneratorScreen() {
   return (
     <div className={styles.app}>
       <div className={styles.configPanel}>
-        <button onClick={() => _extract(setSamples, setSampleRate, setWordTimeline, setPhonemeTimeline)} disabled={isLoading}>Find Words</button>
+        <button onClick={() => _openWav(setSamples, setSampleRate, setWordTimeline, setPhonemeTimeline, setLipzSuggestedFilename, setLipzText)} disabled={isLoading}>Open WAV</button>
+        <button onClick={() => {if (lipzText) _saveLipz(lipzText, lipzSuggestedFilename)} } disabled={lipzText === null}>Save LIPZ</button>
       </div>
       {waveform}
+      <label className={styles.lipzTextLabel}>Lipz Text:
+        <input className={styles.lipzTextInput} type='text' value={lipzText ?? ''} 
+               onChange={(event) => setLipzText(event.target.value)} />
+      </label>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Selector from "./Selector";
-import { Viseme, Topic, publishEvent } from "sl-web-face";
+import { Topic, publishEvent } from "sl-web-face";
+import Viseme from './visemes';
 
 const optionNames = ['-', 'AI', 'Cons', 'E', 'FV', 'L', 'O', 'MBP', 'U', 'WQ'];
 const optionVisemes = [Viseme.REST, Viseme.AI, Viseme.CONS, Viseme.E, Viseme.FV, Viseme.L, Viseme.O, Viseme.MBP, Viseme.U, Viseme.WQ];

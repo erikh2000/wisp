@@ -1,5 +1,6 @@
 import Selector from './Selector';
-import {loadSpeechFromUrl, publishEvent, SpeechAudio, Topic, Viseme} from "sl-web-face";
+import {loadSpeechFromUrl, publishEvent, SpeechAudio, Topic} from "sl-web-face";
+import Viseme from './visemes';
 
 const speechAudios:SpeechAudio[] = [];
 const optionNames = ['Male 1', 'Male 2', 'Male 3', 'Female 1', 'Female 2', 'Female 3'];
@@ -18,7 +19,7 @@ function _onClick(optionNo:number) {
   }
   loadSpeechFromUrl(optionWavUrls[optionNo]).then(speechAudio => {
     speechAudios[optionNo] = speechAudio;
-    speechAudio.play(() => publishEvent(Topic.VISEME, Viseme.REST) );
+    speechAudio.play();
   });
 }
 
