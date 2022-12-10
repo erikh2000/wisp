@@ -1,0 +1,25 @@
+@value colors: "ui/commonPalette.module.css";
+@value accent-orange, primary-silver, accent-dark-grey from colors; 
+    
+.menuTile {
+    flex-basis: 30rem;
+    background-color: primary-silver;
+    border-style: solid;
+    border-color: accent-dark-grey;
+    border-width: 0.5rem;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    margin-right: 1rem;
+    padding: 1rem;
+}
+
+.menuTile h1 {
+    font-family: 'simply_olive', serif;
+    font-size: 2rem;
+    letter-spacing: .3rem;
+    color: #b9773d;
+}
+
+.menuTile p {
+    
+}

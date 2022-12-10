@@ -1,0 +1,38 @@
+@value colors: "ui/commonPalette.module.css";
+@value accent-orange, background-control, background-content, background-garnish from colors;
+
+.container {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.controlPane {
+    display: flex;
+    flex-direction: column;
+    width: 2rem;
+    flex: 0 1 auto;
+    padding: 1rem;
+    background-color: background-garnish;
+    border-right-style: solid;
+    border-right-color: accent-orange;
+    border-right-width: .2rem;
+}
+
+.controlPaneClosed {
+    composes: controlPane;
+    display: none;
+}
+
+.contentPane {
+    /* Be agnostic as to layout inside the content pane. Contained elements can do things like flexbox columnar layout
+       if they need it. */
+    flex: 1 1 auto;
+    height: 100%;
+}
+
+.wispLogo {
+    width: 2.5rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}

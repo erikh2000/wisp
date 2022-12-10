@@ -1,0 +1,40 @@
+@value colors: "ui/commonPalette.module.css";
+@value accent-orange, background-control, background-content, background-garnish from colors;
+
+.screen {
+    background-color: #004444;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.logoPanel {
+    width: 20%;
+    padding: 1rem;
+    background-color: background-garnish;
+    border-right-style: solid;
+    border-right-color: accent-orange;
+    border-right-width: .2rem;
+}
+
+.wispLogo {
+    width: 100%;
+    max-width: 10rem;
+}
+
+.seespaceLabsLogo {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    width: 18%;
+    max-width: 10rem;
+}
+
+.tilesPanel {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    background-color: background-content;
+    width: 80%;
+    padding: 1rem;
+}

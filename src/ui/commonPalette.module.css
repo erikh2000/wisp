@@ -1,0 +1,44 @@
+/* For people grabbing this as open source, I'd appreciate if you create your own, *different* color palette. This
+   can be as simple as tweaking the color values below to something that better suits you. Or if you want to be more 
+   serious about the exercise - search for "design system palette" to find articles about how to do it. */
+
+/* Medium-attention colors that can be used for many things. */
+@value primary-brown: #eac699;
+@value primary-dark-brown: #471100;
+@value primary-silver: #efece9;
+
+/* For a document, form, or interactive area that allows changes to data. */
+@value background-content: #ffffff;
+@value border-content: #808080
+
+/* For a navigation or control area. */
+@value background-control: #471100;
+@value border-control: #808080
+
+/* For a non-interactive, empty space, or low-attention area. */
+@value background-garnish: #808080; 
+
+/* Colors that can be used sparingly to add subtle flair, or used more prominently to draw attention. In the later
+   case, avoid using these colors in multiple locations on one screen. */
+@value accent-yellow: #fff4cb;
+@value accent-orange: #ff7800;
+@value accent-light-orange: #f6a462;
+@value accent-dark-grey: #808080;
+
+/* Messaging colors. */
+@value message-ambient-background: #f4f3f3;
+@value message-ambient-text: #00000;
+@value message-info-background: #fff4cb;
+@value message-info-text: #000000;
+@value message-alert-background: #fedb58;
+@value message-alert-text: #000000;
+
+/* Button colors. Avoid using them on non-buttons. */
+@value button: #c57431;
+@value button-text: #ffffff;
+@value button-highlight: #e68a40;
+@value button-text-highlight: #ffffff;
+@value button-disabled: #808080;
+@value button-text-disabled: #d3d3d3;
+
+/* Fonts */

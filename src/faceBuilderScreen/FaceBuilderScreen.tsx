@@ -3,11 +3,13 @@ import EmotionSelector from "ui/EmotionSelector";
 import LidLevelSelector from "ui/LidLevelSelector";
 import VisemeSelector from "ui/VisemeSelector";
 import SaySelector from "ui/SaySelector";
+import ScreenContainer from 'ui/screen/ScreenContainer';
 import styles from './FaceBuilderScreen.module.css';
+import Screen from 'ui/screen/screens';
 
 import React, {useEffect} from 'react';
 
-import { CanvasComponent, publishEvent, Topic, loadFaceFromUrl, AttentionController, BlinkController } from "sl-web-face";
+import { CanvasComponent, loadFaceFromUrl, AttentionController, BlinkController } from "sl-web-face";
 
 let head:CanvasComponent|null = null;
 let isInitialized = false;
@@ -28,12 +30,6 @@ function _onDrawCanvas(context:CanvasRenderingContext2D, _frameCount:number) {
   head.renderWithChildren(context);
 }
 
-function _onClick(event:any) {
-  const dx = (event.screenX - window.screen.width/2) / window.screen.width;
-  const dy = (event.screenY - window.screen.height/2) / window.screen.height;
-  publishEvent(Topic.ATTENTION, {dx, dy});
-}
-
 function FaceBuilderScreen() {
   useEffect(() => {
     if (isInitialized) return;
@@ -42,15 +38,17 @@ function FaceBuilderScreen() {
   }, []);
   
   return (
-    <div className={styles.app} onClick={_onClick}>
-      <div className={styles.configPanel}>
-        <EmotionSelector />
-        <LidLevelSelector />
-        <VisemeSelector />
-        <SaySelector />
+    <ScreenContainer isControlPaneOpen={true} activeScreen={Screen.FACES}>
+      <div className={styles.container}>
+        <div className={styles.configPanel}>
+          <EmotionSelector />
+          <LidLevelSelector />
+          <VisemeSelector />
+          <SaySelector />
+        </div>
+        <Canvas className={styles.canvas} isAnimated={true} onDraw={_onDrawCanvas} />
       </div>
-      <Canvas className={styles.canvas} isAnimated={true} onDraw={_onDrawCanvas} />
-    </div>
+    </ScreenContainer>
   );
 }
 

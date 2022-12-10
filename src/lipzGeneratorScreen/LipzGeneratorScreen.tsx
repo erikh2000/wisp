@@ -1,4 +1,6 @@
 import styles from './LipzGeneratorScreen.module.css';
+import Screen from "ui/screen/screens";
+import ScreenContainer from "ui/screen/ScreenContainer";
 import IWaveformAmplitudeMarker from "ui/waveformVisualizer/WaveformAmplitudeMarker";
 import IWaveformBlockMarker from "ui/waveformVisualizer/WaveformBlockMarker";
 import IWaveformTimeMarker, {MarkerType} from "ui/waveformVisualizer/WaveformTimeMarker";
@@ -100,7 +102,7 @@ function LipzGeneratorScreen() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (isInitialized) return;
+    if (isInitialized) { setIsLoading(false); return; }
     _init()
       .then(() => {
         setIsLoading(false);
@@ -126,17 +128,19 @@ function LipzGeneratorScreen() {
     />);
   
   return (
-    <div className={styles.app}>
-      <div className={styles.configPanel}>
-        <button onClick={() => _openWav(setSamples, setSampleRate, setWordTimeline, setPhonemeTimeline, setLipzSuggestedFilename, setLipzText)} disabled={isLoading}>Open WAV</button>
-        <button onClick={() => {if (lipzText) _saveLipz(lipzText, lipzSuggestedFilename)} } disabled={lipzText === null}>Save LIPZ</button>
+    <ScreenContainer isControlPaneOpen={true} activeScreen={Screen.SPEECH}>
+      <div className={styles.app}>
+        <div className={styles.configPanel}>
+          <button onClick={() => _openWav(setSamples, setSampleRate, setWordTimeline, setPhonemeTimeline, setLipzSuggestedFilename, setLipzText)} disabled={isLoading}>Open WAV</button>
+          <button onClick={() => {if (lipzText) _saveLipz(lipzText, lipzSuggestedFilename)} } disabled={lipzText === null}>Save LIPZ</button>
+        </div>
+        {waveform}
+        <label className={styles.lipzTextLabel}>Lipz Text:
+          <input className={styles.lipzTextInput} type='text' value={lipzText ?? ''} 
+                 onChange={(event) => setLipzText(event.target.value)} />
+        </label>
       </div>
-      {waveform}
-      <label className={styles.lipzTextLabel}>Lipz Text:
-        <input className={styles.lipzTextInput} type='text' value={lipzText ?? ''} 
-               onChange={(event) => setLipzText(event.target.value)} />
-      </label>
-    </div>
+    </ScreenContainer>
   );
 }
 

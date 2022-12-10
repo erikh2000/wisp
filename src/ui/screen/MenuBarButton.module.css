@@ -1,0 +1,46 @@
+@value colors: "ui/commonPalette.module.css";
+@value button, button-text, button-highlight, button-text-highlight, button-disabled, button-text-disabled from colors;
+
+.menuBarButton {
+    height: 7rem;
+    width: 3rem;
+    justify-content: center;
+    background-color: button;
+    border-style: none;
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+    margin-bottom: .2rem;
+    background-position: center;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.menuBarButton:hover {
+    background: button-highlight radial-gradient(circle, transparent 1%, button 1%) center/23000%;
+}
+.menuBarButton:active {
+    background-color: button-highlight;
+    background-size: 100%;
+    transition: background 0s;
+}
+
+.menuBarButtonText {
+    transform: rotate(270deg);
+    transform-origin: 50% 50%;
+    color: button-text;
+}
+
+.menuBarButtonActive {
+    composes: menuBarButton;
+    background-color: button-highlight;
+    cursor: default;
+}
+
+.menuBarButtonActive:hover {
+    background: button-highlight;
+}
+
+.menuBarButtonTextActive {
+    composes: menuBarButtonText;
+    color: button-text-highlight;
+}
