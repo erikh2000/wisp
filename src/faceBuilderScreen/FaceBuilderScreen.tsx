@@ -24,7 +24,7 @@ async function _init():Promise<void> {
   attentionController.start();
 }
 
-function _onDrawCanvas(context:CanvasRenderingContext2D, _frameCount:number) {
+function _onDrawCanvas(context:CanvasRenderingContext2D) {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
   if (!isInitialized || !head) return;
   head.renderWithChildren(context);

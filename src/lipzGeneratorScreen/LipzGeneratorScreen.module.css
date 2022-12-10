@@ -1,6 +1,7 @@
-.app {
+.container {
     position:relative;
     height:100%;
+    padding: 1rem;
 }
 
 .configPanel {
@@ -20,3 +21,9 @@
 .lipzTextLabel {
     margin-left: 1rem;
 }
+
+.mouth {
+    width: 17rem;
+    height: 7.5rem;
+    cursor: pointer;
+ }

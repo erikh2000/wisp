@@ -3,7 +3,7 @@ import IWaveformBlockMarker from "./WaveformBlockMarker";
 import IWaveformTimeMarker, { MarkerType } from './WaveformTimeMarker';
 import Canvas from '../Canvas';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface IProps {
   amplitudeMarkers:IWaveformAmplitudeMarker[],
@@ -12,7 +12,8 @@ interface IProps {
   className:string,
   endSampleNo:number,
   samples:Float32Array|null,
-  timeMarkers:IWaveformTimeMarker[]
+  timeMarkers:IWaveformTimeMarker[],
+  needleSampleNo:number|null
 }
 
 const BG_STYLE = 'rgb(220, 220, 220)';
@@ -21,11 +22,12 @@ const BLOCK_MARKER_STYLE = 'rgb(150,130,130)';
 const BORDER_LINE_STYLE = 'rgb(200, 200, 200)';
 const BORDER_WIDTH = 4;
 const BORDER_HEIGHT = 4;
-const SAMPLE_STYLE = 'rgb(0, 40, 0)';
-const AMPLITUDE_MARKER_STYLE = 'rgb(160, 80, 80)';
-const PRIMARY_MARKER_STYLE = 'rgb(160, 80, 80)';
+const SAMPLE_STYLE = 'rgb(40, 40, 40)';
+const AMPLITUDE_MARKER_STYLE = 'rgb(160, 80, 10)';
+const PRIMARY_MARKER_STYLE = 'rgb(160, 80, 10)';
 const SECONDARY_MARKER_STYLE = 'rgb(255, 180, 180)';
 const DESCRIPTION_LEFT_MARGIN = 3, DESCRIPTION_TOP_MARGIN = 10;
+const NEEDLE_STYLE = 'rgb(255, 120, 0)';
 
 function _drawBackground(context:CanvasRenderingContext2D) {
   context.fillStyle = BG_STYLE;
@@ -39,7 +41,7 @@ function _drawBackground(context:CanvasRenderingContext2D) {
   context.strokeRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
-const _drawSamples = (context:CanvasRenderingContext2D, samples:Float32Array, beginSampleNo:number, endSampleNo:number) => {
+function _drawSamples(context:CanvasRenderingContext2D, samples:Float32Array, beginSampleNo:number, endSampleNo:number) {
   const middleY = context.canvas.height / 2;
   const innerHeight = context.canvas.height - (BORDER_WIDTH * 2);
   const innerHeightHalf = innerHeight / 2;
@@ -58,7 +60,7 @@ const _drawSamples = (context:CanvasRenderingContext2D, samples:Float32Array, be
   context.stroke();
 }
 
-const _drawAmplitudeMarkers = (context:CanvasRenderingContext2D, markers:IWaveformAmplitudeMarker[], isBackground:boolean) => {
+function _drawAmplitudeMarkers(context:CanvasRenderingContext2D, markers:IWaveformAmplitudeMarker[], isBackground:boolean) {
   const leftX = BORDER_WIDTH, rightX = context.canvas.width - BORDER_WIDTH;
   const middleY = context.canvas.height / 2;
   const innerHeight = context.canvas.height - (BORDER_WIDTH * 2);
@@ -79,8 +81,8 @@ const _drawAmplitudeMarkers = (context:CanvasRenderingContext2D, markers:IWavefo
   });
 }
 
-const _drawTimeMarkersOfType = (context:CanvasRenderingContext2D, markers:IWaveformTimeMarker[], beginSampleNo:number,
-                                endSampleNo:number, markerType:string, isBackground:boolean) => {
+function _drawTimeMarkersOfType(context:CanvasRenderingContext2D, markers:IWaveformTimeMarker[], beginSampleNo:number,
+                                endSampleNo:number, markerType:string, isBackground:boolean) {
   const RANGE_SERIF_HEIGHT = 10;
   const SECONDARY_MARGIN_HEIGHT = 15; // context.canvas.height * .05; 
   const topY = markerType === MarkerType.Primary 
@@ -113,8 +115,8 @@ const _drawTimeMarkersOfType = (context:CanvasRenderingContext2D, markers:IWavef
   });
 }
 
-const _drawBlockMarkers = (context:CanvasRenderingContext2D, markers:IWaveformBlockMarker[], beginSampleNo:number,
-                           endSampleNo:number, isBackground:boolean) => {
+function _drawBlockMarkers(context:CanvasRenderingContext2D, markers:IWaveformBlockMarker[], beginSampleNo:number,
+                           endSampleNo:number, isBackground:boolean) {
   const middleY = context.canvas.height / 2;
   const innerHeight = context.canvas.height - (BORDER_WIDTH * 2);
   const innerHeightHalf = innerHeight / 2;
@@ -136,24 +138,42 @@ const _drawBlockMarkers = (context:CanvasRenderingContext2D, markers:IWaveformBl
   });
 }
 
-const _drawMarkers = (
-  context:CanvasRenderingContext2D, amplitudeMarkers:IWaveformAmplitudeMarker[], blockMarkers:IWaveformBlockMarker[],
-  timeMarkers:IWaveformTimeMarker[], beginSampleNo:number, endSampleNo:number, isBackground:boolean) => {
+function _drawNeedle(context:CanvasRenderingContext2D, beginSampleNo:number, endSampleNo:number, needleSampleNo:number|null) {
+  if (needleSampleNo === null) return;
+
+  const topY = BORDER_HEIGHT;
+  const bottomY = context.canvas.height - BORDER_HEIGHT;
+  const includedSampleCount = endSampleNo - beginSampleNo;
+  const innerWidth = context.canvas.width - (BORDER_WIDTH * 2);
+  const sampleNoToX = (sampleNo:number) => BORDER_WIDTH + ((sampleNo - beginSampleNo) / includedSampleCount) * innerWidth;
+
+  context.fillStyle = NEEDLE_STYLE;
+  const x = sampleNoToX(needleSampleNo) - 1;
+  const w = 3;
+  const y = topY;
+  const h = bottomY - topY;
+  context.fillRect(x, y, w, h);
+}
+
+function _drawMarkers(context:CanvasRenderingContext2D, amplitudeMarkers:IWaveformAmplitudeMarker[], 
+                      blockMarkers:IWaveformBlockMarker[], timeMarkers:IWaveformTimeMarker[], beginSampleNo:number, 
+                      endSampleNo:number, isBackground:boolean) {
   _drawBlockMarkers(context, blockMarkers, beginSampleNo, endSampleNo, isBackground);
   _drawAmplitudeMarkers(context, amplitudeMarkers, isBackground);
   _drawTimeMarkersOfType(context, timeMarkers, beginSampleNo, endSampleNo, MarkerType.Secondary, isBackground);
   _drawTimeMarkersOfType(context, timeMarkers, beginSampleNo, endSampleNo, MarkerType.Primary, isBackground);
 }
 
-const WaveformVisualizer = (props:IProps) => {
-  const {amplitudeMarkers, blockMarkers, className, samples, beginSampleNo, endSampleNo, timeMarkers} = props;
-
+function WaveformVisualizer(props:IProps) {
+  const {amplitudeMarkers, blockMarkers, className, samples, beginSampleNo, endSampleNo, needleSampleNo, timeMarkers} = props;
+  
   const _onDraw = (context:CanvasRenderingContext2D) => {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     _drawBackground(context);
     _drawMarkers(context, amplitudeMarkers, blockMarkers, timeMarkers, beginSampleNo, endSampleNo, true);
     if (samples) _drawSamples(context, samples, beginSampleNo, endSampleNo);
     _drawMarkers(context, amplitudeMarkers, blockMarkers, timeMarkers, beginSampleNo, endSampleNo, false);
+    _drawNeedle(context, beginSampleNo, endSampleNo, needleSampleNo);
   }
 
   return <Canvas className={className} isAnimated={false} onDraw={_onDraw} />;
