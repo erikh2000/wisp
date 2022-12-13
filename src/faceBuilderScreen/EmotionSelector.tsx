@@ -1,4 +1,4 @@
-import Selector from "./Selector";
+import Selector from "ui/Selector";
 import { Emotion, publishEvent, Topic } from 'sl-web-face';
 
 const optionNames = ['Neutral', 'Confused', 'Sad', 'Afraid', 'Evil', 'Suspicious', 

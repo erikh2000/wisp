@@ -4,8 +4,10 @@
 
 /* Medium-attention colors that can be used for many things. */
 @value primary-brown: #eac699;
+@value primary-dark-orange: #ba7840;
 @value primary-dark-brown: #471100;
-@value primary-silver: #efece9;
+@value primary-silver: #acacac;
+@value primary-off-white: #efede6;
 
 /* For a document, form, or interactive area that allows changes to data. */
 @value background-content: #ffffff;
@@ -13,7 +15,7 @@
 
 /* For a navigation or control area. */
 @value background-control: #471100;
-@value border-control: #808080
+@value border-control: #808080;
 
 /* For a non-interactive, empty space, or low-attention area. */
 @value background-garnish: #808080; 

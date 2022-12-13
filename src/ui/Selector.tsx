@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styles from './Selector.module.css';
 
 interface IProps {
-  label:string,
+  label?:string,
   defaultOptionNo:number,
   optionNames:string[],
   onChange?:(optionNo:number) => void,
@@ -22,14 +22,21 @@ function Selector(props:IProps) {
   
   const options = optionNames.map((optionName, optionNo) => {
     const selected = optionNo === selectedOptionNo;
-    const disabled:boolean = !(onClick || (onChange && !selected));
-    const className = `${selected ? styles.selected : ''} ${disabled ? styles.disabled : styles.enabled}`;
-    return (<button key={optionName} className={className} onClick={() => _onOptionClick(optionNo)} disabled={disabled}>{optionName}</button>)
+    let buttonClass = selected ? styles.selectorButtonSelected : styles.selectorButton;
+    const textClass = selected ? styles.selectorButtonTextSelected : styles.selectorButtonText;
+    if (optionNo === 0) buttonClass = `${buttonClass} ${styles.firstSelectorButton}`;
+    if (optionNo === optionNames.length-1) buttonClass = `${buttonClass} ${styles.lastSelectorButton}`;
+    return (
+      <button key={optionName} className={buttonClass} onClick={() => _onOptionClick(optionNo)} >
+        <span className={textClass}>{optionName}</span>
+      </button>)
   });
+  
+  const labelElement = label ? <span className={styles.label}>{label}:</span> : null;
   
   return (
     <div className={styles.bar}>
-      <span className={styles.label}>{label}:</span>
+      {labelElement}
       {options}
     </div>  
   );

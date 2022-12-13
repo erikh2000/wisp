@@ -5,6 +5,9 @@
     height: 100%;
     display: flex;
     flex-direction: row;
+    font-family: 'simply_olive', serif;
+    letter-spacing: .1rem;
+    box-sizing: border-box;
 }
 
 .controlPane {
@@ -29,6 +32,8 @@
        if they need it. */
     flex: 1 1 auto;
     height: 100%;
+    box-sizing: border-box;
+    padding-bottom: 0.4rem; /* Hack for 100% height to not extend past bottom of browser when margin/padding used on child elements. */
 }
 
 .wispLogo {

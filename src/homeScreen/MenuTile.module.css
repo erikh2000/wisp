@@ -1,9 +1,9 @@
 @value colors: "ui/commonPalette.module.css";
-@value accent-orange, primary-silver, accent-dark-grey from colors; 
+@value accent-orange, primary-off-white, accent-dark-grey from colors; 
     
 .menuTile {
     flex-basis: 30rem;
-    background-color: primary-silver;
+    background-color: primary-off-white;
     border-style: solid;
     border-color: accent-dark-grey;
     border-width: 0.5rem;
@@ -21,5 +21,6 @@
 }
 
 .menuTile p {
-    
+    font-family: 'simply_olive', serif;
+    font-size: 1rem;
 }

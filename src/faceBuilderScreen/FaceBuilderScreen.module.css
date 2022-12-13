@@ -1,20 +1,30 @@
 .container {
-    position:relative;
     height:100%;
     display:flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .canvas {
     width:100%;
-    flex: 1;
+    height:100%;
 }
 
-.configPanel {
-    flex-shrink: 1;
+.viewPane {
+    
 }
 
-.waveform {
-    width: 100%;
-    height: 25rem;
+.facePane {
+    flex-grow: 1;
+    width: 25%;
+    height: 100%;
+}
+
+.selectionPane {
+    height: 100%;
+}
+
+.rightColumn {
+    flex-grow: 2;
+    display: flex;
+    flex-direction: column;
 }
