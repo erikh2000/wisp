@@ -1,4 +1,4 @@
-import styles from './MenuBarButton.module.css';
+import styles from './NavBarButton.module.css';
 
 import {useNavigate} from "react-router-dom";
 
@@ -8,7 +8,7 @@ interface IProps {
   isActive:boolean
 }
 
-function MenuBarButton(props:IProps) {
+function NavBarButton(props:IProps) {
   const navigate = useNavigate();
   const { name, url, isActive } = props;
   const buttonClasses = isActive ? styles.menuBarButtonActive : styles.menuBarButton;
@@ -20,4 +20,4 @@ function MenuBarButton(props:IProps) {
   );
 }
 
-export default MenuBarButton;
+export default NavBarButton;

@@ -1,4 +1,4 @@
-import MenuBarButton from "./MenuBarButton";
+import NavBarButton from "./NavBarButton";
 import wispLogoImage from './images/wispLogoSmall.png';
 import styles from './ScreenContainer.module.css';
 import Screen, { ScreenConfig, screenConfigs } from "ui/screen/screens";
@@ -19,7 +19,7 @@ function _renderMenuButtons(buttonScreenConfigs:ScreenConfig[], activeScreen:Scr
   return buttonScreenConfigs.map((screenConfig:ScreenConfig, screenNo:number) => {
     const {summary, url} = screenConfig;
     const isActive = screenNo+1 === activeScreen;
-    return <MenuBarButton isActive={isActive} name={summary} url={url} key={screenNo} />
+    return <NavBarButton isActive={isActive} name={summary} url={url} key={screenNo} />
   });
 }
 
