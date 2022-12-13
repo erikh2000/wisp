@@ -1,0 +1,44 @@
+@value colors: "ui/commonPalette.module.css";
+@value accent-orange, button-text, button-highlight, button-text-highlight, button-disabled, button-text-disabled from colors;
+
+.actionBarButton {
+    justify-content: center;
+    background-color: accent-orange;
+    border-style: none;
+    background-position: center;
+    transition: background 0.2s;
+    cursor: pointer;
+    margin-right: .1rem;
+    margin-bottom: .1rem;
+}
+
+.actionBarButton:hover {
+    background: button-highlight radial-gradient(circle, transparent 1%, accent-orange 1%) center/23000%;
+}
+.actionBarButton:active {
+    background-color: button-highlight;
+    background-size: 100%;
+    transition: background 0s;
+}
+
+.actionBarButtonText {
+    font-family: 'simply_olive', serif;
+    font-size: 1.3rem;
+    letter-spacing: .1rem;
+    color: #fae1bb;
+}
+
+.actionBarButtonDisabled {
+    composes: actionBarButton;
+    background-color: button-disabled;
+    cursor: default;
+}
+
+.actionBarButtonDisabled:hover {
+    background: button-disabled;
+}
+
+.actionBarButtonTextDisabled {
+    composes: actionBarButtonText;
+    color: button-text-disabled;
+}

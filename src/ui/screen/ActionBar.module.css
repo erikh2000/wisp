@@ -1,0 +1,31 @@
+@value colors: "ui/commonPalette.module.css";
+@value accent-orange, background-content, primary-dark-brown from colors;
+
+.actionBar {
+    display:flex;
+    flex-direction: row;
+    background-color: accent-orange;
+}
+
+.documentName {
+    min-width: 10rem;
+    flex-grow: 0;
+
+    padding-left: 1rem;
+    font-style: italic;
+    font-size: 1.3rem;
+    border-right-style: dashed;
+    border-right-width: 0.1rem;
+    border-right-color: background-content;
+    color: primary-dark-brown;
+}
+
+.actionBarGroup {
+    
+}
+
+.buttonArea {
+    flex-grow: 1;
+    display:flex;
+    justify-content: space-between;
+}

@@ -15,6 +15,8 @@ import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 import React, {useEffect, useState} from 'react';
 import {AttentionController, BlinkController, CanvasComponent, loadFaceFromUrl} from "sl-web-face";
 
+function emptyCallback() {} // TODO delete when not using
+
 let head:CanvasComponent|null = null;
 let isInitialized = false;
 const blinkController = new BlinkController();
@@ -52,7 +54,15 @@ function FaceBuilderScreen() {
       .then(() => isInitialized = true);
   }, []);
   
-  let selectionPane:JSX.Element|null = null;
+  const actionBarButtons = [
+    {text:'New', onClick:emptyCallback, groupNo:0},
+    {text:'Open', onClick:emptyCallback, groupNo:0},
+    {text:'Rename', onClick:emptyCallback, groupNo:0},
+    {text:'Import', onClick:emptyCallback, groupNo:1},
+    {text:'Export', onClick:emptyCallback, groupNo:1}
+  ];
+  
+  let selectionPane:JSX.Element|null;
   switch(partType) {
     case PartType.HEAD:
       selectionPane = <HeadSelectionPane className={styles.selectionPane} onReplace={() => {}} />
@@ -69,7 +79,7 @@ function FaceBuilderScreen() {
   }
   
   return (
-    <ScreenContainer isControlPaneOpen={true} activeScreen={Screen.FACES}>
+    <ScreenContainer documentName='Old Billy' actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.FACES}>
       <div className={styles.container}>
         <InnerContentPane className={styles.facePane} caption='Face'>
           <PartSelector partType={partType} onChange={(nextPartType) => _onPartTypeChange(nextPartType, setPartType)} extraCount={0} />

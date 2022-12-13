@@ -10,6 +10,8 @@ import ContentPaneButton from "ui/ContentPaneButton";
 import React, {useEffect, useState} from 'react';
 import { PhonemeTimeline, WordTimeline } from 'sl-web-speech';
 
+function emptyCallback() {} // TODO delete when not using
+
 function LipzGeneratorScreen() {
   const [lipzText, setLipzText] = useState<string|null>(null);
   const [samples, setSamples] = useState<Float32Array|null>(null);
@@ -31,6 +33,13 @@ function LipzGeneratorScreen() {
     const nextMarkers = createMarkersFromTimelines(wordTimeline, phonemeTimeline, sampleRate);
     setMarkers(nextMarkers);
   }, [wordTimeline, phonemeTimeline, samples, sampleRate]);
+
+  const actionBarButtons = [
+    {text:'New', onClick:emptyCallback, groupNo:0},
+    {text:'Open', onClick:emptyCallback, groupNo:0},
+    {text:'Import', onClick:emptyCallback, groupNo:1},
+    {text:'Export', onClick:emptyCallback, groupNo:1}
+  ];
 
   const content = !samples ? (
     <p>Open a WAV file to process.</p>
@@ -55,7 +64,7 @@ function LipzGeneratorScreen() {
   );
   
   return (
-    <ScreenContainer isControlPaneOpen={true} activeScreen={Screen.SPEECH}>
+    <ScreenContainer isControlPaneOpen={true} activeScreen={Screen.SPEECH} actionBarButtons={actionBarButtons}>
       <div className={styles.container}>
         <div className={styles.configPanel}>
           <ContentPaneButton text='Open WAV' onClick={() => openWav(setSamples, setSampleRate, setWordTimeline, setPhonemeTimeline, setLipzSuggestedFilename, setLipzText)} disabled={isLoading}/>
