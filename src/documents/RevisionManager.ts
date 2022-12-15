@@ -15,8 +15,8 @@ class RevisionManager<T> {
   }
   
   addChanges(changes:any) {
+    if (!this.revisions.length) throw Error('Can only add changes after one revision is stored.');
     const nextRevision = {...this.currentRevision} as T;
-    if (!nextRevision) throw Error('Can only add changes after one revision is stored.');
     let hasChanged = false;
     Object.keys(changes).forEach(key => {
       const currentValue = (nextRevision as any)[key];

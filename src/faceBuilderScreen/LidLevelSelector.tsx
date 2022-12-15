@@ -4,16 +4,23 @@ import { LidLevel, Topic, publishEvent } from "sl-web-face";
 const optionNames = ['Wide', 'Normal', 'Squint', 'Closed'];
 const optionLidLevels = [LidLevel.WIDE, LidLevel.NORMAL, LidLevel.SQUINT, LidLevel.CLOSED];
 
-interface IProps {
-
+const CLOSE_ENOUGH = .00001;
+function _lidLevelToOptionNo(lidLevel:LidLevel):number {
+  for(let i = 0; i < optionLidLevels.length - 1; ++i) {
+    if (Math.abs( optionLidLevels[i] - lidLevel) < CLOSE_ENOUGH) return i;
+  }
+  return optionLidLevels.length - 1;
 }
 
-function _onChange(optionNo:number) {
-  publishEvent(Topic.LID_LEVEL, optionLidLevels[optionNo]);
+interface IProps {
+  lidLevel:LidLevel,
+  onChange:(lidLevel:LidLevel) => void
 }
 
 function LidLevelSelector(props:IProps) {
-  return <Selector defaultOptionNo={1} label='Lids' optionNames={optionNames} onChange={_onChange} />
+  const { lidLevel, onChange } = props;
+  const optionNo = _lidLevelToOptionNo(lidLevel);
+  return <Selector selectedOptionNo={optionNo} label='Lids' optionNames={optionNames} onChange={(optionNo) => onChange(optionLidLevels[optionNo])} />
 }
 
 export default LidLevelSelector;

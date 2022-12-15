@@ -1,23 +1,20 @@
-import { useState } from 'react';
 import styles from './Selector.module.css';
 
 interface IProps {
   label?:string,
-  defaultOptionNo:number,
+  selectedOptionNo:number,
   optionNames:string[],
   onChange?:(optionNo:number) => void,
   onClick?:(optionNo:number) => void
 }
 
 function Selector(props:IProps) {
-  const { label, optionNames, onClick, onChange, defaultOptionNo } = props;
-  const [selectedOptionNo, setSelectedOptionNo] = useState<number>(defaultOptionNo);
+  const { label, optionNames, onClick, onChange, selectedOptionNo } = props;
   
   function _onOptionClick(optionNo:number) {
     if (onClick) onClick(optionNo);
     if (optionNo === selectedOptionNo) return;
     if (onChange) onChange(optionNo);
-    setSelectedOptionNo(optionNo);
   }
   
   const options = optionNames.map((optionName, optionNo) => {

@@ -70,4 +70,27 @@ describe('RevisionManager', () => {
     r.add('apples');
     expect(r.next()).toBeNull();
   });
+  
+  it('adds changes to a new revision', () => {
+    const r = new RevisionManager<any>();
+    r.add({pet:'dog'});
+    r.addChanges({name:'Fido'});
+    expect(r.currentRevision).toEqual({pet:'dog', name:'Fido'});
+  });
+  
+  it('does not add revision for changes if new values are same as old', () => {
+    const r = new RevisionManager<any>();
+    r.add({pet:'dog'});
+    const warnFunc = console.warn;
+    console.warn = () => {};
+    r.addChanges({pet:'dog'});
+    console.warn = warnFunc;
+    expect(r.currentRevision).toEqual({pet:'dog'});
+    expect(r.prev()).toBeNull();
+  });
+  
+  it('throws when adding changes with no revision', () => {
+    const r = new RevisionManager<any>();
+    expect(() => r.addChanges({pet:'dog'})).toThrow();
+  });
 });

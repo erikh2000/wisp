@@ -12,7 +12,7 @@ interface IProps {
 
 function TestVoiceSelector(props:IProps) {
   const { testVoiceType, onChange } = props;
-  return <Selector defaultOptionNo={testVoiceType} label='Test Voice' optionNames={optionNames} onChange={onChange} />
+  return <Selector selectedOptionNo={testVoiceType} label='Test Voice' optionNames={optionNames} onChange={onChange} />
 }
 
 export default TestVoiceSelector;

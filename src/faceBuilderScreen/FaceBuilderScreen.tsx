@@ -13,14 +13,24 @@ import Screen from 'ui/screen/screens';
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 
 import React, {useEffect, useState} from 'react';
-import {AttentionController, BlinkController, CanvasComponent, loadFaceFromUrl} from "sl-web-face";
+import {
+  AttentionController,
+  BlinkController,
+  CanvasComponent,
+  Emotion,
+  LidLevel,
+  loadFaceFromUrl,
+  publishEvent, Topic
+} from "sl-web-face";
 import RevisionManager from "../documents/RevisionManager";
 
 function emptyCallback() {} // TODO delete when not using
 
 type FaceScreenRevision = {
-  testVoice:TestVoiceType,
-  partType:PartType
+  emotion:Emotion,
+  lidLevel:LidLevel,
+  partType:PartType,
+  testVoice:TestVoiceType
 };
 
 let head:CanvasComponent|null = null;
@@ -37,14 +47,23 @@ async function _init():Promise<void> {
   attentionController.start();
 }
 
+function _publishFaceEventsForRevision(revision:FaceScreenRevision) {
+  publishEvent(Topic.EMOTION, revision.emotion);
+  publishEvent(Topic.LID_LEVEL, revision.lidLevel);
+}
+
 function _onUndo(setRevision:any) {
   const nextRevision = revisionManager.prev();
-  if (nextRevision) setRevision(nextRevision);
+  if (!nextRevision) return;
+  _publishFaceEventsForRevision(nextRevision);
+  setRevision(nextRevision);
 }
 
 function _onRedo(setRevision:any) {
   const nextRevision = revisionManager.next();
-  if (nextRevision) setRevision(nextRevision);
+  if (!nextRevision) return;
+  _publishFaceEventsForRevision(nextRevision);
+  setRevision(nextRevision);
 }
 
 function _onDrawCanvas(context:CanvasRenderingContext2D) {
@@ -58,6 +77,22 @@ function _onTestVoiceChange(testVoice:TestVoiceType, setRevision:any) {
   setRevision(revisionManager.currentRevision);
 }
 
+function _updateForFaceRelatedRevision(changes:any, setRevision:any) {
+  revisionManager.addChanges(changes);
+  const nextRevision = revisionManager.currentRevision;
+  if (!nextRevision) return;
+  _publishFaceEventsForRevision(nextRevision);
+  setRevision(nextRevision);
+}
+
+function _onEmotionChange(emotion:Emotion, setRevision:any) {
+  _updateForFaceRelatedRevision({emotion}, setRevision);
+}
+
+function _onLidLevelChange(lidLevel:LidLevel, setRevision:any) {
+  _updateForFaceRelatedRevision({lidLevel}, setRevision);
+}
+
 function _onPartTypeChange(partType:PartType, setRevision:any) {
   revisionManager.addChanges({partType});
   setRevision(revisionManager.currentRevision);
@@ -67,6 +102,8 @@ function _getRevisionForMount():FaceScreenRevision {
   let revision = revisionManager.currentRevision;
   if (!revision) {
     revision = {
+      emotion: Emotion.NEUTRAL,
+      lidLevel: LidLevel.NORMAL,
       partType: PartType.HEAD,
       testVoice: TestVoiceType.MUTED
     };
@@ -77,7 +114,7 @@ function _getRevisionForMount():FaceScreenRevision {
 
 function FaceBuilderScreen() {
   const [revision, setRevision] = useState<FaceScreenRevision>(_getRevisionForMount());
-  const { partType, testVoice } = revision;
+  const { partType, testVoice, emotion, lidLevel } = revision;
   
   useEffect(() => {
     if (isInitialized) return;
@@ -88,9 +125,9 @@ function FaceBuilderScreen() {
   const actionBarButtons = [
     {text:'New', onClick:emptyCallback, groupNo:0},
     {text:'Open', onClick:emptyCallback, groupNo:0},
+    {text:'Rename', onClick:emptyCallback, groupNo:0},
     {text:'Undo', onClick:() => _onUndo(setRevision), groupNo:0},
     {text:'Redo', onClick:() => _onRedo(setRevision), groupNo:0},
-    {text:'Rename', onClick:emptyCallback, groupNo:0},
     {text:'Import', onClick:emptyCallback, groupNo:1},
     {text:'Export', onClick:emptyCallback, groupNo:1}
   ];
@@ -120,8 +157,8 @@ function FaceBuilderScreen() {
         </InnerContentPane>
         <div className={styles.rightColumn}>
           <InnerContentPane className={styles.viewPane} caption='View'>
-            <EmotionSelector />
-            <LidLevelSelector />
+            <EmotionSelector emotion={emotion} onChange={(nextEmotion) => _onEmotionChange(nextEmotion, setRevision)}/>
+            <LidLevelSelector lidLevel={lidLevel} onChange={(nextLidLevel) => _onLidLevelChange(nextLidLevel, setRevision)}/>
             <TestVoiceSelector testVoiceType={testVoice} onChange={(nextTestVoice) => _onTestVoiceChange(nextTestVoice, setRevision)} />
           </InnerContentPane>
           {selectionPane}

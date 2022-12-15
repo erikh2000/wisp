@@ -28,7 +28,7 @@ function _generateOptionNames(extraCount:number):string[] {
 function PartSelector(props:IProps) {
   const { extraCount, partType, onChange } = props;
   const optionNames = _generateOptionNames(extraCount);
-  return <Selector label='Select Part' defaultOptionNo={partType} optionNames={optionNames} onChange={onChange} />
+  return <Selector label='Select Part' selectedOptionNo={partType} optionNames={optionNames} onChange={onChange} />
 }
 
 export default PartSelector;
