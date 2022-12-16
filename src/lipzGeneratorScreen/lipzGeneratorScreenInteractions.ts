@@ -1,11 +1,38 @@
 import {CanvasComponent, loadComponentFromPartUrl, SpeechAudio} from "sl-web-face";
-import {generateLipzTextFromAudioBuffer, init as initWebSpeech, wavToLipzTextFilename} from "sl-web-speech";
+import {
+  generateLipzTextFromAudioBuffer,
+  init as initWebSpeech,
+  wavToLipzTextFilename
+} from "sl-web-speech";
 import {loadWavFromFileSystem, mSecsToSampleCount} from "sl-web-audio";
+import RevisionManager from "../documents/RevisionManager";
+import {Markers, createEmptyMarkers, createMarkersFromTimelines} from "lipzGeneratorScreen/markerGeneration";
 
 let _isInitialized = false;
 let mouth:CanvasComponent|null = null;
 let speechAudio:SpeechAudio|null = null;
 let audioBuffer:AudioBuffer|null = null;
+const revisionManager = new RevisionManager<Revision>();
+
+export type Revision = {
+  lipzText:string|null,
+  markers:Markers,
+  samples:Float32Array|null,
+  lipzSuggestedFilename:string
+}
+
+export function getRevisionForMount():Revision {
+  let revision = revisionManager.currentRevision;
+  if (revision) return revision;
+  revision = {
+    lipzSuggestedFilename: '',
+    lipzText: null,
+    markers: createEmptyMarkers(),
+    samples: null
+  };
+  revisionManager.add(revision);
+  return revision;
+}
 
 export async function init():Promise<void> {
   if (_isInitialized) return;
@@ -17,27 +44,41 @@ export async function init():Promise<void> {
 
 export function isInitialized():boolean { return _isInitialized; }
 
-export async function openWav(setSamples:any, setSampleRate:any, setWordTimeline:any, setPhonemeTimeline:any, setLipzSuggestedFilename:any, setLipzText:any) {
+function _addRevisionChanges(changes:any, setRevision:any) {
+  revisionManager.addChanges(changes);
+  const nextRevision = revisionManager.currentRevision;
+  if (!nextRevision) return;
+  setRevision(nextRevision);
+}
+
+export async function openWav(setRevision:any) {
   const wavFileData = await loadWavFromFileSystem();
   if (!wavFileData) return;
   const { filename } = wavFileData;
   audioBuffer = wavFileData.audioBuffer;
+  if (!audioBuffer) return;
 
   const debugCapture:any = {};
   const lipzText = await generateLipzTextFromAudioBuffer(audioBuffer, debugCapture);
   speechAudio = new SpeechAudio(audioBuffer, lipzText);
-  setWordTimeline(debugCapture.wordTimeline);
-  setPhonemeTimeline(debugCapture.phonemeTimeline);
-  setSamples(audioBuffer.getChannelData(0));
-  setSampleRate(audioBuffer.sampleRate);
-  setLipzText(lipzText);
-  const suggestedLipzTextFilename = wavToLipzTextFilename(filename);
-  setLipzSuggestedFilename(suggestedLipzTextFilename);
+  const lipzSuggestedFilename = wavToLipzTextFilename(filename);
+  const sampleRate = audioBuffer.sampleRate;
+  const { wordTimeline, phonemeTimeline } = debugCapture;
+  
+  const nextRevision:Revision = {
+    lipzText,
+    markers:createMarkersFromTimelines(wordTimeline, phonemeTimeline, sampleRate),
+    samples:audioBuffer.getChannelData(0),
+    lipzSuggestedFilename
+  }
+  revisionManager.clear();
+  revisionManager.add(nextRevision);
+  setRevision(nextRevision);
 }
 
-export function changeLipzText(lipzText:string, setLipzText:any) {
+export function changeLipzText(lipzText:string, setRevision:any) {
   if (audioBuffer) speechAudio = new SpeechAudio(audioBuffer, lipzText);
-  setLipzText(lipzText);
+  _addRevisionChanges({lipzText}, setRevision);
 }
 
 export async function saveLipz(lipzText:string, suggestedFilename:string):Promise<void> {
@@ -89,4 +130,16 @@ export function onMouthClick(setNeedleSampleNo:any) {
   }
   
   _onUpdateNeedle();
+}
+
+export function undo(setRevision:any) {
+  const nextRevision = revisionManager.prev();
+  if (!nextRevision) return;
+  setRevision(nextRevision);
+}
+
+export function redo(setRevision:any) {
+  const nextRevision = revisionManager.next();
+  if (!nextRevision) return;
+  setRevision(nextRevision);
 }

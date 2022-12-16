@@ -1,42 +1,49 @@
 import styles from './LipzGeneratorScreen.module.css';
-import { changeLipzText, init, isInitialized, onDrawMouth, onMouthClick, openWav, saveLipz } from "./lipzGeneratorScreenInteractions";
-import { Markers, createEmptyMarkers, createMarkersFromTimelines } from "lipzGeneratorScreen/markerGeneration";
+import {
+  Revision,
+  changeLipzText,
+  getRevisionForMount,
+  init,
+  isInitialized,
+  onDrawMouth,
+  onMouthClick,
+  openWav,
+  redo,
+  saveLipz,
+  undo
+} from "./lipzGeneratorScreenInteractions";
 import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import WaveformVisualizer from "ui/waveformVisualizer/WaveformVisualizer";
 import Canvas from "ui/Canvas";
 import ContentPaneButton from "ui/ContentPaneButton";
+import LoadingBox from "ui/LoadingBox";
 
 import React, {useEffect, useState} from 'react';
-import { PhonemeTimeline, WordTimeline } from 'sl-web-speech';
 
 function emptyCallback() {} // TODO delete when not using
 
 function LipzGeneratorScreen() {
-  const [lipzText, setLipzText] = useState<string|null>(null);
-  const [samples, setSamples] = useState<Float32Array|null>(null);
-  const [sampleRate, setSampleRate] = useState<number>(0);
-  const [needleSampleNo, setNeedleSampleNo] = useState<number|null>(null);
-  const [wordTimeline, setWordTimeline] = useState<WordTimeline>([]);
-  const [phonemeTimeline, setPhonemeTimeline] = useState<PhonemeTimeline>([]);
-  const [markers, setMarkers] = useState<Markers>(createEmptyMarkers());
-  const [lipzSuggestedFilename, setLipzSuggestedFilename] = useState<string>('');
+  const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
+  const [needleSampleNo, setNeedleSampleNo] = useState<number|null>(null);
+  
+  const { lipzText, markers, samples, lipzSuggestedFilename } = revision;
+  
   useEffect(() => {
     if (isInitialized()) { setIsLoading(false); return; }
     init().then(() => setIsLoading(false));
   }, []);
-
+  
   useEffect(() => {
-    if (!samples) return;
-    const nextMarkers = createMarkersFromTimelines(wordTimeline, phonemeTimeline, sampleRate);
-    setMarkers(nextMarkers);
-  }, [wordTimeline, phonemeTimeline, samples, sampleRate]);
+    setNeedleSampleNo(0);
+  }, [samples]);
 
   const actionBarButtons = [
     {text:'New', onClick:emptyCallback, groupNo:0},
     {text:'Open', onClick:emptyCallback, groupNo:0},
+    {text:'Undo', onClick:() => undo(setRevision), groupNo:0},
+    {text:'Redo', onClick:() => redo(setRevision), groupNo:0},
     {text:'Import', onClick:emptyCallback, groupNo:1},
     {text:'Export', onClick:emptyCallback, groupNo:1}
   ];
@@ -57,7 +64,7 @@ function LipzGeneratorScreen() {
       />
       <label className={styles.lipzTextLabel}>Phoneme Spacings:
         <input className={styles.lipzTextInput} type='text' value={lipzText ?? ''}
-               onChange={(event) => changeLipzText(event.target.value, setLipzText)} />
+               onChange={(event) => changeLipzText(event.target.value, setRevision)} />
       </label>
       <Canvas className={styles.mouth} isAnimated={true} onDraw={onDrawMouth} onClick={() => onMouthClick(setNeedleSampleNo)} />
     </React.Fragment>
@@ -67,9 +74,10 @@ function LipzGeneratorScreen() {
     <ScreenContainer isControlPaneOpen={true} activeScreen={Screen.SPEECH} actionBarButtons={actionBarButtons}>
       <div className={styles.container}>
         <div className={styles.configPanel}>
-          <ContentPaneButton text='Open WAV' onClick={() => openWav(setSamples, setSampleRate, setWordTimeline, setPhonemeTimeline, setLipzSuggestedFilename, setLipzText)} disabled={isLoading}/>
+          <ContentPaneButton text='Open WAV' onClick={() => openWav(setRevision)} disabled={isLoading}/>
           <ContentPaneButton text='Save LIPZ' onClick={() => {if (lipzText) saveLipz(lipzText, lipzSuggestedFilename)} } disabled={lipzText === null}/>
         </div>
+        <LoadingBox className={styles.loadingLanguageModels} text='loading language model' />
         {content}
       </div>
     </ScreenContainer>

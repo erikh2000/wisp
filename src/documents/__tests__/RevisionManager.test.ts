@@ -2,7 +2,7 @@ import RevisionManager from "../RevisionManager";
 
 describe('RevisionManager', () => {
   it('constructs', () => {
-    const r = new RevisionManager<string>();
+    new RevisionManager<string>();
   });
   
   it('adds a revision', () => {
@@ -92,5 +92,12 @@ describe('RevisionManager', () => {
   it('throws when adding changes with no revision', () => {
     const r = new RevisionManager<any>();
     expect(() => r.addChanges({pet:'dog'})).toThrow();
+  });
+  
+  it('has no current revision after clearing', () => {
+    const r = new RevisionManager<any>();
+    r.add({pet:'dog'});
+    r.clear();
+    expect(r.currentRevision).toBeNull();
   });
 });

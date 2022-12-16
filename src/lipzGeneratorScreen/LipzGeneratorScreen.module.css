@@ -27,3 +27,8 @@
     height: 7.5rem;
     cursor: pointer;
  }
+
+.loadingLanguageModels {
+    width: 30rem;
+    height: 10rem;
+}

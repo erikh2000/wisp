@@ -100,15 +100,14 @@ function _onPartTypeChange(partType:PartType, setRevision:any) {
 
 function _getRevisionForMount():FaceScreenRevision {
   let revision = revisionManager.currentRevision;
-  if (!revision) {
-    revision = {
-      emotion: Emotion.NEUTRAL,
-      lidLevel: LidLevel.NORMAL,
-      partType: PartType.HEAD,
-      testVoice: TestVoiceType.MUTED
-    };
-    revisionManager.add(revision);
-  }
+  if (revision) return revision;
+  revision = {
+    emotion: Emotion.NEUTRAL,
+    lidLevel: LidLevel.NORMAL,
+    partType: PartType.HEAD,
+    testVoice: TestVoiceType.MUTED
+  };
+  revisionManager.add(revision);
   return revision;
 }
 

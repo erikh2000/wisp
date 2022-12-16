@@ -6,6 +6,11 @@ class RevisionManager<T> {
     this.currentRevisonNo = -1;
     this.revisions = [];
   }
+
+  clear() {
+    this.currentRevisonNo = -1;
+    this.revisions = [];
+  }
   
   add(revision:T) {
     const removeFromNo = this.currentRevisonNo + 1;
@@ -42,7 +47,7 @@ class RevisionManager<T> {
   next():T|null {
     if (this.currentRevisonNo >= this.revisions.length - 1) return null;
     ++this.currentRevisonNo;
-    return this.revisions[this.currentRevisonNo]
+    return this.revisions[this.currentRevisonNo];
   }
   
   get currentRevision():T|null {
