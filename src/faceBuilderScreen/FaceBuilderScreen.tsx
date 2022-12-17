@@ -24,6 +24,7 @@ import {
 } from "sl-web-face";
 import RevisionManager from "../documents/RevisionManager";
 import LoadingBox from "../ui/LoadingBox";
+import {loadSelectionBox} from "./SelectionBoxCanvasComponent";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -35,15 +36,18 @@ type FaceScreenRevision = {
 };
 
 let head:CanvasComponent|null = null;
+let selectionBox:CanvasComponent|null = null;
 let isInitialized = false;
 const blinkController = new BlinkController();
 const attentionController = new AttentionController();
 const revisionManager:RevisionManager<FaceScreenRevision> = new RevisionManager<FaceScreenRevision>();
 
+
 async function _init():Promise<void> {
   head = await loadFaceFromUrl('/faces/billy.yml');
-  head.offsetX = 50;
-  head.offsetY = 30;
+  const initData = {width:head.width, height:head.height};
+  selectionBox = await loadSelectionBox(initData);
+  selectionBox.setParent(head);
   blinkController.start();
   attentionController.start();
 }
@@ -71,14 +75,18 @@ function _getHeadIfReady():CanvasComponent|null {
   return isInitialized && head ? head : null;
 }
 
+function _centerCanvasComponent(component:CanvasComponent, canvasWidth:number, canvasHeight:number) {
+  const componentWidth = component.width, componentHeight = component.height;
+  component.offsetX = Math.round((canvasWidth - componentWidth) / 2);
+  component.offsetY = Math.round((canvasHeight - componentHeight) / 2);
+}
+
 function _onDrawCanvas(context:CanvasRenderingContext2D) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
   context.clearRect(0, 0, canvasWidth, canvasHeight);
   const head = _getHeadIfReady();
   if (!head) return;
-  const headWidth = head.width, headHeight = head.height;
-  head.offsetX = Math.round((canvasWidth - headWidth) / 2);
-  head.offsetY = Math.round((canvasHeight - headHeight) / 2);
+  _centerCanvasComponent(head, canvasWidth, canvasHeight);
   head.renderWithChildren(context);
 }
 
