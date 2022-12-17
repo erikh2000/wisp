@@ -28,7 +28,7 @@
     cursor: pointer;
  }
 
-.loadingLanguageModels {
+.loadingBox {
     width: 30rem;
     height: 10rem;
 }

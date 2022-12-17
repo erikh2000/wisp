@@ -1,5 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react'
 
+const NO_ANIMATION_IN_PROGRESS = -1;
+let animationFrameId = NO_ANIMATION_IN_PROGRESS;
+
 interface IDrawCallback {
   (context:CanvasRenderingContext2D):void;
 }
@@ -12,11 +15,9 @@ interface IProps {
   onMouseMove?:any
 }
 
-function _updateCanvasDimensions(container:HTMLDivElement, setContainerDimensions:any, canvas:HTMLCanvasElement, onDraw:IDrawCallback) {
+function _updateCanvasDimensions(container:HTMLDivElement, setContainerDimensions:any) {
   const nextDimensions:[number,number] = [container.clientWidth, container.clientHeight];
   setContainerDimensions(nextDimensions);
-  const context = canvas.getContext('2d');
-  if (context) onDraw(context);
 }
 
 function Canvas(props:IProps) {
@@ -26,19 +27,17 @@ function Canvas(props:IProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasWidth, canvasHeight] = containerDimensions ?? [0,0];
 
-  useEffect(() => {
+  useEffect(() => { // Handle mount.
     const container:HTMLDivElement|null = containerRef?.current, canvas:HTMLCanvasElement|null = canvasRef?.current;
     if (!container || !canvas) return;
-    _updateCanvasDimensions(container, setContainerDimensions, canvas, onDraw);
-    window.addEventListener('resize', () => { _updateCanvasDimensions(container, setContainerDimensions, canvas, onDraw);}, false);
+    _updateCanvasDimensions(container, setContainerDimensions);
+    window.addEventListener('resize', () => { _updateCanvasDimensions(container, setContainerDimensions);}, false);
   }, []);
   
-  useEffect(() => {
+  useEffect(() => { // Handle drawing.
     const context = canvasRef.current?.getContext('2d');
     if (!context) return;
     
-    let animationFrameId = -1;
-
     const render = () => {
       onDraw(context);
       if (isAnimated) animationFrameId = window.requestAnimationFrame(render);
@@ -49,6 +48,12 @@ function Canvas(props:IProps) {
       if (isAnimated) window.cancelAnimationFrame(animationFrameId);
     }
   }, [onDraw, isAnimated]);
+
+  useEffect(() => { // Handle redrawing after canvas dimensions are updated.
+    const context = canvasRef.current?.getContext('2d');
+    if (!context) return;
+    onDraw(context);
+  }, [onDraw, containerDimensions]);
   
   return (<div className={className} ref={containerRef}> 
       <canvas onMouseMove={onMouseMove} onClick={onClick} width={canvasWidth} height={canvasHeight} ref={canvasRef} />

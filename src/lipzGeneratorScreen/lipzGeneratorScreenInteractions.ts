@@ -51,29 +51,36 @@ function _addRevisionChanges(changes:any, setRevision:any) {
   setRevision(nextRevision);
 }
 
-export async function openWav(setRevision:any) {
+export async function openWav(setRevision:any, setIsLoadingWav:any) {
   const wavFileData = await loadWavFromFileSystem();
   if (!wavFileData) return;
   const { filename } = wavFileData;
   audioBuffer = wavFileData.audioBuffer;
   if (!audioBuffer) return;
 
-  const debugCapture:any = {};
-  const lipzText = await generateLipzTextFromAudioBuffer(audioBuffer, debugCapture);
-  speechAudio = new SpeechAudio(audioBuffer, lipzText);
-  const lipzSuggestedFilename = wavToLipzTextFilename(filename);
-  const sampleRate = audioBuffer.sampleRate;
-  const { wordTimeline, phonemeTimeline } = debugCapture;
-  
-  const nextRevision:Revision = {
-    lipzText,
-    markers:createMarkersFromTimelines(wordTimeline, phonemeTimeline, sampleRate),
-    samples:audioBuffer.getChannelData(0),
-    lipzSuggestedFilename
+  setIsLoadingWav(true);
+  try {
+    const debugCapture:any = {};
+    const lipzText = await generateLipzTextFromAudioBuffer(audioBuffer, debugCapture);
+    speechAudio = new SpeechAudio(audioBuffer, lipzText);
+    const lipzSuggestedFilename = wavToLipzTextFilename(filename);
+    const sampleRate = audioBuffer.sampleRate;
+    const { wordTimeline, phonemeTimeline } = debugCapture;
+    
+    const nextRevision:Revision = {
+      lipzText,
+      markers:createMarkersFromTimelines(wordTimeline, phonemeTimeline, sampleRate),
+      samples:audioBuffer.getChannelData(0),
+      lipzSuggestedFilename
+    }
+    revisionManager.clear();
+    revisionManager.add(nextRevision);
+    setRevision(nextRevision);
+  } catch(err) {
+    throw err;
+  } finally {
+    setIsLoadingWav(false);
   }
-  revisionManager.clear();
-  revisionManager.add(nextRevision);
-  setRevision(nextRevision);
 }
 
 export function changeLipzText(lipzText:string, setRevision:any) {

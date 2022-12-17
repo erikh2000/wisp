@@ -30,7 +30,6 @@
 
 .actionBarButtonDisabled {
     composes: actionBarButton;
-    background-color: button-disabled;
     cursor: default;
 }
 
@@ -40,5 +39,5 @@
 
 .actionBarButtonTextDisabled {
     composes: actionBarButtonText;
-    color: button-text-disabled;
+    color: #ee995d;
 }
