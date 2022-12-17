@@ -28,3 +28,8 @@
     display: flex;
     flex-direction: column;
 }
+
+.faceLoadingBox {
+    height: 100%;
+    width: 100%;
+}

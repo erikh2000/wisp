@@ -12,7 +12,7 @@ import ScreenContainer from 'ui/screen/ScreenContainer';
 import Screen from 'ui/screen/screens';
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useReducer} from 'react';
 import {
   AttentionController,
   BlinkController,
@@ -23,6 +23,7 @@ import {
   publishEvent, Topic
 } from "sl-web-face";
 import RevisionManager from "../documents/RevisionManager";
+import LoadingBox from "../ui/LoadingBox";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -66,9 +67,18 @@ function _onRedo(setRevision:any) {
   setRevision(nextRevision);
 }
 
+function _getHeadIfReady():CanvasComponent|null { 
+  return isInitialized && head ? head : null;
+}
+
 function _onDrawCanvas(context:CanvasRenderingContext2D) {
-  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-  if (!isInitialized || !head) return;
+  const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
+  context.clearRect(0, 0, canvasWidth, canvasHeight);
+  const head = _getHeadIfReady();
+  if (!head) return;
+  const headWidth = head.width, headHeight = head.height;
+  head.offsetX = Math.round((canvasWidth - headWidth) / 2);
+  head.offsetY = Math.round((canvasHeight - headHeight) / 2);
   head.renderWithChildren(context);
 }
 
@@ -114,11 +124,15 @@ function _getRevisionForMount():FaceScreenRevision {
 function FaceBuilderScreen() {
   const [revision, setRevision] = useState<FaceScreenRevision>(_getRevisionForMount());
   const { partType, testVoice, emotion, lidLevel } = revision;
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
   
   useEffect(() => {
     if (isInitialized) return;
     _init()
-      .then(() => isInitialized = true);
+      .then(() => {
+        isInitialized = true;
+        forceUpdate();
+      });
   }, []);
   
   const actionBarButtons = [
@@ -147,12 +161,16 @@ function FaceBuilderScreen() {
       break;
   }
   
+  const faceContent:JSX.Element = _getHeadIfReady() === null 
+    ? <LoadingBox className={styles.faceLoadingBox} text='loading face' />
+    : <Canvas className={styles.canvas} isAnimated={true} onDraw={_onDrawCanvas} />;
+  
   return (
     <ScreenContainer documentName='Old Billy' actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.FACES}>
       <div className={styles.container}>
         <InnerContentPane className={styles.facePane} caption='Face'>
           <PartSelector partType={partType} onChange={(nextPartType) => _onPartTypeChange(nextPartType, setRevision)} extraCount={0} />
-          <Canvas className={styles.canvas} isAnimated={true} onDraw={_onDrawCanvas} />
+          {faceContent}
         </InnerContentPane>
         <div className={styles.rightColumn}>
           <InnerContentPane className={styles.viewPane} caption='View'>
