@@ -62,3 +62,18 @@
     composes: selectorButtonText;
     color: button-text-highlight;
 }
+
+.selectorButtonDisabled {
+    composes: selectorButton;
+    background-color: button-disabled;
+    cursor: pointer;
+}
+
+.selectorButtonDisabled:hover {
+    background: button-disabled;
+}
+
+.selectorButtonTextDisabled {
+    composes: selectorButtonText;
+    color: button-text-disabled;
+}

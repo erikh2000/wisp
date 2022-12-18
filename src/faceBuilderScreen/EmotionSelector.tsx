@@ -7,13 +7,21 @@ const optionEmotions = [Emotion.NEUTRAL, Emotion.CONFUSED, Emotion.SAD, Emotion.
   Emotion.AMUSED, Emotion.HAPPY, Emotion.THINKING, Emotion.ANGRY, Emotion.IRRITATED];
 
 interface IProps {
+  disabled?:boolean,
   emotion:Emotion,
   onChange:(emotion:Emotion) => void
 }
 
 function EmotionSelector(props:IProps) {
-  const {emotion, onChange} = props;
-  return <Selector selectedOptionNo={emotion} label='Emotion' optionNames={optionNames} onChange={(optionNo) => onChange(optionEmotions[optionNo])} />
+  const {disabled, emotion, onChange} = props;
+  return (
+    <Selector
+      disabled={disabled}  
+      selectedOptionNo={emotion} 
+      label='Emotion' 
+      optionNames={optionNames} 
+      onChange={(optionNo) => onChange(optionEmotions[optionNo])} 
+    />);
 }
 
 export default EmotionSelector;

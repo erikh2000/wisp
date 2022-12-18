@@ -2,14 +2,17 @@ import {
   AttentionController,
   BlinkController,
   CanvasComponent,
+  createFaceDocument,
   Emotion,
   EYES_PART_TYPE,
+  FaceDocument,
   HEAD_PART_TYPE,
   LidLevel,
   loadFaceFromUrl,
   MOUTH_PART_TYPE,
   publishEvent,
-  Topic
+  Topic,
+  updateFaceFromDocument
 } from "sl-web-face";
 import {PartType} from "./PartSelector";
 import {loadSelectionBox} from "./SelectionBoxCanvasComponent";
@@ -17,7 +20,8 @@ import {TestVoiceType} from "./TestVoiceSelector";
 import RevisionManager from "documents/RevisionManager";
 import CanvasDragHandler from "./CanvasDragHandler";
 
-export type FaceScreenRevision = {
+export type Revision = {
+  document:FaceDocument|null, // A null document indicates no document is loaded. Used only for initial revision. 
   emotion:Emotion,
   lidLevel:LidLevel,
   partType:PartType,
@@ -35,13 +39,11 @@ let selectionBox:CanvasComponent|null = null;
 let isInitialized = false;
 const blinkController = new BlinkController();
 const attentionController = new AttentionController();
-const revisionManager:RevisionManager<FaceScreenRevision> = new RevisionManager<FaceScreenRevision>();
+const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>();
 let faceCanvasDragHandler:CanvasDragHandler|null = null;
 
-const UI_PREFIX = 'ui:';
-
-function _findDraggableComponents(components:CanvasComponent[]):CanvasComponent[] {
-  return components.filter(component => !component.partType.startsWith(UI_PREFIX));
+function _findDraggableComponents(headComponent:CanvasComponent):CanvasComponent[] {
+  return headComponent.findNonUiChildren();
 }
 
 function _updateSelectionBox(headComponent:CanvasComponent, selectionBoxComponent:CanvasComponent) {
@@ -55,10 +57,12 @@ function _updateSelectionBox(headComponent:CanvasComponent, selectionBoxComponen
   selectionBoxComponent.height = selectedHeight;
 }
 
-function _onFaceCanvasDragged(component:CanvasComponent, x:number, y:number):boolean {
+function _onFaceCanvasDragged(component:CanvasComponent, x:number, y:number, setRevision:any):boolean {
   if (!head || !selectionBox) return false;
-  _updateSelectionBox(head, selectionBox)
-  // TODO update revision
+  _updateSelectionBox(head, selectionBox);
+  const document = createFaceDocument(head);
+  revisionManager.addChanges({document});
+  setRevision(revisionManager.currentRevision);
   return true;
 }
 
@@ -69,7 +73,7 @@ function _findPartTypeForCanvasComponent(component:CanvasComponent, components:C
     const against = components[componentI];
     const isMatch = against === component;
     const partType = against.partType;
-    if (partType.startsWith(UI_PREFIX)) continue;
+    if (against.isUi) continue;
     if (partType === EYES_PART_TYPE) {
       if (isMatch) return PartType.EYES;
       continue;
@@ -88,7 +92,8 @@ function _findPartTypeForCanvasComponent(component:CanvasComponent, components:C
 }
 
 export function onPartTypeChange(partType:PartType, setRevision:any) {
-  revisionManager.addChanges({partType});
+  const document = head ? createFaceDocument(head) : undefined;
+  revisionManager.addChanges({partType, document});
   if (head && selectionBox) _updateSelectionBox(head, selectionBox);
   setRevision(revisionManager.currentRevision);
 }
@@ -98,7 +103,8 @@ function _onFaceCanvasStartDrag(component:CanvasComponent, setRevision:any):bool
   const currentPartType = revisionManager.currentRevision?.partType;
   const partType = _findPartTypeForCanvasComponent(component, head.children);
   if (partType !== currentPartType) {
-    revisionManager.addChanges({partType});
+    const document = head ? createFaceDocument(head) : undefined;
+    revisionManager.addChanges({partType, document});
     _updateSelectionBox(head, selectionBox);
     setRevision(revisionManager.currentRevision);
   }
@@ -119,34 +125,41 @@ export async function init(setRevision:any):Promise<InitResults> {
   _updateSelectionBox(head, selectionBox);
   blinkController.start();
   attentionController.start();
-  const draggableComponents = _findDraggableComponents(head.children);
+  const draggableComponents = _findDraggableComponents(head);
   faceCanvasDragHandler = new CanvasDragHandler(draggableComponents, 
-    (component) => _onFaceCanvasStartDrag(component, setRevision), _onFaceCanvasDragged);
+    (component) => _onFaceCanvasStartDrag(component, setRevision),
+    (component, x, y) =>_onFaceCanvasDragged(component, x, y, setRevision));
+  
+  const nextRevision:Revision = {
+    emotion:Emotion.NEUTRAL,
+    partType:PartType.HEAD,
+    lidLevel:LidLevel.NORMAL,
+    testVoice:TestVoiceType.MUTED,
+    document: createFaceDocument(head)
+  }
+  setRevision(nextRevision);
+  
   isInitialized = true;
   
   return initResults;
 }
 
-function _publishFaceEventsForRevision(revision:FaceScreenRevision) {
+function _publishFaceEventsForRevision(revision:Revision) {
   publishEvent(Topic.EMOTION, revision.emotion);
   publishEvent(Topic.LID_LEVEL, revision.lidLevel);
 }
 
-export function onUndo(setRevision:any) {
-  const nextRevision = revisionManager.prev();
-  if (!nextRevision) return;
-  _publishFaceEventsForRevision(nextRevision);
+function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
+  if (!revision) return;
+  if (head && revision.document) updateFaceFromDocument(head, revision.document);
+  _publishFaceEventsForRevision(revision);
   if (head && selectionBox) _updateSelectionBox(head, selectionBox);
-  setRevision(nextRevision);
+  setRevision(revision);
 }
 
-export function onRedo(setRevision:any) {
-  const nextRevision = revisionManager.next();
-  if (!nextRevision) return;
-  _publishFaceEventsForRevision(nextRevision);
-  if (head && selectionBox) _updateSelectionBox(head, selectionBox);
-  setRevision(nextRevision);
-}
+export function onUndo(setRevision:any) { _updateEverythingToMatchRevision(revisionManager.prev(), setRevision); }
+
+export function onRedo(setRevision:any) { _updateEverythingToMatchRevision(revisionManager.next(), setRevision); }
 
 export function isHeadReady():boolean {
   return isInitialized && head !== null;
@@ -170,7 +183,7 @@ function _findCanvasComponentForPartType(headComponent:CanvasComponent, partType
     if (!child) continue;
     
     const childPartType = child.partType;
-    if (childPartType.startsWith(UI_PREFIX)) continue;
+    if (child.isUi) continue;
     
     if (childPartType !== EYES_PART_TYPE && childPartType !== MOUTH_PART_TYPE) ++extraNo;
     
@@ -209,7 +222,8 @@ export function onDrawFaceCanvas(context:CanvasRenderingContext2D) {
 }
 
 export function onTestVoiceChange(testVoice:TestVoiceType, setRevision:any) {
-  revisionManager.addChanges({testVoice});
+  const document = head ? createFaceDocument(head) : undefined;
+  revisionManager.addChanges({testVoice, document});
   setRevision(revisionManager.currentRevision);
 }
 
@@ -222,21 +236,24 @@ function _updateForFaceRelatedRevision(changes:any, setRevision:any) {
 }
 
 export function onEmotionChange(emotion:Emotion, setRevision:any) {
-  _updateForFaceRelatedRevision({emotion}, setRevision);
+  const document = head ? createFaceDocument(head) : undefined;
+  _updateForFaceRelatedRevision({emotion, document}, setRevision);
 }
 
 export function onLidLevelChange(lidLevel:LidLevel, setRevision:any) {
-  _updateForFaceRelatedRevision({lidLevel}, setRevision);
+  const document = head ? createFaceDocument(head) : undefined;
+  _updateForFaceRelatedRevision({lidLevel, document}, setRevision);
 }
 
-export function getRevisionForMount():FaceScreenRevision {
+export function getRevisionForMount():Revision {
   let revision = revisionManager.currentRevision;
   if (revision) return revision;
   revision = {
     emotion: Emotion.NEUTRAL,
     lidLevel: LidLevel.NORMAL,
     partType: PartType.HEAD,
-    testVoice: TestVoiceType.MUTED
+    testVoice: TestVoiceType.MUTED,
+    document: null
   };
   revisionManager.add(revision);
   return revision;

@@ -15,6 +15,7 @@ export enum PartType {
 const optionNames = ['Head', 'Eyes', 'Mouth', 'Extra #1', 'Extra #2', 'Extra #3', 'Extra #4', 'Extra #5'];
 
 interface IProps {
+  disabled?:boolean,
   extraCount:number,
   partType:PartType,
   onChange: (partType:PartType) => void
@@ -26,9 +27,9 @@ function _generateOptionNames(extraCount:number):string[] {
 }
 
 function PartSelector(props:IProps) {
-  const { extraCount, partType, onChange } = props;
+  const { disabled, extraCount, partType, onChange } = props;
   const optionNames = _generateOptionNames(extraCount);
-  return <Selector label='Select Part' selectedOptionNo={partType} optionNames={optionNames} onChange={onChange} />
+  return <Selector disabled={disabled} label='Select Part' selectedOptionNo={partType} optionNames={optionNames} onChange={onChange} />
 }
 
 export default PartSelector;

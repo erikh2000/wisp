@@ -1,6 +1,7 @@
 import styles from './Selector.module.css';
 
 interface IProps {
+  disabled?:boolean,
   label?:string,
   selectedOptionNo:number,
   optionNames:string[],
@@ -9,9 +10,10 @@ interface IProps {
 }
 
 function Selector(props:IProps) {
-  const { label, optionNames, onClick, onChange, selectedOptionNo } = props;
+  const { disabled, label, optionNames, onClick, onChange, selectedOptionNo } = props;
   
   function _onOptionClick(optionNo:number) {
+    if (disabled) return;
     if (onClick) onClick(optionNo);
     if (optionNo === selectedOptionNo) return;
     if (onChange) onChange(optionNo);
@@ -19,8 +21,12 @@ function Selector(props:IProps) {
   
   const options = optionNames.map((optionName, optionNo) => {
     const selected = optionNo === selectedOptionNo;
-    let buttonClass = selected ? styles.selectorButtonSelected : styles.selectorButton;
-    const textClass = selected ? styles.selectorButtonTextSelected : styles.selectorButtonText;
+    let buttonClass = disabled
+      ? styles.selectorButtonDisabled
+      : selected ? styles.selectorButtonSelected : styles.selectorButton;
+    const textClass = disabled 
+      ? styles.selectorButtonTextDisabled
+      : selected ? styles.selectorButtonTextSelected : styles.selectorButtonText;
     if (optionNo === 0) buttonClass = `${buttonClass} ${styles.firstSelectorButton}`;
     if (optionNo === optionNames.length-1) buttonClass = `${buttonClass} ${styles.lastSelectorButton}`;
     return (

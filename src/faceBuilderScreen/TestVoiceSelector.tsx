@@ -6,13 +6,14 @@ export enum TestVoiceType {
 const optionNames = ['Male', 'Female', 'Muted'];
 
 interface IProps {
+  disabled?:boolean,
   testVoiceType:TestVoiceType,
-  onChange: (testVoiceType:TestVoiceType) => void
+  onChange:(testVoiceType:TestVoiceType) => void
 }
 
 function TestVoiceSelector(props:IProps) {
-  const { testVoiceType, onChange } = props;
-  return <Selector selectedOptionNo={testVoiceType} label='Test Voice' optionNames={optionNames} onChange={onChange} />
+  const { disabled, testVoiceType, onChange } = props;
+  return <Selector disabled={disabled} selectedOptionNo={testVoiceType} label='Test Voice' optionNames={optionNames} onChange={onChange} />
 }
 
 export default TestVoiceSelector;

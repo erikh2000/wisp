@@ -1,6 +1,6 @@
 import styles from './FaceBuilderScreen.module.css';
 import {
-  FaceScreenRevision,
+  Revision,
   getRevisionForMount,
   init, InitResults,
   isHeadReady,
@@ -31,41 +31,40 @@ import React, {useEffect, useState, useReducer} from 'react';
 function emptyCallback() {} // TODO delete when not using
 
 function FaceBuilderScreen() {
-  const [revision, setRevision] = useState<FaceScreenRevision>(getRevisionForMount());
+  const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const { partType, testVoice, emotion, lidLevel } = revision;
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
   
   useEffect(() => {
     init(setRevision).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
-      forceUpdate(); // TODO still need it?
     });
   }, []);
   
+  const disabled = initResults === null;
   const actionBarButtons = [
-    {text:'New', onClick:emptyCallback, groupNo:0},
-    {text:'Open', onClick:emptyCallback, groupNo:0},
-    {text:'Rename', onClick:emptyCallback, groupNo:0},
-    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:0},
-    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:0},
-    {text:'Import', onClick:emptyCallback, groupNo:1},
-    {text:'Export', onClick:emptyCallback, groupNo:1}
+    {text:'New', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'Open', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'Rename', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:0, disabled},
+    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:0, disabled},
+    {text:'Import', onClick:emptyCallback, groupNo:1, disabled},
+    {text:'Export', onClick:emptyCallback, groupNo:1, disabled}
   ];
   
   let selectionPane:JSX.Element|null;
   switch(partType) {
     case PartType.HEAD:
-      selectionPane = <HeadSelectionPane className={styles.selectionPane} onReplace={() => {}} />
+      selectionPane = <HeadSelectionPane className={styles.selectionPane} onReplace={() => {}} disabled={disabled}/>
       break;
     case PartType.EYES:
-      selectionPane = <EyesSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={true} />
+      selectionPane = <EyesSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={true} disabled={disabled}/>
       break;
     case PartType.MOUTH:
-      selectionPane = <MouthSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={true} />
+      selectionPane = <MouthSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={true} disabled={disabled}/>
       break;
     default:
-      selectionPane = <ExtraSelectionPane partNo={1} className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={false} />
+      selectionPane = <ExtraSelectionPane partNo={1} className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={false} disabled={disabled}/>
       break;
   }
   
@@ -79,14 +78,14 @@ function FaceBuilderScreen() {
     <ScreenContainer documentName='Old Billy' actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.FACES}>
       <div className={styles.container}>
         <InnerContentPane className={styles.facePane} caption='Face'>
-          <PartSelector partType={partType} onChange={(nextPartType) => onPartTypeChange(nextPartType, setRevision)} extraCount={0} />
+          <PartSelector partType={partType} onChange={(nextPartType) => onPartTypeChange(nextPartType, setRevision)} extraCount={0} disabled={disabled}/>
           {faceContent}
         </InnerContentPane>
         <div className={styles.rightColumn}>
           <InnerContentPane className={styles.viewPane} caption='View'>
-            <EmotionSelector emotion={emotion} onChange={(nextEmotion) => onEmotionChange(nextEmotion, setRevision)}/>
-            <LidLevelSelector lidLevel={lidLevel} onChange={(nextLidLevel) => onLidLevelChange(nextLidLevel, setRevision)}/>
-            <TestVoiceSelector testVoiceType={testVoice} onChange={(nextTestVoice) => onTestVoiceChange(nextTestVoice, setRevision)} />
+            <EmotionSelector emotion={emotion} onChange={(nextEmotion) => onEmotionChange(nextEmotion, setRevision)} disabled={disabled}/>
+            <LidLevelSelector lidLevel={lidLevel} onChange={(nextLidLevel) => onLidLevelChange(nextLidLevel, setRevision)} disabled={disabled}/>
+            <TestVoiceSelector testVoiceType={testVoice} onChange={(nextTestVoice) => onTestVoiceChange(nextTestVoice, setRevision)} disabled={disabled}/>
           </InnerContentPane>
           {selectionPane}
         </div>

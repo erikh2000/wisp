@@ -13,14 +13,22 @@ function _lidLevelToOptionNo(lidLevel:LidLevel):number {
 }
 
 interface IProps {
+  disabled?:boolean,
   lidLevel:LidLevel,
   onChange:(lidLevel:LidLevel) => void
 }
 
 function LidLevelSelector(props:IProps) {
-  const { lidLevel, onChange } = props;
+  const { disabled, lidLevel, onChange } = props;
   const optionNo = _lidLevelToOptionNo(lidLevel);
-  return <Selector selectedOptionNo={optionNo} label='Lids' optionNames={optionNames} onChange={(optionNo) => onChange(optionLidLevels[optionNo])} />
+  return (
+    <Selector
+      disabled={disabled}  
+      selectedOptionNo={optionNo} 
+      label='Lids' 
+      optionNames={optionNames} 
+      onChange={(optionNo) => onChange(optionLidLevels[optionNo])} 
+    />);
 }
 
 export default LidLevelSelector;

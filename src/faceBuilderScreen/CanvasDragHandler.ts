@@ -1,5 +1,7 @@
 import {CanvasComponent} from "sl-web-face";
 
+// TODO move to sl-web-face when it stabilizes.
+
 export interface IDraggedCallback {
   (component:CanvasComponent, x:number, y:number):boolean
 }
