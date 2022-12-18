@@ -136,6 +136,7 @@ export function onUndo(setRevision:any) {
   const nextRevision = revisionManager.prev();
   if (!nextRevision) return;
   _publishFaceEventsForRevision(nextRevision);
+  if (head && selectionBox) _updateSelectionBox(head, selectionBox);
   setRevision(nextRevision);
 }
 
@@ -143,6 +144,7 @@ export function onRedo(setRevision:any) {
   const nextRevision = revisionManager.next();
   if (!nextRevision) return;
   _publishFaceEventsForRevision(nextRevision);
+  if (head && selectionBox) _updateSelectionBox(head, selectionBox);
   setRevision(nextRevision);
 }
 
