@@ -2,13 +2,13 @@ import styles from './FaceBuilderScreen.module.css';
 import {
   FaceScreenRevision,
   getRevisionForMount,
-  init, 
+  init, InitResults,
   isHeadReady,
-  onDrawFaceCanvas, 
-  onEmotionChange, 
-  onLidLevelChange, 
+  onDrawFaceCanvas,
+  onEmotionChange,
+  onLidLevelChange,
   onPartTypeChange,
-  onRedo, 
+  onRedo,
   onTestVoiceChange,
   onUndo
 } from "./faceBuilderScreenInteractions";
@@ -32,11 +32,15 @@ function emptyCallback() {} // TODO delete when not using
 
 function FaceBuilderScreen() {
   const [revision, setRevision] = useState<FaceScreenRevision>(getRevisionForMount());
+  const [initResults, setInitResults] = useState<InitResults|null>(null);
   const { partType, testVoice, emotion, lidLevel } = revision;
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   
   useEffect(() => {
-    init().then(() => forceUpdate());
+    init().then((nextInitResults:InitResults) => {
+      setInitResults(nextInitResults);
+      forceUpdate(); // TODO still need it?
+    });
   }, []);
   
   const actionBarButtons = [
@@ -66,7 +70,7 @@ function FaceBuilderScreen() {
   }
   
   const faceContent:JSX.Element = isHeadReady() 
-    ? <Canvas className={styles.canvas} isAnimated={true} onDraw={onDrawFaceCanvas} />
+    ? <Canvas className={styles.canvas} isAnimated={true} onDraw={onDrawFaceCanvas} onMouseMove={initResults?.onFaceCanvasMouseMove} />
     : <LoadingBox className={styles.faceLoadingBox} text='loading face' />;
   
   return (

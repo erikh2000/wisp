@@ -3,7 +3,7 @@ import IWaveformBlockMarker from "./WaveformBlockMarker";
 import IWaveformTimeMarker, { MarkerType } from './WaveformTimeMarker';
 import Canvas from '../Canvas';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 
 interface IProps {
   amplitudeMarkers:IWaveformAmplitudeMarker[],

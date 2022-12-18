@@ -1,33 +1,24 @@
 import { CanvasComponent } from 'sl-web-face';
 
-export type SelectionBoxInitData = { // TODO move width/height to CanvasComponent and implement setters and pass width/height to _onRender(). And getters need to use that width and height.
-  width:number,
-  height:number
-}
-
-type SelectionBoxComponentState = { // TODO same comment as above
-  width:number,
-  height:number
-}
-
 async function _onLoad(initData:any):Promise<any> {
   return initData;
 }
 
 const SELECTION_BORDER_LINE_STYLE = 'rgb(200, 100, 100)';
-function _onRender(componentState:any, context:CanvasRenderingContext2D, x:number, y:number) {
-  const { width, height } = (componentState as SelectionBoxComponentState);
+function _onRender(componentState:any, context:CanvasRenderingContext2D, x:number, y:number, width:number, height:number) {
   context.strokeStyle = SELECTION_BORDER_LINE_STYLE;
   context.strokeRect(x, y, width, height);
 }
 
-function _onBoundingDimensions(componentState:any):[width:number, height:number] {
-  const { width, height } = (componentState as SelectionBoxComponentState);
-  return [width, height];
+function _onBoundingDimensions(_componentState:any):[width:number, height:number] {
+  return [0, 0];
 }
 
-export async function loadSelectionBox(initData:SelectionBoxInitData):Promise<CanvasComponent> {
+export const SELECTION_BOX_PART_TYPE = 'ui:selection box';
+
+export async function loadSelectionBox(width:number, height:number):Promise<CanvasComponent> {
   const component = new CanvasComponent(_onLoad, _onRender, _onBoundingDimensions);
+  const initData = { partType:SELECTION_BOX_PART_TYPE, width, height }; 
   await component.load(initData);
   return component;
 }

@@ -1,5 +1,5 @@
 import Selector from 'ui/Selector';
-import { LidLevel, Topic, publishEvent } from "sl-web-face";
+import { LidLevel } from "sl-web-face";
 
 const optionNames = ['Wide', 'Normal', 'Squint', 'Closed'];
 const optionLidLevels = [LidLevel.WIDE, LidLevel.NORMAL, LidLevel.SQUINT, LidLevel.CLOSED];

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, {useRef, useEffect, useState} from 'react'
 
 const NO_ANIMATION_IN_PROGRESS = -1;
 let animationFrameId = NO_ANIMATION_IN_PROGRESS;
@@ -55,9 +55,11 @@ function Canvas(props:IProps) {
     onDraw(context);
   }, [onDraw, containerDimensions]);
   
-  return (<div className={className} ref={containerRef}> 
-      <canvas onMouseMove={onMouseMove} onClick={onClick} width={canvasWidth} height={canvasHeight} ref={canvasRef} />
-    </div>);
+  return (
+    <div className={className} ref={containerRef}> 
+      <canvas onMouseMove={(event) =>  { if (onMouseMove) onMouseMove(event)} } onClick={onClick} width={canvasWidth} height={canvasHeight} ref={canvasRef} />
+    </div>
+  );
 }
 
 export default Canvas;
