@@ -12,7 +12,9 @@ interface IProps {
   isAnimated:boolean,
   onClick?:any,
   onDraw:IDrawCallback,
-  onMouseMove?:any
+  onMouseMove?:any,
+  onMouseDown?:any,
+  onMouseUp?:any
 }
 
 function _updateCanvasDimensions(container:HTMLDivElement, setContainerDimensions:any) {
@@ -22,7 +24,7 @@ function _updateCanvasDimensions(container:HTMLDivElement, setContainerDimension
 
 function Canvas(props:IProps) {
   const [containerDimensions, setContainerDimensions] = useState<[number,number]|null>(null);
-  const { className, onClick, onDraw, onMouseMove, isAnimated } = props;
+  const { className, onClick, onDraw, onMouseDown, onMouseMove, onMouseUp, isAnimated } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasWidth, canvasHeight] = containerDimensions ?? [0,0];
@@ -57,7 +59,7 @@ function Canvas(props:IProps) {
   
   return (
     <div className={className} ref={containerRef}> 
-      <canvas onMouseMove={(event) =>  { if (onMouseMove) onMouseMove(event)} } onClick={onClick} width={canvasWidth} height={canvasHeight} ref={canvasRef} />
+      <canvas onMouseMove={onMouseMove} onMouseDown={onMouseDown} onMouseUp={onMouseUp} onClick={onClick} width={canvasWidth} height={canvasHeight} ref={canvasRef} />
     </div>
   );
 }

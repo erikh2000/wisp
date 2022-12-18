@@ -37,7 +37,7 @@ function FaceBuilderScreen() {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   
   useEffect(() => {
-    init().then((nextInitResults:InitResults) => {
+    init(setRevision).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
       forceUpdate(); // TODO still need it?
     });
@@ -70,7 +70,9 @@ function FaceBuilderScreen() {
   }
   
   const faceContent:JSX.Element = isHeadReady() 
-    ? <Canvas className={styles.canvas} isAnimated={true} onDraw={onDrawFaceCanvas} onMouseMove={initResults?.onFaceCanvasMouseMove} />
+    ? <Canvas className={styles.canvas} isAnimated={true} onDraw={onDrawFaceCanvas} 
+              onMouseMove={initResults?.onFaceCanvasMouseMove} onMouseDown={initResults?.onFaceCanvasMouseDown} 
+              onMouseUp={initResults?.onFaceCanvasMouseUp} />
     : <LoadingBox className={styles.faceLoadingBox} text='loading face' />;
   
   return (

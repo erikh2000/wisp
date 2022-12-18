@@ -25,7 +25,9 @@ export type FaceScreenRevision = {
 };
 
 export type InitResults = {
-  onFaceCanvasMouseMove:any
+  onFaceCanvasMouseMove:any,
+  onFaceCanvasMouseDown:any,
+  onFaceCanvasMouseUp:any
 }
 
 let head:CanvasComponent|null = null;
@@ -36,19 +38,80 @@ const attentionController = new AttentionController();
 const revisionManager:RevisionManager<FaceScreenRevision> = new RevisionManager<FaceScreenRevision>();
 let faceCanvasDragHandler:CanvasDragHandler|null = null;
 
+const UI_PREFIX = 'ui:';
+
 function _findDraggableComponents(components:CanvasComponent[]):CanvasComponent[] {
-  return components.filter(component => !component.partType.startsWith('ui:'));
-} 
+  return components.filter(component => !component.partType.startsWith(UI_PREFIX));
+}
+
+function _updateSelectionBox(headComponent:CanvasComponent, selectionBoxComponent:CanvasComponent) {
+  const partType = _getSelectedPartType();
+  const selectedComponent = _findCanvasComponentForPartType(headComponent, partType) ?? headComponent;
+  const selectedWidth = selectedComponent.width, selectedHeight = selectedComponent.height;
+  const isHead = selectedComponent.partType === HEAD_PART_TYPE;
+  selectionBoxComponent.offsetX = isHead ? 0 : selectedComponent.offsetX;
+  selectionBoxComponent.offsetY = isHead ? 0 : selectedComponent.offsetY;
+  selectionBoxComponent.width = selectedWidth;
+  selectionBoxComponent.height = selectedHeight;
+}
 
 function _onFaceCanvasDragged(component:CanvasComponent, x:number, y:number):boolean {
-  // TODO revision tracking
+  if (!head || !selectionBox) return false;
+  _updateSelectionBox(head, selectionBox)
+  // TODO update revision
   return true;
 }
 
-export async function init():Promise<InitResults> {
+function _findPartTypeForCanvasComponent(component:CanvasComponent, components:CanvasComponent[]):PartType {
+  const componentCount = components.length;
+  let extraCount = 0;
+  for(let componentI = 0; componentI < componentCount; ++componentI) {
+    const against = components[componentI];
+    const isMatch = against === component;
+    const partType = against.partType;
+    if (partType.startsWith(UI_PREFIX)) continue;
+    if (partType === EYES_PART_TYPE) {
+      if (isMatch) return PartType.EYES;
+      continue;
+    }
+    if (partType === MOUTH_PART_TYPE) {
+      if (isMatch) return PartType.MOUTH;
+      continue;
+    }
+    ++extraCount;
+    if (isMatch) {
+      if (extraCount > 5) return PartType.HEAD;
+      return PartType.EXTRA1 + extraCount - 1;
+    }
+  }
+  return PartType.HEAD;
+}
+
+export function onPartTypeChange(partType:PartType, setRevision:any) {
+  revisionManager.addChanges({partType});
+  if (head && selectionBox) _updateSelectionBox(head, selectionBox);
+  setRevision(revisionManager.currentRevision);
+}
+
+function _onFaceCanvasStartDrag(component:CanvasComponent, setRevision:any):boolean {
+  if (!head || !selectionBox) return false;
+  const currentPartType = revisionManager.currentRevision?.partType;
+  const partType = _findPartTypeForCanvasComponent(component, head.children);
+  if (partType !== currentPartType) {
+    revisionManager.addChanges({partType});
+    _updateSelectionBox(head, selectionBox);
+    setRevision(revisionManager.currentRevision);
+  }
+  return true;
+}
+
+export async function init(setRevision:any):Promise<InitResults> {
   function onFaceCanvasMouseMove(event:any) { faceCanvasDragHandler?.onMouseMove(event); }
+  function onFaceCanvasMouseUp(event:any) { faceCanvasDragHandler?.onMouseUp(event); }
+  function onFaceCanvasMouseDown(event:any) { faceCanvasDragHandler?.onMouseDown(event); }
+  const initResults:InitResults = { onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp };
   
-  if (isInitialized) return { onFaceCanvasMouseMove:faceCanvasDragHandler }
+  if (isInitialized) return initResults
   
   head = await loadFaceFromUrl('/faces/billy.yml');
   selectionBox = await loadSelectionBox(head.width, head.height);
@@ -57,10 +120,11 @@ export async function init():Promise<InitResults> {
   blinkController.start();
   attentionController.start();
   const draggableComponents = _findDraggableComponents(head.children);
-  faceCanvasDragHandler = new CanvasDragHandler(draggableComponents, _onFaceCanvasDragged);
+  faceCanvasDragHandler = new CanvasDragHandler(draggableComponents, 
+    (component) => _onFaceCanvasStartDrag(component, setRevision), _onFaceCanvasDragged);
   isInitialized = true;
   
-  return { onFaceCanvasMouseMove }
+  return initResults;
 }
 
 function _publishFaceEventsForRevision(revision:FaceScreenRevision) {
@@ -104,7 +168,7 @@ function _findCanvasComponentForPartType(headComponent:CanvasComponent, partType
     if (!child) continue;
     
     const childPartType = child.partType;
-    if (childPartType.startsWith('ui:')) continue;
+    if (childPartType.startsWith(UI_PREFIX)) continue;
     
     if (childPartType !== EYES_PART_TYPE && childPartType !== MOUTH_PART_TYPE) ++extraNo;
     
@@ -125,17 +189,6 @@ function _findCanvasComponentForPartType(headComponent:CanvasComponent, partType
     return child;
   }
   return null;
-}
-
-function _updateSelectionBox(headComponent:CanvasComponent, selectionBoxComponent:CanvasComponent) {
-  const partType = _getSelectedPartType();
-  const selectedComponent = _findCanvasComponentForPartType(headComponent, partType) ?? headComponent;
-  const selectedWidth = selectedComponent.width, selectedHeight = selectedComponent.height;
-  const isHead = selectedComponent.partType === HEAD_PART_TYPE;
-  selectionBoxComponent.offsetX = isHead ? 0 : selectedComponent.offsetX;
-  selectionBoxComponent.offsetY = isHead ? 0 : selectedComponent.offsetY;
-  selectionBoxComponent.width = selectedComponent.width;
-  selectionBoxComponent.height = selectedComponent.height;
 }
 
 function _centerCanvasComponent(component:CanvasComponent, canvasWidth:number, canvasHeight:number) {
@@ -172,12 +225,6 @@ export function onEmotionChange(emotion:Emotion, setRevision:any) {
 
 export function onLidLevelChange(lidLevel:LidLevel, setRevision:any) {
   _updateForFaceRelatedRevision({lidLevel}, setRevision);
-}
-
-export function onPartTypeChange(partType:PartType, setRevision:any) {
-  revisionManager.addChanges({partType});
-  if (head && selectionBox) _updateSelectionBox(head, selectionBox);
-  setRevision(revisionManager.currentRevision);
 }
 
 export function getRevisionForMount():FaceScreenRevision {
