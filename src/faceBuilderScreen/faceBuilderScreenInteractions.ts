@@ -15,10 +15,9 @@ import {
   updateFaceFromDocument
 } from "sl-web-face";
 import {PartType} from "./PartSelector";
-import {loadSelectionBox} from "./SelectionBoxCanvasComponent";
 import {TestVoiceType} from "./TestVoiceSelector";
 import RevisionManager from "documents/RevisionManager";
-import CanvasDragHandler from "./CanvasDragHandler";
+import PartUiManager from "./PartUiManager";
 
 export type Revision = {
   document:FaceDocument|null, // A null document indicates no document is loaded. Used only for initial revision. 
@@ -35,31 +34,18 @@ export type InitResults = {
 }
 
 let head:CanvasComponent|null = null;
-let selectionBox:CanvasComponent|null = null;
 let isInitialized = false;
 const blinkController = new BlinkController();
 const attentionController = new AttentionController();
 const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>();
-let faceCanvasDragHandler:CanvasDragHandler|null = null;
+let partUiManager:PartUiManager|null = null;
 
-function _findDraggableComponents(headComponent:CanvasComponent):CanvasComponent[] {
+function _findPartComponents(headComponent:CanvasComponent):CanvasComponent[] {
   return headComponent.findNonUiChildren();
 }
 
-function _updateSelectionBox(headComponent:CanvasComponent, selectionBoxComponent:CanvasComponent) {
-  const partType = _getSelectedPartType();
-  const selectedComponent = _findCanvasComponentForPartType(headComponent, partType) ?? headComponent;
-  const selectedWidth = selectedComponent.width, selectedHeight = selectedComponent.height;
-  const isHead = selectedComponent.partType === HEAD_PART_TYPE;
-  selectionBoxComponent.offsetX = isHead ? 0 : selectedComponent.offsetX;
-  selectionBoxComponent.offsetY = isHead ? 0 : selectedComponent.offsetY;
-  selectionBoxComponent.width = selectedWidth;
-  selectionBoxComponent.height = selectedHeight;
-}
-
-function _onFaceCanvasDragged(component:CanvasComponent, x:number, y:number, setRevision:any):boolean {
-  if (!head || !selectionBox) return false;
-  _updateSelectionBox(head, selectionBox);
+function _onPartMoved(component:CanvasComponent, x:number, y:number, setRevision:any):boolean {
+  if (!head) return false;
   const document = createFaceDocument(head);
   revisionManager.addChanges({document});
   setRevision(revisionManager.currentRevision);
@@ -94,42 +80,46 @@ function _findPartTypeForCanvasComponent(component:CanvasComponent, components:C
 export function onPartTypeChange(partType:PartType, setRevision:any) {
   const document = head ? createFaceDocument(head) : undefined;
   revisionManager.addChanges({partType, document});
-  if (head && selectionBox) _updateSelectionBox(head, selectionBox);
+  if (head) {
+    const nextFocusPart = _findCanvasComponentForPartType(head, partType);
+    if (partUiManager && nextFocusPart) partUiManager.setFocus(nextFocusPart);
+  }
   setRevision(revisionManager.currentRevision);
 }
 
-function _onFaceCanvasStartDrag(component:CanvasComponent, setRevision:any):boolean {
-  if (!head || !selectionBox) return false;
+function _onPartFocused(component:CanvasComponent, setRevision:any):boolean {
+  if (!head) return false;
   const currentPartType = revisionManager.currentRevision?.partType;
   const partType = _findPartTypeForCanvasComponent(component, head.children);
   if (partType !== currentPartType) {
     const document = head ? createFaceDocument(head) : undefined;
     revisionManager.addChanges({partType, document});
-    _updateSelectionBox(head, selectionBox);
     setRevision(revisionManager.currentRevision);
   }
   return true;
 }
 
 export async function init(setRevision:any):Promise<InitResults> {
-  function onFaceCanvasMouseMove(event:any) { faceCanvasDragHandler?.onMouseMove(event); }
-  function onFaceCanvasMouseUp(event:any) { faceCanvasDragHandler?.onMouseUp(event); }
-  function onFaceCanvasMouseDown(event:any) { faceCanvasDragHandler?.onMouseDown(event); }
+  function onFaceCanvasMouseMove(event:any) { partUiManager?.onMouseMove(event); }
+  function onFaceCanvasMouseUp(event:any) { partUiManager?.onMouseUp(event); }
+  function onFaceCanvasMouseDown(event:any) { partUiManager?.onMouseDown(event); }
+  function onPartFocused(part:CanvasComponent) { _onPartFocused(part, setRevision); }
+  function onPartMoved(part:CanvasComponent, x:number, y:number) { return _onPartMoved(part, x, y, setRevision); }
+  function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return true; }
+  
   const initResults:InitResults = { onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp };
   
   if (isInitialized) return initResults
   
   head = await loadFaceFromUrl('/faces/billy.yml');
-  selectionBox = await loadSelectionBox(head.width, head.height);
-  selectionBox.setParent(head);
-  _updateSelectionBox(head, selectionBox);
   blinkController.start();
   attentionController.start();
-  const draggableComponents = _findDraggableComponents(head);
-  faceCanvasDragHandler = new CanvasDragHandler(draggableComponents, 
-    (component) => _onFaceCanvasStartDrag(component, setRevision),
-    (component, x, y) =>_onFaceCanvasDragged(component, x, y, setRevision));
-  
+  const partComponents = _findPartComponents(head);
+  partUiManager = new PartUiManager(onPartFocused, onPartMoved, onPartResized);
+  partComponents.forEach(part => partUiManager?.addPart(part, true, true));
+  await partUiManager.addPart(head, false, true);
+  partUiManager.setFocus(head);
+
   const nextRevision:Revision = {
     emotion:Emotion.NEUTRAL,
     partType:PartType.HEAD,
@@ -150,10 +140,11 @@ function _publishFaceEventsForRevision(revision:Revision) {
 }
 
 function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
-  if (!revision) return;
-  if (head && revision.document) updateFaceFromDocument(head, revision.document);
+  if (!revision || !head) return;
+  if (revision.document) updateFaceFromDocument(head, revision.document);
   _publishFaceEventsForRevision(revision);
-  if (head && selectionBox) _updateSelectionBox(head, selectionBox);
+  const nextFocusPart = _findCanvasComponentForPartType(head, revision.partType);
+  if (partUiManager && nextFocusPart) partUiManager.setFocus(nextFocusPart);
   setRevision(revision);
 }
 
@@ -166,11 +157,6 @@ export function isHeadReady():boolean {
 } 
 function _getHeadIfReady():CanvasComponent|null {
   return isHeadReady() ? head : null;
-}
-
-function _getSelectedPartType():PartType {
-  const revision = revisionManager.currentRevision;
-  return revision ? revision.partType : PartType.HEAD;
 }
 
 function _findCanvasComponentForPartType(headComponent:CanvasComponent, partType:PartType):CanvasComponent|null {
@@ -216,9 +202,9 @@ export function onDrawFaceCanvas(context:CanvasRenderingContext2D) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
   context.clearRect(0, 0, canvasWidth, canvasHeight);
   const head = _getHeadIfReady();
-  if (!head || !selectionBox) return;
+  if (!head) return;
   _centerCanvasComponent(head, canvasWidth, canvasHeight);
-  head.renderWithChildren(context);
+  head.render(context);
 }
 
 export function onTestVoiceChange(testVoice:TestVoiceType, setRevision:any) {

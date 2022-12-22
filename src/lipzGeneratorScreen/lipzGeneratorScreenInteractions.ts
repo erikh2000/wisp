@@ -111,7 +111,7 @@ export async function saveLipz(lipzText:string, suggestedFilename:string):Promis
 export function onDrawMouth(context:CanvasRenderingContext2D) {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
   if (!mouth) return;
-  mouth.renderWithChildren(context);
+  mouth.render(context);
 }
 
 let updateNeedleTimeout:NodeJS.Timeout|null = null;
