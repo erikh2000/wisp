@@ -101,6 +101,30 @@ export function updateResizingButtonPositions(selectionBox:CanvasComponent) {
   }
 }
 
+function _findSelectionBoxForPart(part:CanvasComponent):CanvasComponent|null {
+  const children = part.children;
+  const childCount = children.length;
+  for(let i = 0; i < childCount; ++i) {
+    const child = children[i];
+    if (child.partType === SELECTION_BOX_PART_TYPE) return child;
+  }
+  return null;
+}
+
+function _updateSelectionBoxToMatchPart(part:CanvasComponent) {
+  const selectionBox = _findSelectionBoxForPart(part);
+  if (!selectionBox) return;
+  if (selectionBox.width === part.width && selectionBox.height === part.height) return;
+  selectionBox.width = part.width;
+  selectionBox.height = part.height;
+  updateResizingButtonPositions(selectionBox);
+}
+
+export function updateSelectionBoxesToMatchFace(head:CanvasComponent) {
+  _updateSelectionBoxToMatchPart(head);
+  head.children.forEach(child => _updateSelectionBoxToMatchPart(child));
+}
+
 export async function loadSelectionBox(width:number, height:number, isResizable:boolean):Promise<CanvasComponent> {
   const selectionBoxComponent = new CanvasComponent(_onLoad, _onRender, _onBoundingDimensions);
   const initData = { partType:SELECTION_BOX_PART_TYPE, width, height };

@@ -18,6 +18,7 @@ import {PartType} from "./PartSelector";
 import {TestVoiceType} from "./TestVoiceSelector";
 import RevisionManager from "documents/RevisionManager";
 import PartUiManager from "./PartUiManager";
+import {updateSelectionBoxesToMatchFace} from "./SelectionBoxCanvasComponent";
 
 export type Revision = {
   document:FaceDocument|null, // A null document indicates no document is loaded. Used only for initial revision. 
@@ -135,6 +136,8 @@ export async function init(setRevision:any):Promise<InitResults> {
     testVoice:TestVoiceType.MUTED,
     document: createFaceDocument(head)
   }
+  revisionManager.clear();
+  revisionManager.add(nextRevision);
   setRevision(nextRevision);
   
   isInitialized = true;
@@ -150,6 +153,7 @@ function _publishFaceEventsForRevision(revision:Revision) {
 function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
   if (!revision || !head) return;
   if (revision.document) updateFaceFromDocument(head, revision.document);
+  updateSelectionBoxesToMatchFace(head);
   _publishFaceEventsForRevision(revision);
   const nextFocusPart = _findCanvasComponentForPartType(head, revision.partType);
   if (partUiManager && nextFocusPart) partUiManager.setFocus(nextFocusPart);
