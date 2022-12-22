@@ -99,13 +99,21 @@ function _onPartFocused(component:CanvasComponent, setRevision:any):boolean {
   return true;
 }
 
+function _onPartResized(setRevision:any):boolean {
+  if (!head) return false;
+  const document = createFaceDocument(head);
+  revisionManager.addChanges({document});
+  setRevision(revisionManager.currentRevision);
+  return true;
+}
+
 export async function init(setRevision:any):Promise<InitResults> {
   function onFaceCanvasMouseMove(event:any) { partUiManager?.onMouseMove(event); }
   function onFaceCanvasMouseUp(event:any) { partUiManager?.onMouseUp(event); }
   function onFaceCanvasMouseDown(event:any) { partUiManager?.onMouseDown(event); }
   function onPartFocused(part:CanvasComponent) { _onPartFocused(part, setRevision); }
   function onPartMoved(part:CanvasComponent, x:number, y:number) { return _onPartMoved(part, x, y, setRevision); }
-  function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return true; }
+  function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return _onPartResized(setRevision); }
   
   const initResults:InitResults = { onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp };
   
