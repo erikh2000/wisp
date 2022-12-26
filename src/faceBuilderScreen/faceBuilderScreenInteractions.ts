@@ -6,7 +6,6 @@ import {
   Emotion,
   EYES_PART_TYPE,
   FaceDocument,
-  HEAD_PART_TYPE,
   LidLevel,
   loadFaceFromUrl,
   MOUTH_PART_TYPE,
@@ -17,8 +16,8 @@ import {
 import {PartType} from "./PartSelector";
 import {TestVoiceType} from "./TestVoiceSelector";
 import RevisionManager from "documents/RevisionManager";
-import PartUiManager from "./PartUiManager";
-import {updateSelectionBoxesToMatchFace} from "./SelectionBoxCanvasComponent";
+import PartUiManager from "ui/partAuthoring/PartUiManager";
+import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
 
 export type Revision = {
   document:FaceDocument|null, // A null document indicates no document is loaded. Used only for initial revision. 
