@@ -107,16 +107,27 @@ function _onPartResized(setRevision:any):boolean {
   return true;
 }
 
+function _addDocumentMouseUpListener(onMouseUp:(event:any) => void) {
+  document.addEventListener("mouseup", onMouseUp);
+}
+
+function _removeDocumentMouseUpListener(onMouseUp:(event:any) => void) {
+  document.removeEventListener("mouseup", onMouseUp);
+}
+
+function _onFaceCanvasMouseMove(event:any) { partUiManager?.onMouseMove(event); }
+
 export async function init(setRevision:any):Promise<InitResults> {
-  function onFaceCanvasMouseMove(event:any) { partUiManager?.onMouseMove(event); }
+  
   function onFaceCanvasMouseUp(event:any) { partUiManager?.onMouseUp(event); }
   function onFaceCanvasMouseDown(event:any) { partUiManager?.onMouseDown(event); }
   function onPartFocused(part:CanvasComponent) { _onPartFocused(part, setRevision); }
   function onPartMoved(part:CanvasComponent, x:number, y:number) { return _onPartMoved(part, x, y, setRevision); }
   function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return _onPartResized(setRevision); }
   
-  const initResults:InitResults = { onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp };
+  const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp };
   
+  _addDocumentMouseUpListener(onFaceCanvasMouseUp);
   if (isInitialized) return initResults
   
   head = await loadFaceFromUrl('/faces/billy.yml');
@@ -142,6 +153,11 @@ export async function init(setRevision:any):Promise<InitResults> {
   isInitialized = true;
   
   return initResults;
+}
+
+export function deinit() {
+  if (!partUiManager) return;
+  _removeDocumentMouseUpListener(_onFaceCanvasMouseMove);
 }
 
 function _publishFaceEventsForRevision(revision:Revision) {

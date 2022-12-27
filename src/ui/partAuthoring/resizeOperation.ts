@@ -69,7 +69,7 @@ function _revertPartResize(part:TrackedPart, operation:ResizeOperation) {
   updateResizingButtonPositions(selectionBox);
 }
 
-export function onCompleteResize(part:TrackedPart, operation:ResizeOperation, mouseUpX:number, mouseUpY:number, onPartResized:IPartResizedCallback) {
+export function onCompleteResize(part:TrackedPart, operation:ResizeOperation, onPartResized:IPartResizedCallback) {
   const [x, y, width, height] = part.component.boundingRect;
   const confirmed = onPartResized(part.component, x, y, width, height);
   if (!confirmed) _revertPartResize(part, operation);

@@ -1,8 +1,10 @@
 import styles from './FaceBuilderScreen.module.css';
 import {
+  InitResults,
   Revision,
+  deinit,
   getRevisionForMount,
-  init, InitResults,
+  init, 
   isHeadReady,
   onDrawFaceCanvas,
   onEmotionChange,
@@ -39,6 +41,7 @@ function FaceBuilderScreen() {
     init(setRevision).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
     });
+    return deinit();
   }, []);
   
   const disabled = initResults === null;

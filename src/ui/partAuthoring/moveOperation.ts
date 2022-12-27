@@ -21,7 +21,7 @@ function _revertPartMove(part:TrackedPart, operation:MoveOperation) {
   part.component.y = operation.previousY;
 }
 
-export function onCompleteMove(part:TrackedPart, operation:MoveOperation, mouseUpX:number, mouseUpY:number, onPartMoved:IPartMovedCallback) {
+export function onCompleteMove(part:TrackedPart, operation:MoveOperation, onPartMoved:IPartMovedCallback) {
   const { x, y } = part.component;
   const confirmed = onPartMoved(part.component, x, y);
   if (!confirmed) _revertPartMove(part, operation);

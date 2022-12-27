@@ -33,8 +33,6 @@ export interface IPartFocusedCallback {
   (part:CanvasComponent):void
 }
 
-// TODO - mouseup outside of canvas area leaves operation in progress.
-
 class PartUiManager {
   private readonly _trackedParts:TrackedPart[];
   private readonly _onPartFocused:IPartFocusedCallback;
@@ -93,19 +91,23 @@ class PartUiManager {
     if (nextFocusPart) this._onPartClick(nextFocusPart, clickX, clickY);
   }
   
-  onMouseUp(event:any) {
-    if (!event || !this._focusedPart) return;
-    const mouseUpX = event.nativeEvent.offsetX, mouseUpY = event.nativeEvent.offsetY;
+  completeOperations() {
+    if (!this._focusedPart) return;
     switch(this._operationType) {
-      case OperationType.RESIZE: 
-        onCompleteResize(this._focusedPart, this._operation as ResizeOperation, mouseUpX, mouseUpY, this._onPartResized);
+      case OperationType.RESIZE:
+        onCompleteResize(this._focusedPart, this._operation as ResizeOperation, this._onPartResized);
         break;
-        
+
       case OperationType.MOVE:
-        onCompleteMove(this._focusedPart, this._operation as MoveOperation, mouseUpX, mouseUpY, this._onPartMoved);
+        onCompleteMove(this._focusedPart, this._operation as MoveOperation, this._onPartMoved);
         break;
     }
     this._operationType = OperationType.NONE;
+  }
+  
+  onMouseUp(event:any) {
+    if (!event || !this._focusedPart) return;
+    this.completeOperations();
   }
   
   onMouseMove(event:any) {
