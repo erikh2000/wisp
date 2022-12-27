@@ -1,5 +1,7 @@
 @value colors: "ui/commonPalette.module.css";
 @value button, button-text, button-highlight, button-text-highlight, button-disabled, button-text-disabled from colors;
+@value commonStyles: "ui/commonStyles.module.css";
+@value disableSelect from commonStyles;
 
 .bar {
     display: flex;
@@ -8,12 +10,14 @@
 }
 
 .label {
+    composes: disableSelect;
     flex-grow: 0;
     min-width: 5rem;
     font-size: 1rem;
 }
 
 .selectorButton {
+    composes: disableSelect;
     justify-content: center;
     background-color: button;
     border-style: none;

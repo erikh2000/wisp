@@ -1,5 +1,7 @@
 @value colors: "ui/commonPalette.module.css";
 @value accent-orange, background-control, background-content, background-garnish from colors;
+@value commonStyles: "ui/commonStyles.module.css";
+@value disableSelect from commonStyles;
 
 .container {
     height: 100%;
@@ -30,6 +32,7 @@
 .contentPane {
     /* Be agnostic as to layout inside the content pane. Contained elements can do things like flexbox columnar layout
        if they need it. */
+    composes: disableSelect;
     flex: 1 1 auto;
     height: 100%;
     box-sizing: border-box;
@@ -37,6 +40,7 @@
 }
 
 .wispLogo {
+    composes: disableSelect;
     width: 2.5rem;
     margin-bottom: 1rem;
     cursor: pointer;

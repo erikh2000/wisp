@@ -1,10 +1,11 @@
 @value colors: "ui/commonPalette.module.css";
-@value button, button-text, button-highlight, button-text-highlight, button-disabled, button-text-disabled from colors;
+@value button, button-text, button-highlight, button-primary, button-text-highlight, button-disabled, button-text-disabled, button-border-primary from colors;
 @value commonStyles: "ui/commonStyles.module.css";
 @value disableSelect from commonStyles;
 
-.contentPaneButton {
+.dialogButton {
     composes: disableSelect;
+    flex-basis: 10rem;
     justify-content: center;
     background-color: button;
     border-style: none;
@@ -15,32 +16,40 @@
     margin-bottom: .1rem;
 }
 
-.contentPaneButton:hover {
+.dialogButton:hover {
     background: button-highlight radial-gradient(circle, transparent 1%, button 1%) center/23000%;
 }
-.contentPaneButton:active {
+.dialogButton:active {
     background-color: button-highlight;
     background-size: 100%;
     transition: background 0s;
 }
 
-.contentPaneButtonText {
-    font-family: 'simply_olive', serif;
+.dialogButtonText {
     letter-spacing: .1rem;
+    font-size: 1.5rem;
     color: button-text;
 }
 
-.contentPaneButtonDisabled {
-    composes: contentPaneButton;
+.dialogButtonDisabled {
+    composes: dialogButton;
     background-color: button-disabled;
     cursor: default;
 }
 
-.contentPaneButtonDisabled:hover {
+.dialogButtonDisabled:hover {
     background: button-disabled;
 }
 
-.contentPaneButtonTextDisabled {
-    composes: contentPaneButtonText;
+.dialogButtonTextDisabled {
+    composes: dialogButtonText;
     color: button-text-disabled;
+}
+
+.dialogButtonPrimary {
+    composes: dialogButton;
+    background-color: button-primary;
+    border-style: solid;
+    border-width: 0.1rem;
+    border-color: button-border-primary;
 }

@@ -15,6 +15,7 @@ import {
   onUndo
 } from "./faceBuilderScreenInteractions";
 import Canvas from "ui/Canvas";
+import ConfirmCancelDialog from "ui/dialog/ConfirmCancelDialog";
 import EmotionSelector from "faceBuilderScreen/EmotionSelector";
 import ExtraSelectionPane from "faceBuilderScreen/ExtraSelectionPane";
 import HeadSelectionPane from "faceBuilderScreen/HeadSelectionPane";
@@ -35,6 +36,7 @@ function emptyCallback() {} // TODO delete when not using
 function FaceBuilderScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
+  const [modalDialog, setModalDialog] = useState<string|null>(null);
   const { partType, testVoice, emotion, lidLevel } = revision;
   
   useEffect(() => {
@@ -46,7 +48,7 @@ function FaceBuilderScreen() {
   
   const disabled = initResults === null;
   const actionBarButtons = [
-    {text:'New', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'New', onClick:() => setModalDialog(ConfirmCancelDialog.name), groupNo:0, disabled},
     {text:'Open', onClick:emptyCallback, groupNo:0, disabled},
     {text:'Rename', onClick:emptyCallback, groupNo:0, disabled},
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:0, disabled},
@@ -93,6 +95,7 @@ function FaceBuilderScreen() {
           {selectionPane}
         </div>
       </div>
+      <ConfirmCancelDialog isOpen={modalDialog === ConfirmCancelDialog.name} onConfirm={() => {}} onCancel={() => {setModalDialog(null)}} title='Are You Sure?' description='Did you really think this through?' /> 
     </ScreenContainer>
   );
 }

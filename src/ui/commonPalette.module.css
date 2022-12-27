@@ -26,6 +26,7 @@
 @value accent-orange: #ff7800;
 @value accent-light-orange: #f6a462;
 @value accent-dark-grey: #808080;
+@value accent-peach: #ffe9d7;
 
 /* Messaging colors. */
 @value message-ambient-background: #f4f3f3;
@@ -37,6 +38,8 @@
 
 /* Button colors. Avoid using them on non-buttons. */
 @value button: #c57431;
+@value button-primary: #ff850b;
+@value button-border-primary: #ba7840;
 @value button-text: #ffffff;
 @value button-highlight: #e68a40;
 @value button-text-highlight: #ffffff;

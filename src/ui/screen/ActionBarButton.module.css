@@ -1,7 +1,10 @@
 @value colors: "ui/commonPalette.module.css";
 @value accent-orange, button-text, button-highlight, button-text-highlight, button-disabled, button-text-disabled from colors;
+@value commonStyles: "ui/commonStyles.module.css";
+@value disableSelect from commonStyles;
 
 .actionBarButton {
+    composes: disableSelect;
     justify-content: center;
     background-color: accent-orange;
     border-style: none;
