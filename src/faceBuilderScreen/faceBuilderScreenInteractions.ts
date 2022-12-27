@@ -8,7 +8,8 @@ import {
   FaceDocument,
   LidLevel,
   loadFaceFromUrl,
-  MOUTH_PART_TYPE,
+  MOUTH_PART_TYPE, 
+  NOSE_PART_TYPE,
   publishEvent,
   Topic,
   updateFaceFromDocument
@@ -66,6 +67,10 @@ function _findPartTypeForCanvasComponent(component:CanvasComponent, components:C
     }
     if (partType === MOUTH_PART_TYPE) {
       if (isMatch) return PartType.MOUTH;
+      continue;
+    }
+    if (partType === NOSE_PART_TYPE) {
+      if (isMatch) return PartType.NOSE;
       continue;
     }
     ++extraCount;
@@ -135,8 +140,8 @@ export async function init(setRevision:any):Promise<InitResults> {
   attentionController.start();
   const partComponents = _findPartComponents(head);
   partUiManager = new PartUiManager(onPartFocused, onPartMoved, onPartResized);
-  partComponents.forEach(part => partUiManager?.addPart(part, true, true));
   await partUiManager.addPart(head, false, true);
+  partComponents.forEach(part => partUiManager?.addPart(part, true, true));
   partUiManager.setFocus(head);
 
   const nextRevision:Revision = {
@@ -207,6 +212,10 @@ function _findCanvasComponentForPartType(headComponent:CanvasComponent, partType
       
       case PartType.MOUTH:
         if (childPartType !== MOUTH_PART_TYPE) continue;
+        break;
+        
+      case PartType.NOSE:
+        if (childPartType !== NOSE_PART_TYPE) continue;
         break;
         
       default:

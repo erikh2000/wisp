@@ -19,15 +19,32 @@ export function showPartUi(part:TrackedPart) { part.selectionBox.isVisible = tru
 
 export function hidePartUi(part:TrackedPart) { part.selectionBox.isVisible = false; }
 
+export function isPartAtCoords(part:TrackedPart, x:number, y:number):boolean {
+  if (!part.component.isVisible) return false;
+  const [ boundX, boundY, boundWidth, boundHeight ] = part.component.boundingRect;
+  return (x >= boundX && x < (boundX+boundWidth) && y >= boundY && y < (boundY+boundHeight));
+}
+
 export function findPartAtCoords(parts:TrackedPart[], x:number, y:number):TrackedPart|null {
   const partCount = parts.length;
-  for(let partI = 0; partI < partCount; ++partI) {
+  for(let partI = partCount - 1; partI >= 0; --partI) {
     const part = parts[partI];
-    if (!part.component.isVisible) continue;
-    const [ boundX, boundY, boundWidth, boundHeight ] = part.component.boundingRect;
-    if (x >= boundX && x < (boundX+boundWidth) && y >= boundY && y < (boundY+boundHeight)) return part;
+    if (isPartAtCoords(part, x, y)) return part;
   }
   return null;
+}
+
+export function findNextPartAtCoords(parts:TrackedPart[], focusedPart:TrackedPart, x:number, y:number):TrackedPart {
+  const partCount = parts.length;
+  let partI = parts.findIndex(part => part === focusedPart);
+  if (partI === -1) return focusedPart;
+  const stopPartI = partI;
+  while(true) {
+    if (++partI === partCount) partI = 0;
+    if (partI === stopPartI) return focusedPart;
+    const part = parts[partI];
+    if (isPartAtCoords(part, x, y)) return part;
+  }
 }
 
 export function findPartByComponent(parts:TrackedPart[], component:CanvasComponent|null):TrackedPart|null {

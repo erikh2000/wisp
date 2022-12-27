@@ -1,22 +1,26 @@
 import {
-  createMoveOperation, IPartMovedCallback,
+  createMoveOperation, 
+  hasPartDragged,
+  IPartMovedCallback,
   MoveOperation,
   onCompleteMove,
   onMoveDuringDrag
 } from "./moveOperation";
 import {
   createResizeOperation,
-  findResizeButtonAtCoords, IPartResizedCallback,
+  findResizeButtonAtCoords, 
+  IPartResizedCallback,
   onCompleteResize,
   onResizeDuringDrag,
   ResizeOperation
 } from "./resizeOperation";
 import {
-  findPartAtCoords, 
-  findPartByComponent, 
-  hidePartUi, 
-  loadPartUi, 
-  showPartUi, 
+  findNextPartAtCoords,
+  findPartAtCoords,
+  findPartByComponent,
+  hidePartUi, isPartAtCoords,
+  loadPartUi,
+  showPartUi,
   TrackedPart
 } from "./trackedPart";
 import {CanvasComponent} from "sl-web-face";
@@ -73,9 +77,10 @@ class PartUiManager {
   }
   
   private _onPartClick(part:TrackedPart, clickX:number, clickY:number) {
+    const isNewlyFocusedPart = part !== this._focusedPart;
     this.setFocus(part.component);
     if (!this._focusedPart) throw Error('Unexpected');
-    this._operation = createMoveOperation(this._focusedPart, clickX, clickY);
+    this._operation = createMoveOperation(this._focusedPart, clickX, clickY, isNewlyFocusedPart);
     this._operationType = OperationType.MOVE;
   }
   
@@ -87,7 +92,8 @@ class PartUiManager {
       this._onResizeButtonClick(nextResizeButton, clickX, clickY);
       return;
     }
-    const nextFocusPart = findPartAtCoords(this._trackedParts, clickX, clickY);
+    const nextFocusPart = isPartAtCoords(this._focusedPart as TrackedPart, clickX, clickY) ? 
+      this._focusedPart : findPartAtCoords(this._trackedParts, clickX, clickY);
     if (nextFocusPart) this._onPartClick(nextFocusPart, clickX, clickY);
   }
   
@@ -107,6 +113,15 @@ class PartUiManager {
   
   onMouseUp(event:any) {
     if (!event || !this._focusedPart) return;
+    if (this._operationType === OperationType.MOVE) {
+      const operation = this._operation as MoveOperation;
+      if (!hasPartDragged(this._focusedPart, operation) && !operation.isNewlyFocusedPart) {
+        const mouseUpX = event.nativeEvent.offsetX, mouseUpY = event.nativeEvent.offsetY;
+        const nextFocusPart = findNextPartAtCoords(this._trackedParts, this._focusedPart, mouseUpX, mouseUpY);
+        if (nextFocusPart !== this._focusedPart) this.setFocus(nextFocusPart.component);
+        this._operationType = OperationType.NONE;
+      }
+    }
     this.completeOperations();
   }
   

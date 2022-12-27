@@ -4,6 +4,7 @@ export enum PartType {
   HEAD,
   EYES, 
   MOUTH, 
+  NOSE,
   EXTRA1,
   EXTRA2,
   EXTRA3,
@@ -12,7 +13,7 @@ export enum PartType {
   
   COUNT
 }
-const optionNames = ['Head', 'Eyes', 'Mouth', 'Extra #1', 'Extra #2', 'Extra #3', 'Extra #4', 'Extra #5'];
+const optionNames = ['Head', 'Eyes', 'Mouth', 'Nose', 'Extra #1', 'Extra #2', 'Extra #3', 'Extra #4', 'Extra #5'];
 
 interface IProps {
   disabled?:boolean,

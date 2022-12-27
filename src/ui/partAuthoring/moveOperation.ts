@@ -13,7 +13,9 @@ export type MoveOperation = {
 
   // Part component values prior to changes made by dragging.
   previousX:number,
-  previousY:number
+  previousY:number,
+  
+  isNewlyFocusedPart:boolean
 }
 
 function _revertPartMove(part:TrackedPart, operation:MoveOperation) {
@@ -32,10 +34,15 @@ export function onMoveDuringDrag(part:TrackedPart, operation:MoveOperation, mous
   part.component.y = mouseMoveY + operation.dragOffsetY;
 }
 
-export function createMoveOperation(part:TrackedPart, clickX:number, clickY:number):MoveOperation {
+export function createMoveOperation(part:TrackedPart, clickX:number, clickY:number, isNewlyFocusedPart:boolean):MoveOperation {
   const { x, y } = part.component;
   return {
     previousX: x, previousY: y,
-    dragOffsetX: x - clickX, dragOffsetY: y - clickY
+    dragOffsetX: x - clickX, dragOffsetY: y - clickY,
+    isNewlyFocusedPart
   };
+}
+
+export function hasPartDragged(part:TrackedPart, operation:MoveOperation):boolean {
+  return part.component.x !== operation.previousX || part.component.y !== operation.previousY;
 }
