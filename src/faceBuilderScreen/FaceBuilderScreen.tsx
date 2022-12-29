@@ -13,7 +13,8 @@ import {
   onRedo,
   onReplaceNose,
   onTestVoiceChange,
-  onUndo, getPartLoader, onNoseChanged
+  onUndo,
+  onNoseChanged
 } from "./faceBuilderScreenInteractions";
 import Canvas from "ui/Canvas";
 import NoseChooser from "./NoseChooser";
@@ -41,16 +42,16 @@ function FaceBuilderScreen() {
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [noseParts, setNoseParts] = useState<LoadablePart[]>([]);
+  const [disabled, setDisabled] = useState<boolean>(false);
   const { partType, testVoice, emotion, lidLevel } = revision;
   
   useEffect(() => {
-    init(setRevision, setNoseParts).then((nextInitResults:InitResults) => {
+    init(setRevision, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
     });
     return deinit();
   }, []);
   
-  const disabled = initResults === null;
   const actionBarButtons = [
     {text:'New', onClick:emptyCallback, groupNo:0, disabled},
     {text:'Open', onClick:emptyCallback, groupNo:0, disabled},

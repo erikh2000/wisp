@@ -9,9 +9,11 @@ import {
   LidLevel,
   loadComponentFromPartUrl,
   loadFaceFromUrl,
-  MOUTH_PART_TYPE,
+  MOUTH_PART_TYPE, 
+  nameToSkinTone,
   NOSE_PART_TYPE,
   publishEvent,
+  SkinTone,
   Topic,
   updateFaceFromDocument
 } from "sl-web-face";
@@ -42,8 +44,21 @@ let isInitialized = false;
 const blinkController = new BlinkController();
 const attentionController = new AttentionController();
 const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>();
+let setDisabled:any = null;
 let partUiManager:PartUiManager|null = null;
 let partLoader:PartLoader|null = null;
+
+async function _performDisablingOperation(taskFunction:any):Promise<any> {
+  if (!setDisabled) throw Error('Unexpected');
+  setDisabled(true);
+  let result:any = undefined;
+  try {
+    result = await taskFunction();
+  } finally {
+    setDisabled(false);  
+  }
+  return result;
+}
 
 function _findPartComponents(headComponent:CanvasComponent):CanvasComponent[] {
   return headComponent.findNonUiChildren();
@@ -126,9 +141,7 @@ function _removeDocumentMouseUpListener(onMouseUp:(event:any) => void) {
 
 function _onFaceCanvasMouseMove(event:any) { partUiManager?.onMouseMove(event); }
 
-export function getPartLoader():PartLoader|null { return partLoader; } // TODO keep? 
-
-export async function init(setRevision:any, setNoseParts:any):Promise<InitResults> {
+export async function init(setRevision:any, setNoseParts:any, _setDisabled:any):Promise<InitResults> {
   
   function onFaceCanvasMouseUp(event:any) { partUiManager?.onMouseUp(event); }
   function onFaceCanvasMouseDown(event:any) { partUiManager?.onMouseDown(event); }
@@ -148,6 +161,8 @@ export async function init(setRevision:any, setNoseParts:any):Promise<InitResult
   
   _addDocumentMouseUpListener(onFaceCanvasMouseUp);
   if (isInitialized) return initResults
+  
+  setDisabled = _setDisabled;
   
   head = await loadFaceFromUrl('/faces/billy.yml');
   blinkController.start();
@@ -185,7 +200,7 @@ function _publishFaceEventsForRevision(revision:Revision) {
   publishEvent(Topic.LID_LEVEL, revision.lidLevel);
 }
 
-function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
+async function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
   if (!revision || !head) return;
   if (revision.document) updateFaceFromDocument(head, revision.document);
   updateSelectionBoxesToMatchFace(head);
@@ -195,16 +210,17 @@ function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:an
   setRevision(revision);
 }
 
-export function onUndo(setRevision:any) { _updateEverythingToMatchRevision(revisionManager.prev(), setRevision); }
-
-export function onRedo(setRevision:any) { _updateEverythingToMatchRevision(revisionManager.next(), setRevision); }
-
-export function isHeadReady():boolean {
-  return isInitialized && head !== null;
-} 
-function _getHeadIfReady():CanvasComponent|null {
-  return isHeadReady() ? head : null;
+export function onUndo(setRevision:any) {
+  _performDisablingOperation(_updateEverythingToMatchRevision(revisionManager.prev(), setRevision)); 
 }
+
+export function onRedo(setRevision:any) {
+  _performDisablingOperation(_updateEverythingToMatchRevision(revisionManager.next(), setRevision)); 
+}
+
+export function isHeadReady():boolean { return isInitialized && head !== null; }
+
+function _getHeadIfReady():CanvasComponent|null { return isHeadReady() ? head : null; }
 
 function _findCanvasComponentForPartType(headComponent:CanvasComponent, partType:PartType):CanvasComponent|null {
   if (partType === PartType.HEAD) return headComponent;
@@ -302,7 +318,7 @@ export function onReplaceNose(setModalDialog:any) {
 
 async function _changePart(partUrl:string, partType:PartType) {
   if (!head || !partUiManager) return;
-  const skinTone = 3; // TODO get the stupid export to work.
+  const skinTone = nameToSkinTone(head.skinTone);
   const nextComponent = await loadComponentFromPartUrl(partUrl, skinTone);
   const currentComponent = _findCanvasComponentForPartType(head, partType);
   if (currentComponent) {
@@ -320,6 +336,5 @@ async function _changePart(partUrl:string, partType:PartType) {
 
 export function onNoseChanged(partUrl:string, setModalDialog:any) {
   setModalDialog(null);
-  // TODO plumbing to have screen be in disabled state during load.
-  _changePart(partUrl, PartType.NOSE);
+  _performDisablingOperation(async () => _changePart(partUrl, PartType.NOSE));
 }
