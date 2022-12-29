@@ -12,6 +12,7 @@ docs/dist/
 
 # source assets
 workAssets/ 
+promo/
 
 # protected sub-directories
 public/fonts/simply-olive/private/

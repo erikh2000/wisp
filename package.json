@@ -1,6 +1,6 @@
 {
-  "name": "webface",
-  "version": "0.5.0",
+  "name": "wisp",
+  "version": "0.6.0",
   "private": true,
   "dependencies": {
     "@types/react": "^18.0.25",
