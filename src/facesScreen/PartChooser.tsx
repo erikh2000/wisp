@@ -28,7 +28,7 @@ function PartChooser(props:IProps) {
   useEffect(() => {
     const nextPartElements = _renderAvailableParts(parts, onChange);
     setAvailablePartElements(nextPartElements);
-  }, [parts]);
+  }, [parts, onChange]);
   
   return (
     <ModalDialog title={title} onCancel={onCancel} isOpen={isOpen}>

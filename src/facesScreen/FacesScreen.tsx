@@ -1,4 +1,4 @@
-import styles from './FaceBuilderScreen.module.css';
+import styles from './FacesScreen.module.css';
 import {
   InitResults,
   Revision,
@@ -15,29 +15,29 @@ import {
   onTestVoiceChange,
   onUndo,
   onNoseChanged
-} from "./faceBuilderScreenInteractions";
-import Canvas from "ui/Canvas";
+} from "./facesScreenInteractions";
 import NoseChooser from "./NoseChooser";
-import EmotionSelector from "faceBuilderScreen/EmotionSelector";
-import ExtraSelectionPane from "faceBuilderScreen/ExtraSelectionPane";
-import HeadSelectionPane from "faceBuilderScreen/HeadSelectionPane";
-import EyesSelectionPane from "faceBuilderScreen/EyesSelectionPane";
-import LidLevelSelector from "faceBuilderScreen/LidLevelSelector";
-import MouthSelectionPane from "faceBuilderScreen/MouthSelectionPane";
+import EmotionSelector from "facesScreen/EmotionSelector";
+import ExtraSelectionPane from "facesScreen/ExtraSelectionPane";
+import HeadSelectionPane from "facesScreen/HeadSelectionPane";
+import EyesSelectionPane from "facesScreen/EyesSelectionPane";
+import LidLevelSelector from "facesScreen/LidLevelSelector";
+import MouthSelectionPane from "facesScreen/MouthSelectionPane";
 import NoseSelectionPane from "./NoseSelectionPane";
-import PartSelector, {PartType} from "faceBuilderScreen/PartSelector";
-import TestVoiceSelector from "faceBuilderScreen/TestVoiceSelector";
+import PartSelector, {PartType} from "facesScreen/PartSelector";
+import TestVoiceSelector from "facesScreen/TestVoiceSelector";
+import Canvas from "ui/Canvas";
 import LoadingBox from "ui/LoadingBox";
 import ScreenContainer from 'ui/screen/ScreenContainer';
 import Screen from 'ui/screen/screens';
+import {LoadablePart} from "ui/partAuthoring/PartLoader";
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 
 import React, {useEffect, useState} from 'react';
-import {LoadablePart} from "../ui/partAuthoring/PartLoader";
 
 function emptyCallback() {} // TODO delete when not using
 
-function FaceBuilderScreen() {
+function FacesScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
@@ -108,4 +108,4 @@ function FaceBuilderScreen() {
   );
 }
 
-export default FaceBuilderScreen;
+export default FacesScreen;

@@ -13,7 +13,6 @@ import {
   nameToSkinTone,
   NOSE_PART_TYPE,
   publishEvent,
-  SkinTone,
   Topic,
   updateFaceFromDocument
 } from "sl-web-face";
