@@ -1,0 +1,33 @@
+@value colors: "ui/commonPalette.module.css";
+@value background-content, accent-peach from colors;
+
+/* 
+  Dimensions below are hard-coded to 100x100 pixels based on canvas rendering code in PartThumbnail.tsx. If you want to
+  have thumbnails scale up/down with rem units, you'll need to write code in PartThumbnail to get the actual pixel
+  dimensions of the div and scale. (Or something like that.) 
+*/
+
+.container {
+    width: 100px;
+    height: 100px;
+    background-color: background-content;
+    border-style: solid;
+    border-width: .2rem;
+    border-radius: 3px;
+    border-color: accent-peach;
+}
+
+.container:hover {
+    background-color: accent-peach;
+    border-color: black;
+}
+
+.loadedThumbnail {
+    width:100px;
+    height:100px;
+}
+
+.loadingThumbnail {
+    width:100px;
+    height:100px;
+}

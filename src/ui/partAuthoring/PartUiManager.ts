@@ -147,6 +147,15 @@ class PartUiManager {
       selectionBox: await loadPartUi(component, isResizable)
     });
   }
+  
+  async replacePart(oldComponent:CanvasComponent, newComponent:CanvasComponent) {
+    const part = findPartByComponent(this._trackedParts, oldComponent);
+    if (!part) throw Error('Unexpected');
+    part.component = newComponent;
+    const wasVisible = part.selectionBox.isVisible;
+    part.selectionBox = await loadPartUi(newComponent, part.isResizable);
+    if (wasVisible) showPartUi(part);
+  }
 }
 
 export default PartUiManager;

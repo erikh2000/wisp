@@ -30,15 +30,17 @@ function Canvas(props:IProps) {
   const [canvasWidth, canvasHeight] = containerDimensions ?? [0,0];
 
   useEffect(() => { // Handle mount.
-    const container:HTMLDivElement|null = containerRef?.current, canvas:HTMLCanvasElement|null = canvasRef?.current;
-    if (!container || !canvas) return;
-    _updateCanvasDimensions(container, setContainerDimensions);
+    const container:HTMLDivElement|null = containerRef?.current;
+    if (!container) return;
     window.addEventListener('resize', () => { _updateCanvasDimensions(container, setContainerDimensions);}, false);
   }, []);
   
   useEffect(() => { // Handle drawing.
     const context = canvasRef.current?.getContext('2d');
     if (!context) return;
+
+    const container:HTMLDivElement|null = containerRef?.current;
+    if (container) _updateCanvasDimensions(container, setContainerDimensions);
     
     const render = () => {
       onDraw(context);

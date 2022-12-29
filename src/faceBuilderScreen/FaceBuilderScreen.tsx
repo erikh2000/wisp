@@ -4,24 +4,26 @@ import {
   Revision,
   deinit,
   getRevisionForMount,
-  init, 
+  init,
   isHeadReady,
   onDrawFaceCanvas,
   onEmotionChange,
   onLidLevelChange,
   onPartTypeChange,
   onRedo,
+  onReplaceNose,
   onTestVoiceChange,
-  onUndo
+  onUndo, getPartLoader, onNoseChanged
 } from "./faceBuilderScreenInteractions";
 import Canvas from "ui/Canvas";
-import ConfirmCancelDialog from "ui/dialog/ConfirmCancelDialog";
+import NoseChooser from "./NoseChooser";
 import EmotionSelector from "faceBuilderScreen/EmotionSelector";
 import ExtraSelectionPane from "faceBuilderScreen/ExtraSelectionPane";
 import HeadSelectionPane from "faceBuilderScreen/HeadSelectionPane";
 import EyesSelectionPane from "faceBuilderScreen/EyesSelectionPane";
 import LidLevelSelector from "faceBuilderScreen/LidLevelSelector";
 import MouthSelectionPane from "faceBuilderScreen/MouthSelectionPane";
+import NoseSelectionPane from "./NoseSelectionPane";
 import PartSelector, {PartType} from "faceBuilderScreen/PartSelector";
 import TestVoiceSelector from "faceBuilderScreen/TestVoiceSelector";
 import LoadingBox from "ui/LoadingBox";
@@ -29,7 +31,8 @@ import ScreenContainer from 'ui/screen/ScreenContainer';
 import Screen from 'ui/screen/screens';
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 
-import React, {useEffect, useState, useReducer} from 'react';
+import React, {useEffect, useState} from 'react';
+import {LoadablePart} from "../ui/partAuthoring/PartLoader";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -37,10 +40,11 @@ function FaceBuilderScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
+  const [noseParts, setNoseParts] = useState<LoadablePart[]>([]);
   const { partType, testVoice, emotion, lidLevel } = revision;
   
   useEffect(() => {
-    init(setRevision).then((nextInitResults:InitResults) => {
+    init(setRevision, setNoseParts).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
     });
     return deinit();
@@ -48,7 +52,7 @@ function FaceBuilderScreen() {
   
   const disabled = initResults === null;
   const actionBarButtons = [
-    {text:'New', onClick:() => setModalDialog(ConfirmCancelDialog.name), groupNo:0, disabled},
+    {text:'New', onClick:emptyCallback, groupNo:0, disabled},
     {text:'Open', onClick:emptyCallback, groupNo:0, disabled},
     {text:'Rename', onClick:emptyCallback, groupNo:0, disabled},
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:0, disabled},
@@ -67,6 +71,9 @@ function FaceBuilderScreen() {
       break;
     case PartType.MOUTH:
       selectionPane = <MouthSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={true} disabled={disabled}/>
+      break;
+    case PartType.NOSE:
+      selectionPane = <NoseSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => onReplaceNose(setModalDialog)} onRemove={() => {}} isSpecified={true} disabled={disabled}/>
       break;
     default:
       selectionPane = <ExtraSelectionPane partNo={1} className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={false} disabled={disabled}/>
@@ -95,7 +102,7 @@ function FaceBuilderScreen() {
           {selectionPane}
         </div>
       </div>
-      <ConfirmCancelDialog isOpen={modalDialog === ConfirmCancelDialog.name} onConfirm={() => {}} onCancel={() => {setModalDialog(null)}} title='Are You Sure?' description='Did you really think this through?' /> 
+      <NoseChooser isOpen={modalDialog === NoseChooser.name} onChange={(partUrl) => onNoseChanged(partUrl, setModalDialog)} onCancel={() => setModalDialog(null)} parts={noseParts} />
     </ScreenContainer>
   );
 }

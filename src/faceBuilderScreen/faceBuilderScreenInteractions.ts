@@ -7,8 +7,9 @@ import {
   EYES_PART_TYPE,
   FaceDocument,
   LidLevel,
+  loadComponentFromPartUrl,
   loadFaceFromUrl,
-  MOUTH_PART_TYPE, 
+  MOUTH_PART_TYPE,
   NOSE_PART_TYPE,
   publishEvent,
   Topic,
@@ -16,9 +17,11 @@ import {
 } from "sl-web-face";
 import {PartType} from "./PartSelector";
 import {TestVoiceType} from "./TestVoiceSelector";
+import NoseChooser from "./NoseChooser";
 import RevisionManager from "documents/RevisionManager";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
 import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
+import PartLoader from "ui/partAuthoring/PartLoader";
 
 export type Revision = {
   document:FaceDocument|null, // A null document indicates no document is loaded. Used only for initial revision. 
@@ -40,6 +43,7 @@ const blinkController = new BlinkController();
 const attentionController = new AttentionController();
 const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>();
 let partUiManager:PartUiManager|null = null;
+let partLoader:PartLoader|null = null;
 
 function _findPartComponents(headComponent:CanvasComponent):CanvasComponent[] {
   return headComponent.findNonUiChildren();
@@ -122,13 +126,23 @@ function _removeDocumentMouseUpListener(onMouseUp:(event:any) => void) {
 
 function _onFaceCanvasMouseMove(event:any) { partUiManager?.onMouseMove(event); }
 
-export async function init(setRevision:any):Promise<InitResults> {
+export function getPartLoader():PartLoader|null { return partLoader; } // TODO keep? 
+
+export async function init(setRevision:any, setNoseParts:any):Promise<InitResults> {
   
   function onFaceCanvasMouseUp(event:any) { partUiManager?.onMouseUp(event); }
   function onFaceCanvasMouseDown(event:any) { partUiManager?.onMouseDown(event); }
   function onPartFocused(part:CanvasComponent) { _onPartFocused(part, setRevision); }
   function onPartMoved(part:CanvasComponent, x:number, y:number) { return _onPartMoved(part, x, y, setRevision); }
   function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return _onPartResized(setRevision); }
+  function onPartLoaderUpdated(partTypeName:string, _partName:string) {
+    if (!partLoader) return;
+    switch(partTypeName) {
+      case NOSE_PART_TYPE:
+        setNoseParts([...partLoader.noses]);
+        break;
+    }
+  }
   
   const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp };
   
@@ -143,6 +157,7 @@ export async function init(setRevision:any):Promise<InitResults> {
   await partUiManager.addPart(head, false, true);
   partComponents.forEach(part => partUiManager?.addPart(part, true, true));
   partUiManager.setFocus(head);
+  partLoader = new PartLoader('/parts/part-manifest.yml', onPartLoaderUpdated);
 
   const nextRevision:Revision = {
     emotion:Emotion.NEUTRAL,
@@ -279,4 +294,32 @@ export function getRevisionForMount():Revision {
   };
   revisionManager.add(revision);
   return revision;
+}
+
+export function onReplaceNose(setModalDialog:any) {
+  setModalDialog(NoseChooser.name);
+}
+
+async function _changePart(partUrl:string, partType:PartType) {
+  if (!head || !partUiManager) return;
+  const skinTone = 3; // TODO get the stupid export to work.
+  const nextComponent = await loadComponentFromPartUrl(partUrl, skinTone);
+  const currentComponent = _findCanvasComponentForPartType(head, partType);
+  if (currentComponent) {
+    nextComponent.offsetX = currentComponent.offsetX;
+    nextComponent.offsetY = currentComponent.offsetY;
+    nextComponent.width = currentComponent.width;
+    nextComponent.height = currentComponent.height;
+    currentComponent.setParent(null);
+    partUiManager.replacePart(currentComponent, nextComponent);
+  } else {
+    partUiManager.addPart(nextComponent, partType !== PartType.HEAD, true);
+  }
+  nextComponent.setParent(head);
+}
+
+export function onNoseChanged(partUrl:string, setModalDialog:any) {
+  setModalDialog(null);
+  // TODO plumbing to have screen be in disabled state during load.
+  _changePart(partUrl, PartType.NOSE);
 }

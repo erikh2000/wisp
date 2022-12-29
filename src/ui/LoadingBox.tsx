@@ -1,5 +1,5 @@
 import styles from './LoadingBox.module.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface IProps {
   className:string,
@@ -7,23 +7,23 @@ interface IProps {
 }
 
 const ELIPSIS_UPDATE_INTERVAL = 500;
-let timer:NodeJS.Timer|null = null;
 
 function LoadingBox(props:IProps) {
   const [elipsis, setElipsis] = useState<string>('');
+  const updateElipsisTimer = useRef<NodeJS.Timer|null>(null);
   
   useEffect(() => {
-    if (timer) return;
-    timer = setInterval(() => {
+    if (updateElipsisTimer.current) return;
+    updateElipsisTimer.current = setInterval(() => {
       let nextElipsis = elipsis + '.';
       if (nextElipsis.length > 3) nextElipsis = '';
       setElipsis(nextElipsis);
     }, ELIPSIS_UPDATE_INTERVAL);
     return () => {
-      if(timer) clearInterval(timer);
-      timer = null;
+      if(updateElipsisTimer.current) clearInterval(updateElipsisTimer.current);
+      updateElipsisTimer.current = null;
     }
-  }, [elipsis]);
+  }, [elipsis, updateElipsisTimer]);
   
   const { className } = props;
   const text = props.text ?? 'loading';

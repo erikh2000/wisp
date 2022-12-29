@@ -1,0 +1,21 @@
+head:
+  - /parts/billy-head.yml
+nose:
+  - /parts/nose1.yml
+  - /parts/nose2.yml
+  - /parts/nose3.yml
+  - /parts/nose4.yml
+  - /parts/nose5.yml
+  - /parts/nose6.yml
+  - /parts/nose7.yml
+  - /parts/nose8.yml
+  - /parts/nose9.yml
+  - /parts/nose10.yml
+  - /parts/nose11.yml
+  - /parts/nose12.yml
+  - /parts/billy-nose.yml
+eyes:
+  - /parts/billy-eyes.yml
+mouth:
+  - /parts/billy-mouth.yml
+extra: []

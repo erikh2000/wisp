@@ -1,0 +1,10 @@
+.partList {
+    width: 100%;
+    height: 30rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .2rem;
+    justify-content: center;
+}
