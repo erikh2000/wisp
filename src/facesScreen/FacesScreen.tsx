@@ -17,6 +17,7 @@ import {
   onNoseChanged
 } from "./facesScreenInteractions";
 import NoseChooser from "./NoseChooser";
+import useEffectAfterMount from "common/useEffectAfterMount";
 import EmotionSelector from "facesScreen/EmotionSelector";
 import ExtraSelectionPane from "facesScreen/ExtraSelectionPane";
 import HeadSelectionPane from "facesScreen/HeadSelectionPane";
@@ -33,7 +34,7 @@ import Screen from 'ui/screen/screens';
 import {LoadablePart} from "ui/partAuthoring/PartLoader";
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -45,7 +46,7 @@ function FacesScreen() {
   const [disabled, setDisabled] = useState<boolean>(false);
   const { partType, testVoice, emotion, lidLevel } = revision;
   
-  useEffect(() => {
+  useEffectAfterMount(() => {
     init(setRevision, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
     });
@@ -103,7 +104,13 @@ function FacesScreen() {
           {selectionPane}
         </div>
       </div>
-      <NoseChooser isOpen={modalDialog === NoseChooser.name} onChange={(partUrl) => onNoseChanged(partUrl, setModalDialog)} onCancel={() => setModalDialog(null)} parts={noseParts} />
+      <NoseChooser 
+        isOpen={modalDialog === NoseChooser.name} 
+        onChange={(partNo:number) => onNoseChanged(noseParts, partNo, setModalDialog, setRevision)} 
+        onCancel={() => setModalDialog(null)} 
+        parts={noseParts} 
+        selectedPartNo={revision.nosePartNo}
+      />
     </ScreenContainer>
   );
 }

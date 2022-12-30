@@ -52,3 +52,28 @@ export function findPartByComponent(parts:TrackedPart[], component:CanvasCompone
   if (i === -1) return null;
   return parts[i];
 }
+
+export function createTrackedPartsForFace(headComponent:CanvasComponent):TrackedPart[] {
+  const trackedParts:TrackedPart[] = [];
+  const componentPlaceholder = (null as unknown) as CanvasComponent;
+  trackedParts.push({component:headComponent, selectionBox:componentPlaceholder, isResizable:true, isMovable:false});
+  const children = headComponent.findNonUiChildren();
+  const childCount = children.length;
+  for (let childI = 0; childI < childCount; ++childI) {
+    const child = children[childI];
+    trackedParts.push({component:child, selectionBox:componentPlaceholder, isResizable:true, isMovable:true});
+  }
+  return trackedParts;
+}
+
+export function findPartByTypeName(parts:TrackedPart[], partTypeName:string):TrackedPart|null {
+  for(let i = 0; i < parts.length; ++i) {
+    const part = parts[i];
+    if (part.component.partType === partTypeName) return part;
+  }
+  return null;
+}
+
+export function removeMissingParts(compareAgainstParts:TrackedPart[], parts:TrackedPart[]):TrackedPart[] {
+  return parts.filter(part => findPartByTypeName(compareAgainstParts, part.component.partType) !== null);
+}

@@ -5,14 +5,14 @@ import {
   createFaceDocument,
   Emotion,
   EYES_PART_TYPE,
-  FaceDocument,
+  FaceDocument, HEAD_PART_TYPE,
   LidLevel,
   loadComponentFromPartUrl,
   loadFaceFromUrl,
-  MOUTH_PART_TYPE, 
+  MOUTH_PART_TYPE,
   nameToSkinTone,
   NOSE_PART_TYPE,
-  publishEvent,
+  publishEvent, replaceComponentFromPartUrl,
   Topic,
   updateFaceFromDocument
 } from "sl-web-face";
@@ -22,14 +22,16 @@ import NoseChooser from "./NoseChooser";
 import RevisionManager from "documents/RevisionManager";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
 import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
-import PartLoader from "ui/partAuthoring/PartLoader";
+import PartLoader, {LoadablePart} from "ui/partAuthoring/PartLoader";
+import {UNLOADED} from "../../../sl-web-face/dist/canvasComponent/CanvasComponent";
 
 export type Revision = {
   document:FaceDocument|null, // A null document indicates no document is loaded. Used only for initial revision. 
   emotion:Emotion,
   lidLevel:LidLevel,
   partType:PartType,
-  testVoice:TestVoiceType
+  testVoice:TestVoiceType,
+  nosePartNo:number
 };
 
 export type InitResults = {
@@ -166,10 +168,8 @@ export async function init(setRevision:any, setNoseParts:any, _setDisabled:any):
   head = await loadFaceFromUrl('/faces/billy.yml');
   blinkController.start();
   attentionController.start();
-  const partComponents = _findPartComponents(head);
   partUiManager = new PartUiManager(onPartFocused, onPartMoved, onPartResized);
-  await partUiManager.addPart(head, false, true);
-  partComponents.forEach(part => partUiManager?.addPart(part, true, true));
+  await partUiManager.trackPartsForFace(head);
   partUiManager.setFocus(head);
   partLoader = new PartLoader('/parts/part-manifest.yml', onPartLoaderUpdated);
 
@@ -178,7 +178,8 @@ export async function init(setRevision:any, setNoseParts:any, _setDisabled:any):
     partType:PartType.HEAD,
     lidLevel:LidLevel.NORMAL,
     testVoice:TestVoiceType.MUTED,
-    document: createFaceDocument(head)
+    document: createFaceDocument(head),
+    nosePartNo: -1
   }
   revisionManager.clear();
   revisionManager.add(nextRevision);
@@ -199,9 +200,25 @@ function _publishFaceEventsForRevision(revision:Revision) {
   publishEvent(Topic.LID_LEVEL, revision.lidLevel);
 }
 
+async function _changePart(partUrl:string, partType:PartType) {
+  if (!head || !partUiManager) return;
+  const skinTone = nameToSkinTone(head.skinTone);
+  
+  const currentComponent = _findCanvasComponentForPartType(head, partType);
+  if (currentComponent) {
+    const replacedComponent = await replaceComponentFromPartUrl(currentComponent, partUrl);
+    if (replacedComponent.partType === HEAD_PART_TYPE) head = replacedComponent;
+  } else {
+    const newComponent = await loadComponentFromPartUrl(partUrl, skinTone);
+    if (newComponent.partType !== HEAD_PART_TYPE) newComponent.setParent(head); 
+  }
+  await partUiManager.trackPartsForFace(head);
+}
+
 async function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
-  if (!revision || !head) return;
-  if (revision.document) updateFaceFromDocument(head, revision.document);
+  if (!revision || !head || !partUiManager) return;
+  if (revision.document) await updateFaceFromDocument(head, revision.document);
+  await partUiManager.trackPartsForFace(head);
   updateSelectionBoxesToMatchFace(head);
   _publishFaceEventsForRevision(revision);
   const nextFocusPart = _findCanvasComponentForPartType(head, revision.partType);
@@ -210,11 +227,11 @@ async function _updateEverythingToMatchRevision(revision:Revision|null, setRevis
 }
 
 export function onUndo(setRevision:any) {
-  _performDisablingOperation(_updateEverythingToMatchRevision(revisionManager.prev(), setRevision)); 
+  _performDisablingOperation(async () => _updateEverythingToMatchRevision(revisionManager.prev(), setRevision)); 
 }
 
 export function onRedo(setRevision:any) {
-  _performDisablingOperation(_updateEverythingToMatchRevision(revisionManager.next(), setRevision)); 
+  _performDisablingOperation(async () => _updateEverythingToMatchRevision(revisionManager.next(), setRevision)); 
 }
 
 export function isHeadReady():boolean { return isInitialized && head !== null; }
@@ -273,28 +290,25 @@ export function onDrawFaceCanvas(context:CanvasRenderingContext2D) {
   head.render(context);
 }
 
-export function onTestVoiceChange(testVoice:TestVoiceType, setRevision:any) {
-  const document = head ? createFaceDocument(head) : undefined;
-  revisionManager.addChanges({testVoice, document});
-  setRevision(revisionManager.currentRevision);
-}
-
 function _updateForFaceRelatedRevision(changes:any, setRevision:any) {
-  revisionManager.addChanges(changes);
+  const document = head ? createFaceDocument(head) : undefined;
+  revisionManager.addChanges({document, ...changes});
   const nextRevision = revisionManager.currentRevision;
   if (!nextRevision) return;
   _publishFaceEventsForRevision(nextRevision);
   setRevision(nextRevision);
 }
 
+export function onTestVoiceChange(testVoice:TestVoiceType, setRevision:any) {
+  _updateForFaceRelatedRevision({testVoice}, setRevision);
+}
+
 export function onEmotionChange(emotion:Emotion, setRevision:any) {
-  const document = head ? createFaceDocument(head) : undefined;
-  _updateForFaceRelatedRevision({emotion, document}, setRevision);
+  _updateForFaceRelatedRevision({emotion}, setRevision);
 }
 
 export function onLidLevelChange(lidLevel:LidLevel, setRevision:any) {
-  const document = head ? createFaceDocument(head) : undefined;
-  _updateForFaceRelatedRevision({lidLevel, document}, setRevision);
+  _updateForFaceRelatedRevision({lidLevel}, setRevision);
 }
 
 export function getRevisionForMount():Revision {
@@ -305,7 +319,8 @@ export function getRevisionForMount():Revision {
     lidLevel: LidLevel.NORMAL,
     partType: PartType.HEAD,
     testVoice: TestVoiceType.MUTED,
-    document: null
+    document: null,
+    nosePartNo: -1
   };
   revisionManager.add(revision);
   return revision;
@@ -314,26 +329,20 @@ export function getRevisionForMount():Revision {
 export function onReplaceNose(setModalDialog:any) {
   setModalDialog(NoseChooser.name);
 }
-
-async function _changePart(partUrl:string, partType:PartType) {
-  if (!head || !partUiManager) return;
-  const skinTone = nameToSkinTone(head.skinTone);
-  const nextComponent = await loadComponentFromPartUrl(partUrl, skinTone);
-  const currentComponent = _findCanvasComponentForPartType(head, partType);
-  if (currentComponent) {
-    nextComponent.offsetX = currentComponent.offsetX;
-    nextComponent.offsetY = currentComponent.offsetY;
-    nextComponent.width = currentComponent.width;
-    nextComponent.height = currentComponent.height;
-    currentComponent.setParent(null);
-    partUiManager.replacePart(currentComponent, nextComponent);
-  } else {
-    partUiManager.addPart(nextComponent, partType !== PartType.HEAD, true);
-  }
-  nextComponent.setParent(head);
+ 
+export function onNoseChanged(noseParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
+  setModalDialog(null);
+  const partUrl = noseParts[partNo].url;
+  _performDisablingOperation(async () => {
+    _changePart(partUrl, PartType.NOSE)
+      .then(() => _updateForFaceRelatedRevision({nosePartNo:partNo}, setRevision));
+  });
 }
 
-export function onNoseChanged(partUrl:string, setModalDialog:any) {
-  setModalDialog(null);
-  _performDisablingOperation(async () => _changePart(partUrl, PartType.NOSE));
+export function findPartNoByType(parts:LoadablePart[], partType:PartType):number {
+  if (!head) return -1;
+  const component = _findCanvasComponentForPartType(head, partType);
+  if (!component) return -1;
+  const matchUrl = component.partUrl;
+  return parts.findIndex(part => part.url === matchUrl);
 }

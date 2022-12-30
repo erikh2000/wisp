@@ -15,11 +15,12 @@ import {
   ResizeOperation
 } from "./resizeOperation";
 import {
+  createTrackedPartsForFace,
   findNextPartAtCoords,
   findPartAtCoords,
-  findPartByComponent,
+  findPartByComponent, findPartByTypeName,
   hidePartUi, isPartAtCoords,
-  loadPartUi,
+  loadPartUi, removeMissingParts,
   showPartUi,
   TrackedPart
 } from "./trackedPart";
@@ -38,7 +39,7 @@ export interface IPartFocusedCallback {
 }
 
 class PartUiManager {
-  private readonly _trackedParts:TrackedPart[];
+  private _trackedParts:TrackedPart[];
   private readonly _onPartFocused:IPartFocusedCallback;
   private readonly _onPartMoved:IPartMovedCallback;
   private readonly _onPartResized:IPartResizedCallback;
@@ -155,6 +156,28 @@ class PartUiManager {
     const wasVisible = part.selectionBox.isVisible;
     part.selectionBox = await loadPartUi(newComponent, part.isResizable);
     if (wasVisible) showPartUi(part);
+  }
+  
+  removePart(component:CanvasComponent) {
+    this._trackedParts = this._trackedParts.filter(part => part.component !== component);
+  }
+  
+  async trackPartsForFace(headComponent:CanvasComponent) {
+    const nextTrackedParts:TrackedPart[] = createTrackedPartsForFace(headComponent);
+
+    this._trackedParts = removeMissingParts(nextTrackedParts, this._trackedParts);
+    
+    for(let i = 0; i < nextTrackedParts.length; ++i) {
+      const nextPart = nextTrackedParts[i];
+      const currentPart = findPartByTypeName(this._trackedParts, nextPart.component.partType);
+      if (currentPart) {
+        if (currentPart.component !== nextPart.component) {
+          await this.replacePart(currentPart.component, nextPart.component);
+        }
+      } else {
+        await this.addPart(nextPart.component, nextPart.isMovable, nextPart.isResizable);
+      }
+    }
   }
 }
 

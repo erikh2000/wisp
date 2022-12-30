@@ -4,6 +4,7 @@ import LoadingBox from "ui/LoadingBox";
 
 interface IProps {
   bitmap:ImageBitmap|null,
+  isSelected:boolean,
   onClick:any
 }
 
@@ -12,11 +13,12 @@ function _onDraw(bitmap:ImageBitmap, context:CanvasRenderingContext2D) {
 }
 
 function PartThumbnail(props:IProps) {
-  const { bitmap, onClick } = props;
+  const { bitmap, isSelected, onClick } = props;
   
+  const thumbnailStyle = isSelected ? styles.selectedThumbnail : styles.loadedThumbnail;
   const content = bitmap === null ?
     <LoadingBox className={styles.loadingThumbnail} /> :
-    <Canvas className={styles.loadedThumbnail} onClick={onClick} isAnimated={false} onDraw={(context) => _onDraw(bitmap, context)} />;
+    <Canvas className={thumbnailStyle} onClick={isSelected ? null : onClick} isAnimated={false} onDraw={(context) => _onDraw(bitmap, context)} />;
   
   return (
     <div className={styles.container}>

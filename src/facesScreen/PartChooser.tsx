@@ -7,28 +7,31 @@ import styles from './PartChooser.module.css';
 
 import { useState, useEffect } from 'react';
 
-type ChangeCallback = (partUrl:string) => void;
+export type ChangeCallback = (partNo:number) => void;
 
 interface IProps {
   isOpen:boolean,
+  selectedPartNo:number,
   onChange:ChangeCallback,
   onCancel:() => void,
   parts:LoadablePart[],
   title:string
 }
 
-function _renderAvailableParts(parts:LoadablePart[], onChange:ChangeCallback):JSX.Element[] {
-  return parts.map((part, partNo) => <PartThumbnail key={partNo} bitmap={part.thumbnail} onClick={() => onChange(part.url)}/>);
+function _renderAvailableParts(parts:LoadablePart[], selectedPartNo:number, onChange:ChangeCallback):JSX.Element[] {
+  return parts.map((part, partNo) => {
+    return <PartThumbnail key={partNo} isSelected={selectedPartNo===partNo} bitmap={part.thumbnail} onClick={() => onChange(partNo)}/>
+  });
 }
 
 function PartChooser(props:IProps) {
-  const { isOpen, onCancel, onChange, parts, title } = props;
-  const [availablePartElements, setAvailablePartElements] = useState<JSX.Element[]>(_renderAvailableParts(parts, onChange));
+  const { isOpen, onCancel, onChange, parts, selectedPartNo, title } = props;
+  const [availablePartElements, setAvailablePartElements] = useState<JSX.Element[]>(_renderAvailableParts(parts, selectedPartNo, onChange));
   
   useEffect(() => {
-    const nextPartElements = _renderAvailableParts(parts, onChange);
+    const nextPartElements = _renderAvailableParts(parts, selectedPartNo, onChange);
     setAvailablePartElements(nextPartElements);
-  }, [parts, onChange]);
+  }, [parts, onChange, selectedPartNo]);
   
   return (
     <ModalDialog title={title} onCancel={onCancel} isOpen={isOpen}>
