@@ -5,14 +5,16 @@ import {
   createFaceDocument,
   Emotion,
   EYES_PART_TYPE,
-  FaceDocument, HEAD_PART_TYPE,
+  FaceDocument,
+  HEAD_PART_TYPE,
   LidLevel,
   loadComponentFromPartUrl,
   loadFaceFromUrl,
   MOUTH_PART_TYPE,
   nameToSkinTone,
   NOSE_PART_TYPE,
-  publishEvent, replaceComponentFromPartUrl,
+  publishEvent,
+  replaceComponentFromPartUrl,
   Topic,
   updateFaceFromDocument
 } from "sl-web-face";
@@ -23,7 +25,8 @@ import RevisionManager from "documents/RevisionManager";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
 import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
 import PartLoader, {LoadablePart} from "ui/partAuthoring/PartLoader";
-import {UNLOADED} from "../../../sl-web-face/dist/canvasComponent/CanvasComponent";
+
+const UNSELECTED = -1;
 
 export type Revision = {
   document:FaceDocument|null, // A null document indicates no document is loaded. Used only for initial revision. 
@@ -142,6 +145,12 @@ function _removeDocumentMouseUpListener(onMouseUp:(event:any) => void) {
 
 function _onFaceCanvasMouseMove(event:any) { partUiManager?.onMouseMove(event); }
 
+function _findLoadablePartNo(loadableParts:LoadablePart[], headComponent:CanvasComponent, partType:PartType):number {
+  const component = _findCanvasComponentForPartType(headComponent, partType);
+  if (!component) return UNSELECTED;
+  return loadableParts.findIndex(loadablePart => loadablePart.url === component.partUrl);
+}
+
 export async function init(setRevision:any, setNoseParts:any, _setDisabled:any):Promise<InitResults> {
   
   function onFaceCanvasMouseUp(event:any) { partUiManager?.onMouseUp(event); }
@@ -171,7 +180,8 @@ export async function init(setRevision:any, setNoseParts:any, _setDisabled:any):
   partUiManager = new PartUiManager(onPartFocused, onPartMoved, onPartResized);
   await partUiManager.trackPartsForFace(head);
   partUiManager.setFocus(head);
-  partLoader = new PartLoader('/parts/part-manifest.yml', onPartLoaderUpdated);
+  partLoader = new PartLoader(onPartLoaderUpdated);
+  await partLoader.loadManifest('/parts/part-manifest.yml');
 
   const nextRevision:Revision = {
     emotion:Emotion.NEUTRAL,
@@ -179,7 +189,7 @@ export async function init(setRevision:any, setNoseParts:any, _setDisabled:any):
     lidLevel:LidLevel.NORMAL,
     testVoice:TestVoiceType.MUTED,
     document: createFaceDocument(head),
-    nosePartNo: -1
+    nosePartNo: _findLoadablePartNo(partLoader.noses, head, PartType.NOSE)
   }
   revisionManager.clear();
   revisionManager.add(nextRevision);
@@ -320,7 +330,7 @@ export function getRevisionForMount():Revision {
     partType: PartType.HEAD,
     testVoice: TestVoiceType.MUTED,
     document: null,
-    nosePartNo: -1
+    nosePartNo: UNSELECTED
   };
   revisionManager.add(revision);
   return revision;

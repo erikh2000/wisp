@@ -56,13 +56,13 @@ export function findPartByComponent(parts:TrackedPart[], component:CanvasCompone
 export function createTrackedPartsForFace(headComponent:CanvasComponent):TrackedPart[] {
   const trackedParts:TrackedPart[] = [];
   const componentPlaceholder = (null as unknown) as CanvasComponent;
-  trackedParts.push({component:headComponent, selectionBox:componentPlaceholder, isResizable:true, isMovable:false});
   const children = headComponent.findNonUiChildren();
   const childCount = children.length;
-  for (let childI = 0; childI < childCount; ++childI) {
+  for (let childI = childCount-1; childI >= 0; --childI) {
     const child = children[childI];
     trackedParts.push({component:child, selectionBox:componentPlaceholder, isResizable:true, isMovable:true});
   }
+  trackedParts.push({component:headComponent, selectionBox:componentPlaceholder, isResizable:true, isMovable:false});
   return trackedParts;
 }
 

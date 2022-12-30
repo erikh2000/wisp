@@ -68,27 +68,6 @@ async function _loadParts(parts:LoadablePart[], thumbnailContext:CanvasRendering
 } 
 
 const EXTRA_PART_TYPE = 'extra'; // TODO move to sl-web-face.
-async function _init(partManifestUrl:string, partLoader:PartLoader, onUpdate?:UpdateCallback) {
-  const manifest = await _loadManifest(partManifestUrl);
-  partLoader.heads = _initLoadableParts(manifest.head);
-  partLoader.eyes = _initLoadableParts(manifest.eyes);
-  partLoader.mouths = _initLoadableParts(manifest.mouth);
-  partLoader.noses = _initLoadableParts(manifest.nose);
-  partLoader.extras = _initLoadableParts(manifest.extra);
-  if (onUpdate) {
-    onUpdate(HEAD_PART_TYPE, 'manifest');
-    onUpdate(EYES_PART_TYPE, 'manifest');
-    onUpdate(MOUTH_PART_TYPE, 'manifest');
-    onUpdate(NOSE_PART_TYPE, 'manifest');
-    onUpdate(EXTRA_PART_TYPE, 'manifest');
-  }
-  const thumbnailContext = createOffScreenContext(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
-  _loadParts(partLoader.heads, thumbnailContext, HEAD_PART_TYPE, onUpdate);
-  _loadParts(partLoader.eyes, thumbnailContext, EYES_PART_TYPE, onUpdate);
-  _loadParts(partLoader.mouths, thumbnailContext, MOUTH_PART_TYPE, onUpdate);
-  _loadParts(partLoader.noses, thumbnailContext, NOSE_PART_TYPE, onUpdate);
-  _loadParts(partLoader.extras, thumbnailContext, EXTRA_PART_TYPE, onUpdate);
-}
 
 class PartLoader {
   heads:LoadablePart[];
@@ -98,10 +77,29 @@ class PartLoader {
   extras:LoadablePart[];
   private _onUpdate?:UpdateCallback;
   
-  constructor(partManifestUrl:string, onUpdate?:UpdateCallback) {
+  constructor(onUpdate?:UpdateCallback) {
     this.heads = this.eyes = this.mouths = this.noses = this.extras = [];
     this._onUpdate = onUpdate;
-    _init(partManifestUrl, this, onUpdate);
+  }
+  
+  async loadManifest(partManifestUrl:string):Promise<PartManifest> {
+    const manifest = await _loadManifest(partManifestUrl);
+    this.heads = _initLoadableParts(manifest.head);
+    this.eyes = _initLoadableParts(manifest.eyes);
+    this.mouths = _initLoadableParts(manifest.mouth);
+    this.noses = _initLoadableParts(manifest.nose);
+    this.extras = _initLoadableParts(manifest.extra);
+    
+    // Thumbnails can continue loading after this function is resolved. Caller can use update callback to
+    // learn when new thumbnails are loaded.
+    const thumbnailContext = createOffScreenContext(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
+    _loadParts(this.heads, thumbnailContext, HEAD_PART_TYPE, this._onUpdate);
+    _loadParts(this.eyes, thumbnailContext, EYES_PART_TYPE, this._onUpdate);
+    _loadParts(this.mouths, thumbnailContext, MOUTH_PART_TYPE, this._onUpdate);
+    _loadParts(this.noses, thumbnailContext, NOSE_PART_TYPE, this._onUpdate);
+    _loadParts(this.extras, thumbnailContext, EXTRA_PART_TYPE, this._onUpdate);
+    
+    return manifest;
   }
   
   getPartsForType(partTypeName:string):LoadablePart[] {
