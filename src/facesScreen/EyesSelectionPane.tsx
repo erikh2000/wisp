@@ -1,4 +1,5 @@
 import InnerContentPane, { ButtonDefinition } from "ui/innerContentPane/InnerContentPane";
+import PartThumbnail from "./PartThumbnail";
 
 type EmptyCallback = () => void;
 
@@ -6,6 +7,7 @@ interface IProps {
   className:string,
   disabled?:boolean,
   isSpecified:boolean,
+  thumbnailBitmap:ImageBitmap|null,
   onAdd:EmptyCallback,
   onReplace:EmptyCallback,
   onRemove:EmptyCallback
@@ -18,7 +20,7 @@ function _generateButtonDefinitions(isSpecified:boolean, onAdd:EmptyCallback, on
 }
 
 function EyesSelectionPane(props:IProps) {
-  const { className, disabled, isSpecified, onAdd, onRemove, onReplace } = props;
+  const { className, disabled, isSpecified, onAdd, onRemove, onReplace, thumbnailBitmap } = props;
 
   const buttons:ButtonDefinition[] = _generateButtonDefinitions(isSpecified, onAdd, onReplace, onRemove, disabled);
   const comment = 'Skin and hair colors are inherited from head settings.';
@@ -26,7 +28,9 @@ function EyesSelectionPane(props:IProps) {
   if (!isSpecified) return <InnerContentPane className={className} buttons={buttons} caption='No Eyes' />
   
   return (
-    <InnerContentPane className={className} buttons={buttons} caption='Selected: Eyes' comment={comment} />
+    <InnerContentPane className={className} buttons={buttons} caption='Selected: Eyes' comment={comment}>
+      <PartThumbnail bitmap={thumbnailBitmap} onClick={onReplace} isSelected={false} />
+    </InnerContentPane>
   );
 }
 

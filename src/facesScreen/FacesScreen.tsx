@@ -82,16 +82,45 @@ function FacesScreen() {
   let selectionPane:JSX.Element|null;
   switch(partType) {
     case PartType.HEAD:
-      selectionPane = <HeadSelectionPane className={styles.selectionPane} onReplace={() => {onReplaceHead(setModalDialog)}} disabled={disabled}/>
+      selectionPane = <HeadSelectionPane 
+        className={styles.selectionPane} 
+        onReplace={() => {onReplaceHead(setModalDialog)}} 
+        disabled={disabled}
+        thumbnailBitmap={revision.headPartNo === UNSPECIFIED ? null : headParts[revision.headPartNo].thumbnail}
+      />
       break;
     case PartType.EYES:
-      selectionPane = <EyesSelectionPane className={styles.selectionPane} onAdd={() => onAddEyes(setModalDialog)} onReplace={() => onReplaceEyes(setModalDialog)} onRemove={() => onRemoveEyes(setRevision)} isSpecified={revision.eyesPartNo !== UNSPECIFIED} disabled={disabled}/>
+      selectionPane = <EyesSelectionPane 
+        className={styles.selectionPane} 
+        onAdd={() => onAddEyes(setModalDialog)} 
+        onReplace={() => onReplaceEyes(setModalDialog)} 
+        onRemove={() => onRemoveEyes(setRevision)}
+        thumbnailBitmap={revision.eyesPartNo === UNSPECIFIED ? null : eyeParts[revision.eyesPartNo].thumbnail}
+        isSpecified={revision.eyesPartNo !== UNSPECIFIED} 
+        disabled={disabled}
+      />
       break;
     case PartType.MOUTH:
-      selectionPane = <MouthSelectionPane className={styles.selectionPane} onAdd={() => onAddMouth(setModalDialog)} onReplace={() => onReplaceMouth(setModalDialog)} onRemove={() => onRemoveMouth(setRevision)} isSpecified={revision.mouthPartNo !== UNSPECIFIED} disabled={disabled}/>
+      selectionPane = <MouthSelectionPane 
+        className={styles.selectionPane} 
+        onAdd={() => onAddMouth(setModalDialog)} 
+        onReplace={() => onReplaceMouth(setModalDialog)} 
+        onRemove={() => onRemoveMouth(setRevision)}
+        thumbnailBitmap={revision.mouthPartNo === UNSPECIFIED ? null : mouthParts[revision.mouthPartNo].thumbnail}
+        isSpecified={revision.mouthPartNo !== UNSPECIFIED} 
+        disabled={disabled}
+      />
       break;
     case PartType.NOSE:
-      selectionPane = <NoseSelectionPane className={styles.selectionPane} onAdd={() => onAddNose(setModalDialog)} onReplace={() => onReplaceNose(setModalDialog)} onRemove={() => onRemoveNose(setRevision)} isSpecified={revision.nosePartNo !== UNSPECIFIED} disabled={disabled}/>
+      selectionPane = <NoseSelectionPane 
+        className={styles.selectionPane} 
+        onAdd={() => onAddNose(setModalDialog)} 
+        onReplace={() => onReplaceNose(setModalDialog)} 
+        onRemove={() => onRemoveNose(setRevision)}
+        thumbnailBitmap={revision.nosePartNo === UNSPECIFIED ? null : noseParts[revision.nosePartNo].thumbnail}
+        isSpecified={revision.nosePartNo !== UNSPECIFIED} 
+        disabled={disabled}
+      />
       break;
     default:
       selectionPane = <ExtraSelectionPane partNo={1} className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={false} disabled={disabled}/>

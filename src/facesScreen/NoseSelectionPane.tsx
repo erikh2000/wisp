@@ -1,4 +1,5 @@
 import InnerContentPane, { ButtonDefinition } from "ui/innerContentPane/InnerContentPane";
+import PartThumbnail from "./PartThumbnail";
 
 type EmptyCallback = () => void;
 
@@ -8,7 +9,8 @@ interface IProps {
   onAdd:EmptyCallback,
   onReplace:EmptyCallback,
   onRemove:EmptyCallback,
-  disabled?:boolean
+  disabled?:boolean,
+  thumbnailBitmap:ImageBitmap|null
 }
 
 function _generateButtonDefinitions(isSpecified:boolean, onAdd:EmptyCallback, onReplace:EmptyCallback, onRemove:EmptyCallback, disabled?:boolean):ButtonDefinition[] {
@@ -18,7 +20,7 @@ function _generateButtonDefinitions(isSpecified:boolean, onAdd:EmptyCallback, on
 }
 
 function NoseSelectionPane(props:IProps) {
-  const { className, disabled, isSpecified, onAdd, onRemove, onReplace } = props;
+  const { className, disabled, isSpecified, onAdd, onRemove, onReplace, thumbnailBitmap } = props;
 
   const buttons:ButtonDefinition[] = _generateButtonDefinitions(isSpecified, onAdd, onReplace, onRemove, disabled);
   const comment = 'Skin colors are inherited from head settings.';
@@ -26,7 +28,9 @@ function NoseSelectionPane(props:IProps) {
   if (!isSpecified) return <InnerContentPane className={className} buttons={buttons} caption='No Nose' />
 
   return (
-    <InnerContentPane className={className} buttons={buttons} caption='Selected: Nose' comment={comment} />
+    <InnerContentPane className={className} buttons={buttons} caption='Selected: Nose' comment={comment}>
+      <PartThumbnail bitmap={thumbnailBitmap} onClick={onReplace} isSelected={false} />
+    </InnerContentPane>
   );
 }
 

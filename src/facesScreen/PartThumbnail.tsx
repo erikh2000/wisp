@@ -2,6 +2,8 @@ import styles from './PartThumbnail.module.css';
 import Canvas from "ui/Canvas";
 import LoadingBox from "ui/LoadingBox";
 
+import {clearContext} from "sl-web-face";
+
 interface IProps {
   bitmap:ImageBitmap|null,
   isSelected:boolean,
@@ -9,6 +11,7 @@ interface IProps {
 }
 
 function _onDraw(bitmap:ImageBitmap, context:CanvasRenderingContext2D) {
+  clearContext(context)
   context.drawImage(bitmap, 0, 0);
 }
 
