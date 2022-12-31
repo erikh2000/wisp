@@ -1,40 +1,37 @@
 import styles from './FacesScreen.module.css';
-import {
-  InitResults,
-  Revision,
-  UNSPECIFIED,
-  deinit,
-  getRevisionForMount,
-  init,
-  isHeadReady,
-  onAddEyes,
-  onAddMouth,
-  onAddNose,
-  onDrawFaceCanvas,
-  onEmotionChange,
-  onEyesChanged,
-  onHeadChanged, 
-  onLidLevelChange,
-  onMouthChanged,
-  onNoseChanged,
-  onPartTypeChange,
-  onRedo,
-  onRemoveEyes,
-  onRemoveMouth,
-  onRemoveNose,
-  onReplaceEyes,
-  onReplaceHead,
-  onReplaceMouth,
-  onReplaceNose,
-  onTestVoiceChange,
-  onUndo
-} from "./facesScreenInteractions";
+import HeadChooser from "./HeadChooser";
 import MouthChooser from "./MouthChooser";
 import NoseChooser from "./NoseChooser";
 import useEffectAfterMount from "common/useEffectAfterMount";
 import EmotionSelector from "facesScreen/EmotionSelector";
 import ExtraSelectionPane from "facesScreen/ExtraSelectionPane";
 import EyesChooser from "./EyesChooser";
+import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
+import {
+  InitResults,
+  deinit,
+  getRevisionForMount,
+  init,
+  onDrawFaceCanvas,
+  onPartTypeChange
+} from "./interactions/generalInteractions";
+import {
+  onAddEyes,
+  onAddMouth,
+  onAddNose,
+  onEyesChanged,
+  onHeadChanged,
+  onMouthChanged,
+  onNoseChanged,
+  onRemoveEyes,
+  onRemoveMouth,
+  onRemoveNose,
+  onReplaceEyes,
+  onReplaceHead,
+  onReplaceMouth,
+  onReplaceNose
+} from "./interactions/partChooserInteractions";
+import {onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import HeadSelectionPane from "facesScreen/HeadSelectionPane";
 import EyesSelectionPane from "facesScreen/EyesSelectionPane";
 import LidLevelSelector from "facesScreen/LidLevelSelector";
@@ -50,7 +47,7 @@ import {LoadablePart} from "ui/partAuthoring/PartLoader";
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 
 import React, {useState} from 'react';
-import HeadChooser from "./HeadChooser";
+import {onEmotionChange, onLidLevelChange, onTestVoiceChange} from "./interactions/viewSettingsInteractions";
 
 function emptyCallback() {} // TODO delete when not using
 
