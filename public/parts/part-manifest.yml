@@ -16,6 +16,7 @@ nose:
   - /parts/billy-nose.yml
 eyes:
   - /parts/billy-eyes.yml
+  - /parts/billy-eyes2.yml
 mouth:
   - /parts/billy-mouth.yml
   - /parts/billy-mouth2.yml
