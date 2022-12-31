@@ -25,8 +25,9 @@ import RevisionManager from "documents/RevisionManager";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
 import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
 import PartLoader, {LoadablePart} from "ui/partAuthoring/PartLoader";
+import MouthChooser from "./MouthChooser";
 
-const UNSELECTED = -1;
+export const UNSPECIFIED = -1;
 
 export type Revision = {
   document:FaceDocument|null, // A null document indicates no document is loaded. Used only for initial revision. 
@@ -34,6 +35,7 @@ export type Revision = {
   lidLevel:LidLevel,
   partType:PartType,
   testVoice:TestVoiceType,
+  mouthPartNo:number,
   nosePartNo:number
 };
 
@@ -62,10 +64,6 @@ async function _performDisablingOperation(taskFunction:any):Promise<any> {
     setDisabled(false);  
   }
   return result;
-}
-
-function _findPartComponents(headComponent:CanvasComponent):CanvasComponent[] {
-  return headComponent.findNonUiChildren();
 }
 
 function _onPartMoved(component:CanvasComponent, x:number, y:number, setRevision:any):boolean {
@@ -147,11 +145,11 @@ function _onFaceCanvasMouseMove(event:any) { partUiManager?.onMouseMove(event); 
 
 function _findLoadablePartNo(loadableParts:LoadablePart[], headComponent:CanvasComponent, partType:PartType):number {
   const component = _findCanvasComponentForPartType(headComponent, partType);
-  if (!component) return UNSELECTED;
+  if (!component) return UNSPECIFIED;
   return loadableParts.findIndex(loadablePart => loadablePart.url === component.partUrl);
 }
 
-export async function init(setRevision:any, setNoseParts:any, _setDisabled:any):Promise<InitResults> {
+export async function init(setRevision:any, setNoseParts:any, setMouthParts:any, _setDisabled:any):Promise<InitResults> {
   
   function onFaceCanvasMouseUp(event:any) { partUiManager?.onMouseUp(event); }
   function onFaceCanvasMouseDown(event:any) { partUiManager?.onMouseDown(event); }
@@ -163,6 +161,10 @@ export async function init(setRevision:any, setNoseParts:any, _setDisabled:any):
     switch(partTypeName) {
       case NOSE_PART_TYPE:
         setNoseParts([...partLoader.noses]);
+        break;
+        
+      case MOUTH_PART_TYPE:
+        setMouthParts([...partLoader.mouths]);
         break;
     }
   }
@@ -189,7 +191,8 @@ export async function init(setRevision:any, setNoseParts:any, _setDisabled:any):
     lidLevel:LidLevel.NORMAL,
     testVoice:TestVoiceType.MUTED,
     document: createFaceDocument(head),
-    nosePartNo: _findLoadablePartNo(partLoader.noses, head, PartType.NOSE)
+    nosePartNo: _findLoadablePartNo(partLoader.noses, head, PartType.NOSE),
+    mouthPartNo: _findLoadablePartNo(partLoader.mouths, head, PartType.MOUTH)
   }
   revisionManager.clear();
   revisionManager.add(nextRevision);
@@ -330,15 +333,39 @@ export function getRevisionForMount():Revision {
     partType: PartType.HEAD,
     testVoice: TestVoiceType.MUTED,
     document: null,
-    nosePartNo: UNSELECTED
+    nosePartNo: UNSPECIFIED,
+    mouthPartNo: UNSPECIFIED
   };
   revisionManager.add(revision);
   return revision;
 }
 
-export function onReplaceNose(setModalDialog:any) {
-  setModalDialog(NoseChooser.name);
+export function onReplaceMouth(setModalDialog:any) { setModalDialog(MouthChooser.name); }
+
+export function onAddMouth(setModalDialog:any) { setModalDialog(MouthChooser.name); }
+
+export function onMouthChanged(mouthParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
+  setModalDialog(null);
+  const partUrl = mouthParts[partNo].url;
+  _performDisablingOperation(async () => {
+    _changePart(partUrl, PartType.MOUTH)
+      .then(() => _updateForFaceRelatedRevision({mouthPartNo:partNo}, setRevision));
+  });
 }
+
+export function onRemoveMouth(setRevision:any) {
+  if (!head) return;
+  const mouthComponent = _findCanvasComponentForPartType(head, PartType.MOUTH);
+  if (!mouthComponent) return;
+  mouthComponent.setParent(null);
+  _performDisablingOperation(async () => {
+    _updateForFaceRelatedRevision({mouthPartNo:UNSPECIFIED}, setRevision);
+  });
+}
+
+export function onReplaceNose(setModalDialog:any) { setModalDialog(NoseChooser.name); }
+
+export function onAddNose(setModalDialog:any) { setModalDialog(NoseChooser.name); }
  
 export function onNoseChanged(noseParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
   setModalDialog(null);
@@ -355,7 +382,7 @@ export function onRemoveNose(setRevision:any) {
   if (!noseComponent) return;
   noseComponent.setParent(null);
   _performDisablingOperation(async () => {
-      _updateForFaceRelatedRevision({nosePartNo:UNSELECTED}, setRevision);
+      _updateForFaceRelatedRevision({nosePartNo:UNSPECIFIED}, setRevision);
   });
 }
 

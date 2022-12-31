@@ -18,4 +18,5 @@ eyes:
   - /parts/billy-eyes.yml
 mouth:
   - /parts/billy-mouth.yml
+  - /parts/billy-mouth2.yml
 extra: []

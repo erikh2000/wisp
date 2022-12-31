@@ -2,20 +2,28 @@ import styles from './FacesScreen.module.css';
 import {
   InitResults,
   Revision,
+  UNSPECIFIED, 
   deinit,
   getRevisionForMount,
   init,
   isHeadReady,
+  onAddMouth, 
+  onAddNose,
   onDrawFaceCanvas,
   onEmotionChange,
   onLidLevelChange,
+  onMouthChanged,
+  onNoseChanged,
   onPartTypeChange,
   onRedo,
+  onRemoveMouth,
+  onRemoveNose,
+  onReplaceMouth,
   onReplaceNose,
   onTestVoiceChange,
-  onUndo,
-  onNoseChanged, onRemoveNose
+  onUndo 
 } from "./facesScreenInteractions";
+import MouthChooser from "./MouthChooser";
 import NoseChooser from "./NoseChooser";
 import useEffectAfterMount from "common/useEffectAfterMount";
 import EmotionSelector from "facesScreen/EmotionSelector";
@@ -43,11 +51,12 @@ function FacesScreen() {
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [noseParts, setNoseParts] = useState<LoadablePart[]>([]);
+  const [mouthParts, setMouthParts] = useState<LoadablePart[]>([]);
   const [disabled, setDisabled] = useState<boolean>(false);
   const { partType, testVoice, emotion, lidLevel } = revision;
   
   useEffectAfterMount(() => {
-    init(setRevision, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
+    init(setRevision, setNoseParts, setMouthParts, setDisabled).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
     });
     return deinit();
@@ -72,10 +81,10 @@ function FacesScreen() {
       selectionPane = <EyesSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={true} disabled={disabled}/>
       break;
     case PartType.MOUTH:
-      selectionPane = <MouthSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={true} disabled={disabled}/>
+      selectionPane = <MouthSelectionPane className={styles.selectionPane} onAdd={() => {onAddMouth(setModalDialog)}} onReplace={() => onReplaceMouth(setModalDialog)} onRemove={() => onRemoveMouth(setRevision)} isSpecified={revision.mouthPartNo !== UNSPECIFIED} disabled={disabled}/>
       break;
     case PartType.NOSE:
-      selectionPane = <NoseSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => onReplaceNose(setModalDialog)} onRemove={() => onRemoveNose(setRevision)} isSpecified={true} disabled={disabled}/>
+      selectionPane = <NoseSelectionPane className={styles.selectionPane} onAdd={() => {onAddNose(setModalDialog)}} onReplace={() => onReplaceNose(setModalDialog)} onRemove={() => onRemoveNose(setRevision)} isSpecified={revision.nosePartNo !== UNSPECIFIED} disabled={disabled}/>
       break;
     default:
       selectionPane = <ExtraSelectionPane partNo={1} className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={false} disabled={disabled}/>
@@ -110,6 +119,13 @@ function FacesScreen() {
         onCancel={() => setModalDialog(null)} 
         parts={noseParts} 
         selectedPartNo={revision.nosePartNo}
+      />
+      <MouthChooser
+        isOpen={modalDialog === MouthChooser.name}
+        onChange={(partNo:number) => onMouthChanged(mouthParts, partNo, setModalDialog, setRevision)}
+        onCancel={() => setModalDialog(null)}
+        parts={mouthParts}
+        selectedPartNo={revision.mouthPartNo}
       />
     </ScreenContainer>
   );
