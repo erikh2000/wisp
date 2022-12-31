@@ -14,7 +14,7 @@ import {
   onReplaceNose,
   onTestVoiceChange,
   onUndo,
-  onNoseChanged
+  onNoseChanged, onRemoveNose
 } from "./facesScreenInteractions";
 import NoseChooser from "./NoseChooser";
 import useEffectAfterMount from "common/useEffectAfterMount";
@@ -75,7 +75,7 @@ function FacesScreen() {
       selectionPane = <MouthSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={true} disabled={disabled}/>
       break;
     case PartType.NOSE:
-      selectionPane = <NoseSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => onReplaceNose(setModalDialog)} onRemove={() => {}} isSpecified={true} disabled={disabled}/>
+      selectionPane = <NoseSelectionPane className={styles.selectionPane} onAdd={() => {}} onReplace={() => onReplaceNose(setModalDialog)} onRemove={() => onRemoveNose(setRevision)} isSpecified={true} disabled={disabled}/>
       break;
     default:
       selectionPane = <ExtraSelectionPane partNo={1} className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={false} disabled={disabled}/>

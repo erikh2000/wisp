@@ -349,6 +349,16 @@ export function onNoseChanged(noseParts:LoadablePart[], partNo:number, setModalD
   });
 }
 
+export function onRemoveNose(setRevision:any) {
+  if (!head) return;
+  const noseComponent = _findCanvasComponentForPartType(head, PartType.NOSE);
+  if (!noseComponent) return;
+  noseComponent.setParent(null);
+  _performDisablingOperation(async () => {
+      _updateForFaceRelatedRevision({nosePartNo:UNSELECTED}, setRevision);
+  });
+}
+
 export function findPartNoByType(parts:LoadablePart[], partType:PartType):number {
   if (!head) return -1;
   const component = _findCanvasComponentForPartType(head, partType);
