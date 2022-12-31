@@ -27,6 +27,7 @@ import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanv
 import PartLoader, {LoadablePart} from "ui/partAuthoring/PartLoader";
 import MouthChooser from "./MouthChooser";
 import EyesChooser from "./EyesChooser";
+import HeadChooser from "./HeadChooser";
 
 export const UNSPECIFIED = -1;
 
@@ -37,6 +38,7 @@ export type Revision = {
   partType:PartType,
   testVoice:TestVoiceType,
   eyesPartNo:number,
+  headPartNo:number,
   mouthPartNo:number,
   nosePartNo:number
 };
@@ -151,7 +153,7 @@ function _findLoadablePartNo(loadableParts:LoadablePart[], headComponent:CanvasC
   return loadableParts.findIndex(loadablePart => loadablePart.url === component.partUrl);
 }
 
-export async function init(setRevision:any, setEyeParts:any, setMouthParts:any, setNoseParts:any, _setDisabled:any):Promise<InitResults> {
+export async function init(setRevision:any, setEyeParts:any, setHeadParts:any, setMouthParts:any, setNoseParts:any, _setDisabled:any):Promise<InitResults> {
   
   function onFaceCanvasMouseUp(event:any) { partUiManager?.onMouseUp(event); }
   function onFaceCanvasMouseDown(event:any) { partUiManager?.onMouseDown(event); }
@@ -171,6 +173,10 @@ export async function init(setRevision:any, setEyeParts:any, setMouthParts:any, 
         
       case EYES_PART_TYPE:
         setEyeParts([...partLoader.eyes]);
+        break;
+        
+      case HEAD_PART_TYPE:
+        setHeadParts([...partLoader.heads]);
         break;
     }
   }
@@ -199,7 +205,8 @@ export async function init(setRevision:any, setEyeParts:any, setMouthParts:any, 
     document: createFaceDocument(head),
     eyesPartNo: _findLoadablePartNo(partLoader.eyes, head, PartType.EYES),
     nosePartNo: _findLoadablePartNo(partLoader.noses, head, PartType.NOSE),
-    mouthPartNo: _findLoadablePartNo(partLoader.mouths, head, PartType.MOUTH)
+    mouthPartNo: _findLoadablePartNo(partLoader.mouths, head, PartType.MOUTH),
+    headPartNo: _findLoadablePartNo(partLoader.heads, head, PartType.HEAD)
   }
   revisionManager.clear();
   revisionManager.add(nextRevision);
@@ -220,6 +227,13 @@ function _publishFaceEventsForRevision(revision:Revision) {
   publishEvent(Topic.LID_LEVEL, revision.lidLevel);
 }
 
+function _reparentHeadParts(oldHead:CanvasComponent, newHead:CanvasComponent) {
+  const children = oldHead.findNonUiChildren();
+  for(let i = 0; i < children.length; ++i) {
+    children[i].setParent(newHead);
+  }
+}
+
 async function _changePart(partUrl:string, partType:PartType) {
   if (!head || !partUiManager) return;
   const skinTone = nameToSkinTone(head.skinTone);
@@ -227,7 +241,10 @@ async function _changePart(partUrl:string, partType:PartType) {
   const currentComponent = _findCanvasComponentForPartType(head, partType);
   if (currentComponent) {
     const replacedComponent = await replaceComponentFromPartUrl(currentComponent, partUrl);
-    if (replacedComponent.partType === HEAD_PART_TYPE) head = replacedComponent;
+    if (replacedComponent.partType === HEAD_PART_TYPE) {
+      _reparentHeadParts(head, replacedComponent);
+      head = replacedComponent;
+    }
   } else {
     const newComponent = await loadComponentFromPartUrl(partUrl, skinTone);
     if (newComponent.partType !== HEAD_PART_TYPE) newComponent.setParent(head); 
@@ -237,7 +254,7 @@ async function _changePart(partUrl:string, partType:PartType) {
 
 async function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
   if (!revision || !head || !partUiManager) return;
-  if (revision.document) await updateFaceFromDocument(head, revision.document);
+  if (revision.document) head = await updateFaceFromDocument(head, revision.document);
   await partUiManager.trackPartsForFace(head);
   updateSelectionBoxesToMatchFace(head);
   _publishFaceEventsForRevision(revision);
@@ -341,6 +358,7 @@ export function getRevisionForMount():Revision {
     testVoice: TestVoiceType.MUTED,
     document: null,
     eyesPartNo: UNSPECIFIED,
+    headPartNo: UNSPECIFIED,
     nosePartNo: UNSPECIFIED,
     mouthPartNo: UNSPECIFIED
   };
@@ -356,6 +374,17 @@ function _removePart(revisionPartNoName:string, partType:PartType, setRevision:a
   const changes = {[revisionPartNoName]:UNSPECIFIED};
   _performDisablingOperation(async () => {
     _updateForFaceRelatedRevision(changes, setRevision);
+  });
+}
+
+export function onReplaceHead(setModalDialog:any) { setModalDialog(HeadChooser.name); }
+
+export function onHeadChanged(headParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
+  setModalDialog(null);
+  const partUrl = headParts[partNo].url;
+  _performDisablingOperation(async () => {
+    _changePart(partUrl, PartType.HEAD)
+      .then(() => _updateForFaceRelatedRevision({eyesPartNo:partNo}, setRevision));
   });
 }
 

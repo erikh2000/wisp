@@ -7,25 +7,27 @@ import {
   getRevisionForMount,
   init,
   isHeadReady,
-  onAddEyes, 
+  onAddEyes,
   onAddMouth,
   onAddNose,
   onDrawFaceCanvas,
   onEmotionChange,
   onEyesChanged,
+  onHeadChanged, 
   onLidLevelChange,
   onMouthChanged,
   onNoseChanged,
   onPartTypeChange,
   onRedo,
-  onRemoveEyes, 
+  onRemoveEyes,
   onRemoveMouth,
   onRemoveNose,
-  onReplaceEyes, 
+  onReplaceEyes,
+  onReplaceHead,
   onReplaceMouth,
   onReplaceNose,
   onTestVoiceChange,
-  onUndo 
+  onUndo
 } from "./facesScreenInteractions";
 import MouthChooser from "./MouthChooser";
 import NoseChooser from "./NoseChooser";
@@ -48,6 +50,7 @@ import {LoadablePart} from "ui/partAuthoring/PartLoader";
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 
 import React, {useState} from 'react';
+import HeadChooser from "./HeadChooser";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -56,13 +59,14 @@ function FacesScreen() {
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [eyeParts, setEyeParts] = useState<LoadablePart[]>([]);
+  const [headParts, setHeadParts] = useState<LoadablePart[]>([]);
   const [mouthParts, setMouthParts] = useState<LoadablePart[]>([]);
   const [noseParts, setNoseParts] = useState<LoadablePart[]>([]);
   const [disabled, setDisabled] = useState<boolean>(false);
   const { partType, testVoice, emotion, lidLevel } = revision;
   
   useEffectAfterMount(() => {
-    init(setRevision, setEyeParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
+    init(setRevision, setEyeParts, setHeadParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
     });
     return deinit();
@@ -81,7 +85,7 @@ function FacesScreen() {
   let selectionPane:JSX.Element|null;
   switch(partType) {
     case PartType.HEAD:
-      selectionPane = <HeadSelectionPane className={styles.selectionPane} onReplace={() => {}} disabled={disabled}/>
+      selectionPane = <HeadSelectionPane className={styles.selectionPane} onReplace={() => {onReplaceHead(setModalDialog)}} disabled={disabled}/>
       break;
     case PartType.EYES:
       selectionPane = <EyesSelectionPane className={styles.selectionPane} onAdd={() => onAddEyes(setModalDialog)} onReplace={() => onReplaceEyes(setModalDialog)} onRemove={() => onRemoveEyes(setRevision)} isSpecified={revision.eyesPartNo !== UNSPECIFIED} disabled={disabled}/>
@@ -139,6 +143,13 @@ function FacesScreen() {
         onCancel={() => setModalDialog(null)}
         parts={eyeParts}
         selectedPartNo={revision.eyesPartNo}
+      />
+      <HeadChooser
+        isOpen={modalDialog === HeadChooser.name}
+        onChange={(partNo:number) => onHeadChanged(headParts, partNo, setModalDialog, setRevision)}
+        onCancel={() => setModalDialog(null)}
+        parts={headParts}
+        selectedPartNo={revision.headPartNo}
       />
     </ScreenContainer>
   );

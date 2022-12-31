@@ -1,5 +1,6 @@
 head:
   - /parts/billy-head.yml
+  - /parts/bystander-head.yml
 nose:
   - /parts/nose1.yml
   - /parts/nose2.yml
