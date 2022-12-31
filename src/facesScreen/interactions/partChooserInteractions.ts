@@ -75,7 +75,7 @@ export function onReplaceEyes(setModalDialog:any) { setModalDialog(EyesChooser.n
 export function onAddEyes(setModalDialog:any) { setModalDialog(EyesChooser.name); }
 
 export function onEyesChanged(eyesParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
-  _onPartChanged('eyePartNo', eyesParts, partNo, PartType.EYES, setModalDialog, setRevision);
+  _onPartChanged('eyesPartNo', eyesParts, partNo, PartType.EYES, setModalDialog, setRevision);
 }
 
 export function onRemoveEyes(setRevision:any) { _removePart(getHead(),'eyesPartNo', PartType.EYES, setRevision); }
