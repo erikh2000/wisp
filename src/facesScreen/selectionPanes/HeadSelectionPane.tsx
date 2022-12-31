@@ -1,5 +1,5 @@
 import InnerContentPane, { ButtonDefinition } from "ui/innerContentPane/InnerContentPane";
-import PartThumbnail from "./PartThumbnail";
+import PartThumbnail from "facesScreen/partChoosers/PartThumbnail";
 
 interface IProps {
   className:string,

@@ -1,5 +1,5 @@
 import InnerContentPane, { ButtonDefinition } from "ui/innerContentPane/InnerContentPane";
-import PartThumbnail from "./PartThumbnail";
+import PartThumbnail from "facesScreen/partChoosers/PartThumbnail";
 
 type EmptyCallback = () => void;
 
@@ -19,19 +19,19 @@ function _generateButtonDefinitions(isSpecified:boolean, onAdd:EmptyCallback, on
     : [{text:'Add', onClick:onAdd, disabled}];
 }
 
-function MouthSelectionPane(props:IProps) {
+function NoseSelectionPane(props:IProps) {
   const { className, disabled, isSpecified, onAdd, onRemove, onReplace, thumbnailBitmap } = props;
 
   const buttons:ButtonDefinition[] = _generateButtonDefinitions(isSpecified, onAdd, onReplace, onRemove, disabled);
-  const comment = 'Skin and hair colors are inherited from head settings.';
+  const comment = 'Skin colors are inherited from head settings.';
 
-  if (!isSpecified) return <InnerContentPane className={className} buttons={buttons} caption='No Mouth' />
+  if (!isSpecified) return <InnerContentPane className={className} buttons={buttons} caption='No Nose' />
 
   return (
-    <InnerContentPane className={className} buttons={buttons} caption='Selected: Mouth' comment={comment}>
+    <InnerContentPane className={className} buttons={buttons} caption='Selected: Nose' comment={comment}>
       <PartThumbnail bitmap={thumbnailBitmap} onClick={onReplace} isSelected={false} />
     </InnerContentPane>
   );
 }
 
-export default MouthSelectionPane;
+export default NoseSelectionPane;

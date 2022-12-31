@@ -1,4 +1,4 @@
-import {TestVoiceType} from "facesScreen/TestVoiceSelector";
+import {TestVoiceType} from "facesScreen/view/TestVoiceSelector";
 import {updateForFaceRelatedRevision} from "./revisionUtil";
 import {Emotion, LidLevel} from "sl-web-face";
 

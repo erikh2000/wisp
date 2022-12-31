@@ -1,5 +1,5 @@
-import {PartType} from "../PartSelector";
-import {TestVoiceType} from "../TestVoiceSelector";
+import {PartType} from "facesScreen/PartSelector";
+import {TestVoiceType} from "facesScreen/view/TestVoiceSelector";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
 import PartLoader from "ui/partAuthoring/PartLoader";
 import {
@@ -36,7 +36,7 @@ export type InitResults = {
   onFaceCanvasMouseUp:any
 }
 
-let isInitialized = false;
+let _isInitialized = false;
 const blinkController = new BlinkController();
 const attentionController = new AttentionController();
 
@@ -126,7 +126,7 @@ export async function init(setRevision:any, setEyeParts:any, setHeadParts:any, s
   
   _addDocumentMouseUpListener(onFaceCanvasMouseUp);
   bindSetDisabled(_setDisabled); // This setter is kept in module-scape var, so it needs to be updated on each component mount.
-  if (isInitialized) return initResults
+  if (_isInitialized) return initResults
   
   const head = await loadFaceFromUrl('/faces/billy.yml');
   blinkController.start();
@@ -154,7 +154,7 @@ export async function init(setRevision:any, setEyeParts:any, setHeadParts:any, s
   revisionManager.add(nextRevision);
   setRevision(nextRevision);
   
-  isInitialized = true;
+  _isInitialized = true;
   
   return initResults;
 }
@@ -163,6 +163,8 @@ export function deinit() {
   if (!isInitialized) return;
   _removeDocumentMouseUpListener(_onFaceCanvasMouseMove);
 }
+
+export function isInitialized() { return _isInitialized; }
 
 function _centerCanvasComponent(component:CanvasComponent, canvasWidth:number, canvasHeight:number) {
   const componentWidth = component.width, componentHeight = component.height;

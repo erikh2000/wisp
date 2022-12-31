@@ -1,5 +1,5 @@
 import {PartType} from "facesScreen/PartSelector";
-import {TestVoiceType} from "facesScreen/TestVoiceSelector";
+import {TestVoiceType} from "facesScreen/view/TestVoiceSelector";
 
 import {
   createFaceDocument,

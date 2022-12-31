@@ -1,9 +1,3 @@
-import {PartType} from "../PartSelector";
-import {LoadablePart} from "../../ui/partAuthoring/PartLoader";
-import HeadChooser from "../HeadChooser";
-import EyesChooser from "../EyesChooser";
-import MouthChooser from "../MouthChooser";
-import NoseChooser from "../NoseChooser";
 import {
   findCanvasComponentForPartType,
   getHead,
@@ -11,6 +5,13 @@ import {
   performDisablingOperation, setHead,
   UNSPECIFIED
 } from "./coreUtil";
+import {updateForFaceRelatedRevision} from "./revisionUtil";
+import {PartType} from "facesScreen/PartSelector";
+import HeadChooser from "facesScreen/partChoosers/HeadChooser";
+import EyesChooser from "facesScreen/partChoosers/EyesChooser";
+import MouthChooser from "facesScreen/partChoosers/MouthChooser";
+import NoseChooser from "facesScreen/partChoosers/NoseChooser";
+import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
 import {
   CanvasComponent,
@@ -19,7 +20,6 @@ import {
   nameToSkinTone,
   replaceComponentFromPartUrl
 } from "sl-web-face";
-import {updateForFaceRelatedRevision} from "./revisionUtil";
 
 function _reparentHeadParts(oldHead:CanvasComponent, newHead:CanvasComponent) {
   const children = oldHead.findNonUiChildren();

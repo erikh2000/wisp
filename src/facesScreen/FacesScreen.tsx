@@ -1,12 +1,6 @@
-import styles from './FacesScreen.module.css';
-import HeadChooser from "./HeadChooser";
-import MouthChooser from "./MouthChooser";
-import NoseChooser from "./NoseChooser";
-import useEffectAfterMount from "common/useEffectAfterMount";
-import EmotionSelector from "facesScreen/EmotionSelector";
-import ExtraSelectionPane from "facesScreen/ExtraSelectionPane";
-import EyesChooser from "./EyesChooser";
-import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
+import styles from                      './FacesScreen.module.css';
+import PartSelector, {PartType} from    "./PartSelector";
+import {isHeadReady, UNSPECIFIED} from  "./interactions/coreUtil";
 import {
   InitResults,
   deinit,
@@ -14,7 +8,7 @@ import {
   init,
   onDrawFaceCanvas,
   onPartTypeChange
-} from "./interactions/generalInteractions";
+} from                                  "./interactions/generalInteractions";
 import {
   onAddEyes,
   onAddMouth,
@@ -30,24 +24,34 @@ import {
   onReplaceHead,
   onReplaceMouth,
   onReplaceNose
-} from "./interactions/partChooserInteractions";
-import {onRedo, onUndo, Revision} from "./interactions/revisionUtil";
-import HeadSelectionPane from "facesScreen/HeadSelectionPane";
-import EyesSelectionPane from "facesScreen/EyesSelectionPane";
-import LidLevelSelector from "facesScreen/LidLevelSelector";
-import MouthSelectionPane from "facesScreen/MouthSelectionPane";
-import NoseSelectionPane from "./NoseSelectionPane";
-import PartSelector, {PartType} from "facesScreen/PartSelector";
-import TestVoiceSelector from "facesScreen/TestVoiceSelector";
-import Canvas from "ui/Canvas";
-import LoadingBox from "ui/LoadingBox";
-import ScreenContainer from 'ui/screen/ScreenContainer';
-import Screen from 'ui/screen/screens';
-import {LoadablePart} from "ui/partAuthoring/PartLoader";
-import InnerContentPane from "ui/innerContentPane/InnerContentPane";
+} from                                  "./interactions/partChooserInteractions";
+import {onRedo, onUndo, Revision} from  "./interactions/revisionUtil";
+import {
+  onEmotionChange, 
+  onLidLevelChange, 
+  onTestVoiceChange
+} from                                  "./interactions/viewSettingsInteractions";
+import HeadChooser from                 "./partChoosers/HeadChooser";
+import MouthChooser from                "./partChoosers/MouthChooser";
+import NoseChooser from                 "./partChoosers/NoseChooser";
+import EyesSelectionPane from           "./selectionPanes/EyesSelectionPane";
+import ExtraSelectionPane from          "./selectionPanes/ExtraSelectionPane";
+import HeadSelectionPane from           "./selectionPanes/HeadSelectionPane";
+import MouthSelectionPane from          "./selectionPanes/MouthSelectionPane";
+import NoseSelectionPane from           "./selectionPanes/NoseSelectionPane";
+import EyesChooser from                 "./partChoosers/EyesChooser";
+import EmotionSelector from             "./view/EmotionSelector";
+import LidLevelSelector from            "./view/LidLevelSelector";
+import TestVoiceSelector from           "./view/TestVoiceSelector";
+import useEffectAfterMount from         "common/useEffectAfterMount";
+import Canvas from                      "ui/Canvas";
+import LoadingBox from                  "ui/LoadingBox";
+import ScreenContainer from             'ui/screen/ScreenContainer';
+import Screen from                      'ui/screen/screens';
+import {LoadablePart} from              "ui/partAuthoring/PartLoader";
+import InnerContentPane from            "ui/innerContentPane/InnerContentPane";
 
 import React, {useState} from 'react';
-import {onEmotionChange, onLidLevelChange, onTestVoiceChange} from "./interactions/viewSettingsInteractions";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -79,6 +83,9 @@ function FacesScreen() {
     {text:'Export', onClick:emptyCallback, groupNo:1, disabled}
   ];
   
+  const _getThumbnail = (parts:LoadablePart[], partNo:number):ImageBitmap|null => 
+    partNo !== UNSPECIFIED && partNo < parts.length ? parts[partNo].thumbnail : null;
+  
   let selectionPane:JSX.Element|null;
   switch(partType) {
     case PartType.HEAD:
@@ -86,7 +93,7 @@ function FacesScreen() {
         className={styles.selectionPane} 
         onReplace={() => {onReplaceHead(setModalDialog)}} 
         disabled={disabled}
-        thumbnailBitmap={revision.headPartNo === UNSPECIFIED ? null : headParts[revision.headPartNo].thumbnail}
+        thumbnailBitmap={_getThumbnail(headParts, revision.headPartNo)}
       />
       break;
     case PartType.EYES:
@@ -95,7 +102,7 @@ function FacesScreen() {
         onAdd={() => onAddEyes(setModalDialog)} 
         onReplace={() => onReplaceEyes(setModalDialog)} 
         onRemove={() => onRemoveEyes(setRevision)}
-        thumbnailBitmap={revision.eyesPartNo === UNSPECIFIED ? null : eyeParts[revision.eyesPartNo].thumbnail}
+        thumbnailBitmap={_getThumbnail(eyeParts, revision.eyesPartNo)}
         isSpecified={revision.eyesPartNo !== UNSPECIFIED} 
         disabled={disabled}
       />
@@ -106,7 +113,7 @@ function FacesScreen() {
         onAdd={() => onAddMouth(setModalDialog)} 
         onReplace={() => onReplaceMouth(setModalDialog)} 
         onRemove={() => onRemoveMouth(setRevision)}
-        thumbnailBitmap={revision.mouthPartNo === UNSPECIFIED ? null : mouthParts[revision.mouthPartNo].thumbnail}
+        thumbnailBitmap={_getThumbnail(mouthParts, revision.mouthPartNo)}
         isSpecified={revision.mouthPartNo !== UNSPECIFIED} 
         disabled={disabled}
       />
@@ -117,7 +124,7 @@ function FacesScreen() {
         onAdd={() => onAddNose(setModalDialog)} 
         onReplace={() => onReplaceNose(setModalDialog)} 
         onRemove={() => onRemoveNose(setRevision)}
-        thumbnailBitmap={revision.nosePartNo === UNSPECIFIED ? null : noseParts[revision.nosePartNo].thumbnail}
+        thumbnailBitmap={_getThumbnail(noseParts, revision.mouthPartNo)}
         isSpecified={revision.nosePartNo !== UNSPECIFIED} 
         disabled={disabled}
       />
