@@ -94,6 +94,39 @@ function _removeDocumentMouseUpListener(onMouseUp:(event:any) => void) {
 
 function _onFaceCanvasMouseMove(event:any) { getPartUiManager().onMouseMove(event); }
 
+function _updateLoadablePartsForType(partTypeName:string, setEyeParts:any, setHeadParts:any, setMouthParts:any, setNoseParts:any) {
+  const partLoader = getPartLoader();
+  switch(partTypeName) {
+    case NOSE_PART_TYPE:
+      setNoseParts([...partLoader.noses]);
+      break;
+
+    case MOUTH_PART_TYPE:
+      setMouthParts([...partLoader.mouths]);
+      break;
+
+    case EYES_PART_TYPE:
+      setEyeParts([...partLoader.eyes]);
+      break;
+
+    case HEAD_PART_TYPE:
+      setHeadParts([...partLoader.heads]);
+      break;
+  }
+}
+
+/* Handle any initialization needed for mount after a previous initialization was completed. This will cover
+   refreshing any module-scope vars that stored instances tied to a React component's lifetime and calling setters
+   to on React components to synchronize their state with module-scope vars. */
+async function _initForSubsequentMount(_setDisabled:any, setEyeParts:any, setHeadParts:any, setMouthParts:any, setNoseParts:any) {
+  await bindSetDisabled(_setDisabled);
+  const partLoader = getPartLoader();
+  setNoseParts([...partLoader.noses]);
+  setMouthParts([...partLoader.mouths]);
+  setEyeParts([...partLoader.eyes]);
+  setHeadParts([...partLoader.heads]);
+}
+
 export async function init(setRevision:any, setEyeParts:any, setHeadParts:any, setMouthParts:any, setNoseParts:any, _setDisabled:any):Promise<InitResults> {
   
   function onFaceCanvasMouseUp(event:any) { getPartUiManager().onMouseUp(event); }
@@ -101,32 +134,15 @@ export async function init(setRevision:any, setEyeParts:any, setHeadParts:any, s
   function onPartFocused(part:CanvasComponent) { _onPartFocused(part, setRevision); }
   function onPartMoved(part:CanvasComponent, x:number, y:number) { return _onPartMoved(part, x, y, setRevision); }
   function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return _onPartResized(setRevision); }
-  function onPartLoaderUpdated(partTypeName:string, _partName:string) {
-    const partLoader = getPartLoader();
-    switch(partTypeName) {
-      case NOSE_PART_TYPE:
-        setNoseParts([...partLoader.noses]);
-        break;
-        
-      case MOUTH_PART_TYPE:
-        setMouthParts([...partLoader.mouths]);
-        break;
-        
-      case EYES_PART_TYPE:
-        setEyeParts([...partLoader.eyes]);
-        break;
-        
-      case HEAD_PART_TYPE:
-        setHeadParts([...partLoader.heads]);
-        break;
-    }
-  }
+  function onPartLoaderUpdated(partTypeName:string, _partName:string) { _updateLoadablePartsForType(partTypeName, setEyeParts, setHeadParts, setMouthParts, setNoseParts); }
   
   const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp };
-  
   _addDocumentMouseUpListener(onFaceCanvasMouseUp);
-  bindSetDisabled(_setDisabled); // This setter is kept in module-scape var, so it needs to be updated on each component mount.
-  if (_isInitialized) return initResults
+  
+  if (_isInitialized) {
+    await _initForSubsequentMount(_setDisabled, setEyeParts, setHeadParts, setMouthParts, setNoseParts);
+    return initResults
+  }
   
   const head = await loadFaceFromUrl('/faces/billy.yml');
   blinkController.start();

@@ -52,6 +52,7 @@ import {LoadablePart} from              "ui/partAuthoring/PartLoader";
 import InnerContentPane from            "ui/innerContentPane/InnerContentPane";
 
 import React, {useState} from 'react';
+import {onSkinToneChange} from "./interactions/recolorUtil";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -92,6 +93,7 @@ function FacesScreen() {
       selectionPane = <HeadSelectionPane 
         className={styles.selectionPane} 
         onReplace={() => {onReplaceHead(setModalDialog)}} 
+        onSkinToneChange={(skinTone) => onSkinToneChange(skinTone, setRevision)}
         disabled={disabled}
         thumbnailBitmap={_getThumbnail(headParts, revision.headPartNo)}
       />
@@ -124,7 +126,7 @@ function FacesScreen() {
         onAdd={() => onAddNose(setModalDialog)} 
         onReplace={() => onReplaceNose(setModalDialog)} 
         onRemove={() => onRemoveNose(setRevision)}
-        thumbnailBitmap={_getThumbnail(noseParts, revision.mouthPartNo)}
+        thumbnailBitmap={_getThumbnail(noseParts, revision.nosePartNo)}
         isSpecified={revision.nosePartNo !== UNSPECIFIED} 
         disabled={disabled}
       />

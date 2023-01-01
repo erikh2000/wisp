@@ -110,9 +110,9 @@ export function getHead():CanvasComponent {
 
 export function isHeadReady() { return head !== null; }
 
-export function setHead(_head:CanvasComponent):void {
-  head = _head;
-}
+export function setHead(_head:CanvasComponent):void { head = _head; }
+
+export function clearHead():void { head = null; }
 
 export function getPartLoader():PartLoader {
   if (!partLoader) throw Error('Unexpected');

@@ -1,0 +1,86 @@
+
+@value colors: "ui/commonPalette.module.css";
+@value button, button-text, button-highlight, button-text-highlight, button-disabled, button-text-disabled from colors;
+@value commonStyles: "ui/commonStyles.module.css";
+@value disableSelect from commonStyles;
+
+.skinOriginal { background-color: rgb(197, 202, 226) }
+.skinPaleWhite { background-color: rgb(223, 210, 207) }
+.skinWhite { background-color: rgb(228, 208, 196) }
+.skinLightBrown { background-color: rgb(206, 191, 174) }
+.skinModerateBrown { background-color: rgb(191, 172, 144) }
+.skinDarkBrown { background-color: rgb(140, 119, 99) }
+.skinBlack { background-color: rgb(98, 80, 63 ) }
+
+.bar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+.label {
+    composes: disableSelect;
+    flex-grow: 0;
+    min-width: 6rem;
+    font-size: 1rem;
+    margin-top: .6rem;
+}
+
+.swatch {
+    width: 2rem;
+    height: 2rem;
+    margin: .2rem;
+    border-color: black;
+    border-style: solid;
+    border-width: .1rem;
+}
+
+.selectorButton {
+    composes: disableSelect;
+    justify-content: center;
+    background-color: button;
+    border-style: none;
+    background-position: center;
+    transition: background 0.2s;
+    cursor: pointer;
+    margin-bottom: .1rem;
+}
+
+.selectorButton:hover {
+    background: button-highlight radial-gradient(circle, transparent 1%, button 1%) center/23000%;
+}
+.selectorButton:active {
+    background-color: button-highlight;
+    background-size: 100%;
+    transition: background 0s;
+}
+
+.firstSelectorButton {
+    border-top-left-radius: .5rem;
+    border-bottom-left-radius: .5rem;
+}
+
+.lastSelectorButton {
+    border-top-right-radius: .5rem;
+    border-bottom-right-radius: .5rem;
+}
+
+.selectorButtonSelected {
+    composes: selectorButton;
+    background-color: button-highlight;
+    cursor: default;
+}
+
+.selectorButtonSelected:hover {
+    background: button-highlight;
+}
+
+.selectorButtonDisabled {
+    composes: selectorButton;
+    background-color: button-disabled;
+    cursor: pointer;
+}
+
+.selectorButtonDisabled:hover {
+    background: button-disabled;
+}
