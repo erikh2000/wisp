@@ -15,7 +15,7 @@
 
 .facePane {
     flex-grow: 1;
-    width: 25%;
+    width: 35%;
     height: 100%;
 }
 
@@ -25,6 +25,7 @@
 
 .rightColumn {
     flex-grow: 2;
+    width: 65%;
     display: flex;
     flex-direction: column;
 }
