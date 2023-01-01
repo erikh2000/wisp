@@ -21,7 +21,7 @@ function _getSkinTone():SkinTone {
   return nameToSkinTone(head.skinTone);
 }
 
-function _getHairColor():HairColor { return HairColor.BLONDE; }
+function _getHairColor():HairColor { return HairColor.ORIGINAL; }
 
 function HeadSelectionPane(props:IProps) {
   const { className, onReplace, onSkinToneChange, disabled, thumbnailBitmap } = props;
