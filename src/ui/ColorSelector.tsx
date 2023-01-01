@@ -7,11 +7,17 @@ export enum SelectableColor {
   SKIN_LIGHT_BROWN,
   SKIN_MODERATE_BROWN,
   SKIN_DARK_BROWN,
-  SKIN_BLACK
+  SKIN_BLACK,
+  
+  HAIR_ORIGINAL,
+  HAIR_BLONDE,
+  HAIR_BRUNETTE,
+  HAIR_REDHEAD
 }
 // Array below must match enum above.
 const colorToStyleMap:string[] = [styles.skinOriginal, styles.skinPaleWhite, styles.skinWhite, styles.skinLightBrown,
-  styles.skinModerateBrown, styles.skinDarkBrown, styles.skinBlack];
+  styles.skinModerateBrown, styles.skinDarkBrown, styles.skinBlack, 
+  styles.hairOriginal, styles.hairBlonde, styles.hairBrunette, styles.hairRedhead];
 
 interface IProps {
   disabled?:boolean,
