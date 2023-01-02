@@ -1,5 +1,4 @@
 import styles from './ColorSelector.module.css';
-import HairColor from "../facesScreen/selectionPanes/HairColor";
 
 export enum SelectableColor {
   SKIN_ORIGINAL,

@@ -27,6 +27,10 @@ import {
 } from                                  "./interactions/partChooserInteractions";
 import {onRedo, onUndo, Revision} from  "./interactions/revisionUtil";
 import {
+  onHairColorChange, 
+  onSkinToneChange
+} from "./interactions/recolorUtil";
+import {
   onEmotionChange, 
   onLidLevelChange, 
   onTestVoiceChange
@@ -52,7 +56,6 @@ import {LoadablePart} from              "ui/partAuthoring/PartLoader";
 import InnerContentPane from            "ui/innerContentPane/InnerContentPane";
 
 import React, {useState} from 'react';
-import {onSkinToneChange} from "./interactions/recolorUtil";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -93,6 +96,7 @@ function FacesScreen() {
       selectionPane = <HeadSelectionPane 
         className={styles.selectionPane} 
         onReplace={() => {onReplaceHead(setModalDialog)}} 
+        onHairColorChange={(hairColor) => onHairColorChange(hairColor, setRevision)}
         onSkinToneChange={(skinTone) => onSkinToneChange(skinTone, setRevision)}
         disabled={disabled}
         thumbnailBitmap={_getThumbnail(headParts, revision.headPartNo)}

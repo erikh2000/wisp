@@ -1,5 +1,5 @@
 import ColorSelector, {SelectableColor} from "ui/ColorSelector";
-import HairColor from "./HairColor";
+import { HairColor } from 'sl-web-face'
 
 type ChangeCallback = (hairColor:HairColor) => void;
 
