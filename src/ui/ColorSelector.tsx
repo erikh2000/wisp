@@ -13,9 +13,9 @@ export enum SelectableColor {
   HAIR_INK_BLACK_LIGHT,
   HAIR_INK_BLACK,
   HAIR_INK_BLACK_DARK,
-  HAIR_ORANGE_BLONDE_LIGHT,
-  HAIR_ORANGE_BLONDE,
-  HAIR_ORANGE_BLOND_DARK,
+  HAIR_PLATINUM_BLONDE_LIGHT,
+  HAIR_PLATINUM_BLONDE,
+  HAIR_PLATINUM_BLOND_DARK,
   HAIR_OCEAN_BLUE_LIGHT,
   HAIR_OCEAN_BLUE,
   HAIR_OCEAN_BLUE_DARK,
@@ -28,9 +28,9 @@ export enum SelectableColor {
   HAIR_SEA_GREEN_LIGHT,
   HAIR_SEA_GREEN,
   HAIR_SEA_GREEN_DARK,
-  HAIR_PURPLISH_BLUE_LIGHT,
-  HAIR_PURPLISH_BLUE,
-  HAIR_PURPLISH_BLUE_DARK,
+  HAIR_CLOWN_RED_LIGHT,
+  HAIR_CLOWN_RED,
+  HAIR_CLOWN_RED_DARK,
   HAIR_BLOOD_ORANGE_LIGHT,
   HAIR_BLOOD_ORANGE,
   HAIR_BLOOD_ORANGE_DARK,
@@ -43,9 +43,12 @@ export enum SelectableColor {
   HAIR_PURPLISH_RED_LIGHT,
   HAIR_PURPLISH_RED,
   HAIR_PURPLISH_RED_DARK,
-  HAIR_PASTEL_BLUE_LIGHT,
-  HAIR_PASTEL_BLUE,
-  HAIR_PASTEL_BLUE_DARK,
+  HAIR_SILVER_LIGHT,
+  HAIR_SILVER,
+  HAIR_SILVER_DARK,
+  HAIR_MUSTARD_LIGHT,
+  HAIR_MUSTARD,
+  HAIR_MUSTARD_DARK,
   
   COUNT
 }
@@ -56,17 +59,18 @@ const colorToStyleMap:string[] = [
   
   styles.hairOriginal,
   styles.hairInkBlackLight, styles.hairInkBlack, styles.hairInkBlackDark,
-  styles.hairOrangeBlondeLight, styles.hairOrangeBlonde, styles.hairOrangeBlondeDark,
+  styles.hairPlatinumBlondeLight, styles.hairPlatinumBlonde, styles.hairPlatinumBlondeDark,
   styles.hairOceanBlueLight, styles.hairOceanBlue, styles.hairOceanBlueDark,
   styles.hairHazelnutLight, styles.hairHazelnut, styles.hairHazelnutDark,
   styles.hairGrayishBrownLight, styles.hairGrayishBrown, styles.hairGrayishBrownDark,
   styles.hairSeaGreenLight, styles.hairSeaGreen, styles.hairSeaGreenDark,
-  styles.hairPurplishBlueLight, styles.hairPurplishBlue, styles.hairPurplishBlueDark,
+  styles.hairClownRedLight, styles.hairClownRed, styles.hairClownRedDark,
   styles.hairBloodOrangeLight, styles.hairBloodOrange, styles.hairBloodOrangeDark,
   styles.hairPinkLight, styles.hairPink, styles.hairPinkDark,
   styles.hairRoyalPurpleLight, styles.hairRoyalPurple, styles.hairRoyalPurpleDark,
   styles.hairPurplishRedLight, styles.hairPurplishRed, styles.hairPurplishRedDark,
-  styles.hairPastelBlueLight, styles.hairPastelBlue, styles.hairPastelBlueDark,
+  styles.hairSilverLight, styles.hairSilver, styles.hairSilverDark,
+  styles.hairMustardLight, styles.hairMustard, styles.hairMustardDark
 ];
 if (colorToStyleMap.length !== SelectableColor.COUNT) throw Error('Unexpected');
 

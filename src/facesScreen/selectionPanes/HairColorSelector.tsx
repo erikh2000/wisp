@@ -14,9 +14,9 @@ const hairColors:SelectableColor[] = [
   SelectableColor.HAIR_INK_BLACK_LIGHT,
   SelectableColor.HAIR_INK_BLACK,
   SelectableColor.HAIR_INK_BLACK_DARK,
-  SelectableColor.HAIR_ORANGE_BLONDE_LIGHT,
-  SelectableColor.HAIR_ORANGE_BLONDE,
-  SelectableColor.HAIR_ORANGE_BLOND_DARK,
+  SelectableColor.HAIR_PLATINUM_BLONDE_LIGHT,
+  SelectableColor.HAIR_PLATINUM_BLONDE,
+  SelectableColor.HAIR_PLATINUM_BLOND_DARK,
   SelectableColor.HAIR_OCEAN_BLUE_LIGHT,
   SelectableColor.HAIR_OCEAN_BLUE,
   SelectableColor.HAIR_OCEAN_BLUE_DARK,
@@ -29,9 +29,9 @@ const hairColors:SelectableColor[] = [
   SelectableColor.HAIR_SEA_GREEN_LIGHT,
   SelectableColor.HAIR_SEA_GREEN,
   SelectableColor.HAIR_SEA_GREEN_DARK,
-  SelectableColor.HAIR_PURPLISH_BLUE_LIGHT,
-  SelectableColor.HAIR_PURPLISH_BLUE,
-  SelectableColor.HAIR_PURPLISH_BLUE_DARK,
+  SelectableColor.HAIR_CLOWN_RED_LIGHT,
+  SelectableColor.HAIR_CLOWN_RED,
+  SelectableColor.HAIR_CLOWN_RED_DARK,
   SelectableColor.HAIR_BLOOD_ORANGE_LIGHT,
   SelectableColor.HAIR_BLOOD_ORANGE,
   SelectableColor.HAIR_BLOOD_ORANGE_DARK,
@@ -44,9 +44,12 @@ const hairColors:SelectableColor[] = [
   SelectableColor.HAIR_PURPLISH_RED_LIGHT,
   SelectableColor.HAIR_PURPLISH_RED,
   SelectableColor.HAIR_PURPLISH_RED_DARK,
-  SelectableColor.HAIR_PASTEL_BLUE_LIGHT,
-  SelectableColor.HAIR_PASTEL_BLUE,
-  SelectableColor.HAIR_PASTEL_BLUE_DARK
+  SelectableColor.HAIR_SILVER_LIGHT,
+  SelectableColor.HAIR_SILVER,
+  SelectableColor.HAIR_SILVER_DARK,
+  SelectableColor.HAIR_MUSTARD_LIGHT,
+  SelectableColor.HAIR_MUSTARD,
+  SelectableColor.HAIR_MUSTARD_DARK
 ];
 
 // Functions below depend on SelectableColor and HairColor enums having constants in a matching sequence.

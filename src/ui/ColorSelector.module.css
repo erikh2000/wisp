@@ -13,42 +13,45 @@
 .skinBlack { background-color: rgb(98, 80, 63 ) }
 
 .hairOriginal { background-color: rgb(197, 202, 226) }
-.hairInkBlackLight { background-color: #6d5e7a }
-.hairInkBlack { background-color: #564666 }
+.hairInkBlackLight { background-color: #463a53 }
+.hairInkBlack { background-color: #2e243b }
 .hairInkBlackDark { background-color: #07060e }
-.hairOrangeBlondeLight { background-color: #f8f1bb }
-.hairOrangeBlonde { background-color: #edd9a6 }
-.hairOrangeBlondeDark { background-color: #98533a }
+.hairPlatinumBlondeLight { background-color: #f8f1bb }
+.hairPlatinumBlonde { background-color: #edd9a6 }
+.hairPlatinumBlondeDark { background-color: #cdb87d }
 .hairOceanBlueLight { background-color: #8497e1 }
 .hairOceanBlue { background-color: #4c63b1 }
 .hairOceanBlueDark { background-color: #051545 }
 .hairHazelnutLight { background-color: #a26d4e }
 .hairHazelnut { background-color: #8f593f }
-.hairHazelnutDark { background-color: #2d0304 }
+.hairHazelnutDark { background-color: #69402a }
 .hairGrayishBrownLight { background-color: #9d8c72 }
 .hairGrayishBrown { background-color: #71614a }
-.hairGrayishBrownDark { background-color: #2b1b14 }
+.hairGrayishBrownDark { background-color: #504430 }
 .hairSeaGreenLight { background-color: #7cd078 }
 .hairSeaGreen { background-color: #579c65 }
-.hairSeaGreenDark { background-color: #0c242e }
-.hairPurplishBlueLight { background-color: #aedbf0 }
-.hairPurplishBlue { background-color: #8cb4e5 }
-.hairPurplishBlueDark { background-color: #492a6e }
+.hairSeaGreenDark { background-color: #2d592f }
+.hairClownRedLight { background-color: #e17e47 }
+.hairClownRed { background-color: #dc3d1e }
+.hairClownRedDark { background-color: #a31b00 }
 .hairBloodOrangeLight { background-color: #ebbf90 }
 .hairBloodOrange { background-color: #f2a972 }
-.hairBloodOrangeDark { background-color: #9b3147 }
+.hairBloodOrangeDark { background-color: #ce7c38 }
 .hairPinkLight { background-color: #eab4c1 }
 .hairPink { background-color: #df8fb2 }
 .hairPinkDark { background-color: #6f1b2b }
 .hairRoyalPurpleLight { background-color: #8b54a7 }
 .hairRoyalPurple { background-color: #603f84 }
-.hairRoyalPurpleDark { background-color: #11022c }
+.hairRoyalPurpleDark { background-color: #331b53 }
 .hairPurplishRedLight { background-color: #d96a63 }
 .hairPurplishRed { background-color: #a9423b }
-.hairPurplishRedDark { background-color: #230924 }
-.hairPastelBlueLight { background-color: #f3fbfd }
-.hairPastelBlue { background-color: #dee8f2 }
-.hairPastelBlueDark { background-color: #8a75b2 }
+.hairPurplishRedDark { background-color: #6e150c }
+.hairSilverLight { background-color: #f3fbfd }
+.hairSilver { background-color: #abb6c3 }
+.hairSilverDark { background-color: #677687 }
+.hairMustardLight { background-color: #fbda7b }
+.hairMustard { background-color: #fac93b }
+.hairMustardDark { background-color: #c59301 }
 
 .container {
     display: flex;
