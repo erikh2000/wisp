@@ -93,7 +93,11 @@ function ColorSelector(props:IProps) {
   const options = colors.map((color, optionNo) => {
     const selected = color === selectedColor;
     const colorStyle = `${styles.swatch} ${colorToStyleMap[color]}`
-    console.log(colorStyle);
+    const isOriginalColor = color === SelectableColor.SKIN_ORIGINAL || color === SelectableColor.HAIR_ORIGINAL;
+    const originalIcon = !isOriginalColor ? null :
+      (<svg className={styles.originalIcon} viewBox='0 0 100 100'>
+        <line x1="100" y1="0" x2="0" y2="100" stroke="#dc3d1e" strokeWidth="3" />
+      </svg>);
     let buttonClass = disabled
       ? styles.selectorButtonDisabled
       : selected ? styles.selectorButtonSelected : styles.selectorButton;
@@ -102,6 +106,7 @@ function ColorSelector(props:IProps) {
     return (
       <button key={optionNo} className={buttonClass} onClick={() => _onColorClick(color)} >
         <div className={colorStyle} />
+        {originalIcon}
       </button>)
   });
 

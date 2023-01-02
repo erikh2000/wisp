@@ -92,6 +92,7 @@
     transition: background 0.2s;
     cursor: pointer;
     margin-bottom: .1rem;
+    height: 2.7rem;
 }
 
 .selectorButton:hover {
@@ -131,4 +132,12 @@
 
 .selectorButtonDisabled:hover {
     background: button-disabled;
+}
+
+.originalIcon {
+    width: 2rem;
+    height: 2rem;
+    position: relative;
+    left: 0px;
+    top: -2.3rem;
 }
