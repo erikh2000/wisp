@@ -1,7 +1,7 @@
 import {clearHead, getHead, getPartUiManager, performDisablingOperation, setHead} from "./coreUtil";
 import {updateForFaceRelatedRevision} from "./revisionUtil";
 
-import {CanvasComponent, nameToHairColor, nameToSkinTone, recolorComponent, SkinTone, HairColor} from "sl-web-face";
+import {CanvasComponent, recolorComponent, SkinTone, HairColor} from "sl-web-face";
 
 async function _recolorHead(headComponent:CanvasComponent, skinTone:SkinTone, hairColor:HairColor, setRevision:any) {
   return performDisablingOperation(async () => {
@@ -24,16 +24,12 @@ async function _recolorHead(headComponent:CanvasComponent, skinTone:SkinTone, ha
 
 export async function onSkinToneChange(skinTone:SkinTone, setRevision:any) {
   const currentHead = getHead();
-  const currentSkinTone = nameToSkinTone(currentHead.skinTone);
-  if (currentSkinTone === skinTone) return;
-  const currentHairColor = nameToHairColor(currentHead.hairColor);
-  return _recolorHead(currentHead, skinTone, currentHairColor, setRevision);
+  if (currentHead.skinTone === skinTone) return;
+  return _recolorHead(currentHead, skinTone, currentHead.hairColor, setRevision);
 }
 
 export async function onHairColorChange(hairColor:HairColor, setRevision:any) {
   const currentHead = getHead();
-  const currentHairColor = nameToHairColor(currentHead.hairColor);
-  if (currentHairColor === hairColor) return;
-  const currentSkinTone = nameToSkinTone(currentHead.skinTone);
-  return _recolorHead(currentHead, currentSkinTone, hairColor, setRevision);
+  if (currentHead.hairColor === hairColor) return;
+  return _recolorHead(currentHead, currentHead.skinTone, hairColor, setRevision);
 }

@@ -16,8 +16,7 @@ import {LoadablePart} from "ui/partAuthoring/PartLoader";
 import {
   CanvasComponent,
   HEAD_PART_TYPE,
-  loadComponentFromPartUrl, nameToHairColor,
-  nameToSkinTone,
+  loadComponentFromPartUrl,
   replaceComponentFromPartUrl
 } from "sl-web-face";
 
@@ -45,8 +44,6 @@ function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], partNo:
     const partUrl = parts[partNo].url;
     const head = getHead();
     const partUiManager = getPartUiManager();
-    const skinTone = nameToSkinTone(head.skinTone);
-    const hairColor = nameToHairColor(head.hairColor);
 
     const currentComponent = findCanvasComponentForPartType(head, partType);
     if (currentComponent) {
@@ -56,7 +53,7 @@ function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], partNo:
         setHead(replacedComponent);
       }
     } else {
-      const newComponent = await loadComponentFromPartUrl(partUrl, skinTone, hairColor);
+      const newComponent = await loadComponentFromPartUrl(partUrl, head.skinTone, head.hairColor);
       if (newComponent.partType !== HEAD_PART_TYPE) newComponent.setParent(head);
     }
     await partUiManager.trackPartsForFace(getHead());

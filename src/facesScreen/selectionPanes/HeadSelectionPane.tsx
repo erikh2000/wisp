@@ -4,7 +4,7 @@ import {getHead, isHeadReady} from "facesScreen/interactions/coreUtil";
 import PartThumbnail from "facesScreen/partChoosers/PartThumbnail";
 import InnerContentPane, {ButtonDefinition} from "ui/innerContentPane/InnerContentPane";
 
-import {HairColor, nameToHairColor, nameToSkinTone, SkinTone} from "sl-web-face";
+import {HairColor, SkinTone} from "sl-web-face";
 
 interface IProps {
   className:string,
@@ -18,7 +18,7 @@ interface IProps {
 function _getSkinToneAndHairColor():[SkinTone, HairColor] {
   if (!isHeadReady()) return [SkinTone.ORIGINAL, HairColor.ORIGINAL];
   const head = getHead();
-  return [nameToSkinTone(head.skinTone), nameToHairColor(head.hairColor)];
+  return [head.skinTone, head.hairColor];
 }
 
 function HeadSelectionPane(props:IProps) {
