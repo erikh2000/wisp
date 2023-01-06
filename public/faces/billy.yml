@@ -1,5 +1,5 @@
 skinTone: lightBrown
-hairColor: original
+hairColor: inkBlack
 base: /parts/billy-head.yml
 parts:
   - /parts/billy-eyes.yml @25,150

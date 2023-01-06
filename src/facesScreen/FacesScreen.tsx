@@ -1,6 +1,6 @@
 import styles from                      './FacesScreen.module.css';
 import PartSelector, {PartType} from    "./PartSelector";
-import {isHeadReady, UNSPECIFIED} from  "./interactions/coreUtil";
+import {getHead, isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
 import {
   InitResults,
   deinit,
@@ -10,20 +10,17 @@ import {
   onPartTypeChange
 } from                                  "./interactions/generalInteractions";
 import {
-  onAddEyes,
-  onAddMouth,
-  onAddNose,
+  onChooseEyes,
+  onChooseHead,
+  onChooseMouth,
+  onChooseNose,
   onEyesChanged,
   onHeadChanged,
   onMouthChanged,
   onNoseChanged,
   onRemoveEyes,
   onRemoveMouth,
-  onRemoveNose,
-  onReplaceEyes,
-  onReplaceHead,
-  onReplaceMouth,
-  onReplaceNose
+  onRemoveNose
 } from                                  "./interactions/partChooserInteractions";
 import {onRedo, onUndo, Revision} from  "./interactions/revisionUtil";
 import {
@@ -95,7 +92,7 @@ function FacesScreen() {
     case PartType.HEAD:
       selectionPane = <HeadSelectionPane 
         className={styles.selectionPane} 
-        onReplace={() => {onReplaceHead(setModalDialog)}} 
+        onReplace={() => {onChooseHead(setModalDialog)}} 
         onHairColorChange={(hairColor) => onHairColorChange(hairColor, setRevision)}
         onSkinToneChange={(skinTone) => onSkinToneChange(skinTone, setRevision)}
         disabled={disabled}
@@ -105,8 +102,8 @@ function FacesScreen() {
     case PartType.EYES:
       selectionPane = <EyesSelectionPane 
         className={styles.selectionPane} 
-        onAdd={() => onAddEyes(setModalDialog)} 
-        onReplace={() => onReplaceEyes(setModalDialog)} 
+        onAdd={() => onChooseEyes(setModalDialog)} 
+        onReplace={() => onChooseEyes(setModalDialog)} 
         onRemove={() => onRemoveEyes(setRevision)}
         thumbnailBitmap={_getThumbnail(eyeParts, revision.eyesPartNo)}
         isSpecified={revision.eyesPartNo !== UNSPECIFIED} 
@@ -116,8 +113,8 @@ function FacesScreen() {
     case PartType.MOUTH:
       selectionPane = <MouthSelectionPane 
         className={styles.selectionPane} 
-        onAdd={() => onAddMouth(setModalDialog)} 
-        onReplace={() => onReplaceMouth(setModalDialog)} 
+        onAdd={() => onChooseMouth(setModalDialog)} 
+        onReplace={() => onChooseMouth(setModalDialog)}
         onRemove={() => onRemoveMouth(setRevision)}
         thumbnailBitmap={_getThumbnail(mouthParts, revision.mouthPartNo)}
         isSpecified={revision.mouthPartNo !== UNSPECIFIED} 
@@ -127,8 +124,8 @@ function FacesScreen() {
     case PartType.NOSE:
       selectionPane = <NoseSelectionPane 
         className={styles.selectionPane} 
-        onAdd={() => onAddNose(setModalDialog)} 
-        onReplace={() => onReplaceNose(setModalDialog)} 
+        onAdd={() => onChooseNose(setModalDialog)} 
+        onReplace={() => onChooseNose(setModalDialog)} 
         onRemove={() => onRemoveNose(setRevision)}
         thumbnailBitmap={_getThumbnail(noseParts, revision.nosePartNo)}
         isSpecified={revision.nosePartNo !== UNSPECIFIED} 

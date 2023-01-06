@@ -1,7 +1,7 @@
 import {
   findCanvasComponentForPartType,
   getHead,
-  getPartUiManager,
+  getPartUiManager, isHeadReady,
   performDisablingOperation, setHead,
   UNSPECIFIED
 } from "./coreUtil";
@@ -17,7 +17,7 @@ import {
   CanvasComponent,
   HEAD_PART_TYPE,
   loadComponentFromPartUrl,
-  replaceComponentFromPartUrl
+  replaceComponentFromPartUrl, sortHeadChildrenInDrawingOrder
 } from "sl-web-face";
 
 function _reparentHeadParts(oldHead:CanvasComponent, newHead:CanvasComponent) {
@@ -37,8 +37,8 @@ function _removePart(headComponent:CanvasComponent, revisionPartNoName:string, p
   });
 }
 
-function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], partNo:number, partType:PartType, setModalDialog:any, setRevision:any) {
-  performDisablingOperation(async () => {
+async function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], partNo:number, partType:PartType, setModalDialog:any, setRevision:any) {
+  return await performDisablingOperation(async () => {
     
     setModalDialog(null);
     const partUrl = parts[partNo].url;
@@ -58,19 +58,16 @@ function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], partNo:
     }
     await partUiManager.trackPartsForFace(getHead());
     updateForFaceRelatedRevision({[revisionPartNoName]:partNo}, setRevision);
-    
   });
 }
 
-export function onReplaceHead(setModalDialog:any) { setModalDialog(HeadChooser.name); }
+export function onChooseHead(setModalDialog:any) { setModalDialog(HeadChooser.name); }
 
 export function onHeadChanged(headParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
   _onPartChanged('headPartNo', headParts, partNo, PartType.HEAD, setModalDialog, setRevision);
 }
 
-export function onReplaceEyes(setModalDialog:any) { setModalDialog(EyesChooser.name); }
-
-export function onAddEyes(setModalDialog:any) { setModalDialog(EyesChooser.name); }
+export function onChooseEyes(setModalDialog:any) { setModalDialog(EyesChooser.name); }
 
 export function onEyesChanged(eyesParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
   _onPartChanged('eyesPartNo', eyesParts, partNo, PartType.EYES, setModalDialog, setRevision);
@@ -78,9 +75,7 @@ export function onEyesChanged(eyesParts:LoadablePart[], partNo:number, setModalD
 
 export function onRemoveEyes(setRevision:any) { _removePart(getHead(),'eyesPartNo', PartType.EYES, setRevision); }
 
-export function onReplaceMouth(setModalDialog:any) { setModalDialog(MouthChooser.name); }
-
-export function onAddMouth(setModalDialog:any) { setModalDialog(MouthChooser.name); }
+export function onChooseMouth(setModalDialog:any) { setModalDialog(MouthChooser.name); }
 
 export function onMouthChanged(mouthParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
   _onPartChanged('mouthPartNo', mouthParts, partNo, PartType.MOUTH, setModalDialog, setRevision);
@@ -88,9 +83,7 @@ export function onMouthChanged(mouthParts:LoadablePart[], partNo:number, setModa
 
 export function onRemoveMouth(setRevision:any) { _removePart(getHead(),'mouthPartNo', PartType.MOUTH, setRevision); }
 
-export function onReplaceNose(setModalDialog:any) { setModalDialog(NoseChooser.name); }
-
-export function onAddNose(setModalDialog:any) { setModalDialog(NoseChooser.name); }
+export function onChooseNose(setModalDialog:any) { setModalDialog(NoseChooser.name); }
 
 export function onNoseChanged(noseParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
   _onPartChanged('nosePartNo', noseParts, partNo, PartType.NOSE, setModalDialog, setRevision);
