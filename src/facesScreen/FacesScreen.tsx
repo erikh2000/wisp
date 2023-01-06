@@ -56,6 +56,67 @@ import React, {useState} from 'react';
 
 function emptyCallback() {} // TODO delete when not using
 
+function _getThumbnail(parts:LoadablePart[], partNo:number):ImageBitmap|null {
+  return partNo !== UNSPECIFIED && partNo < parts.length ? parts[partNo].thumbnail : null;
+}
+
+function _renderSelectionPane(partType:PartType, disabled:boolean, revision:Revision, headParts:LoadablePart[], 
+    eyeParts:LoadablePart[], mouthParts:LoadablePart[], noseParts:LoadablePart[], setModalDialog:any, 
+    setRevision:any):JSX.Element {
+  
+  switch(partType) {
+    case PartType.HEAD:
+      return <HeadSelectionPane
+        className={styles.selectionPane}
+        onReplace={() => {onChooseHead(setModalDialog)}}
+        onHairColorChange={(hairColor) => onHairColorChange(hairColor, setRevision)}
+        onSkinToneChange={(skinTone) => onSkinToneChange(skinTone, setRevision)}
+        disabled={disabled}
+        thumbnailBitmap={_getThumbnail(headParts, revision.headPartNo)}
+      />
+    case PartType.EYES:
+      return <EyesSelectionPane
+        className={styles.selectionPane}
+        onAdd={() => onChooseEyes(setModalDialog)}
+        onReplace={() => onChooseEyes(setModalDialog)}
+        onRemove={() => onRemoveEyes(setRevision)}
+        thumbnailBitmap={_getThumbnail(eyeParts, revision.eyesPartNo)}
+        isSpecified={revision.eyesPartNo !== UNSPECIFIED}
+        disabled={disabled}
+      />
+    case PartType.MOUTH:
+      return <MouthSelectionPane
+        className={styles.selectionPane}
+        onAdd={() => onChooseMouth(setModalDialog)}
+        onReplace={() => onChooseMouth(setModalDialog)}
+        onRemove={() => onRemoveMouth(setRevision)}
+        thumbnailBitmap={_getThumbnail(mouthParts, revision.mouthPartNo)}
+        isSpecified={revision.mouthPartNo !== UNSPECIFIED}
+        disabled={disabled}
+      />
+    case PartType.NOSE:
+      return <NoseSelectionPane
+        className={styles.selectionPane}
+        onAdd={() => onChooseNose(setModalDialog)}
+        onReplace={() => onChooseNose(setModalDialog)}
+        onRemove={() => onRemoveNose(setRevision)}
+        thumbnailBitmap={_getThumbnail(noseParts, revision.nosePartNo)}
+        isSpecified={revision.nosePartNo !== UNSPECIFIED}
+        disabled={disabled}
+      />
+    default:
+      return <ExtraSelectionPane 
+        partNo={1} 
+        className={styles.selectionPane} 
+        onAdd={() => {}} 
+        onReplace={() => {}} 
+        onRemove={() => {}} 
+        isSpecified={false} 
+        disabled={disabled}
+      />
+  }
+}
+
 function FacesScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
@@ -84,58 +145,8 @@ function FacesScreen() {
     {text:'Export', onClick:emptyCallback, groupNo:1, disabled}
   ];
   
-  const _getThumbnail = (parts:LoadablePart[], partNo:number):ImageBitmap|null => 
-    partNo !== UNSPECIFIED && partNo < parts.length ? parts[partNo].thumbnail : null;
-  
-  let selectionPane:JSX.Element|null;
-  switch(partType) {
-    case PartType.HEAD:
-      selectionPane = <HeadSelectionPane 
-        className={styles.selectionPane} 
-        onReplace={() => {onChooseHead(setModalDialog)}} 
-        onHairColorChange={(hairColor) => onHairColorChange(hairColor, setRevision)}
-        onSkinToneChange={(skinTone) => onSkinToneChange(skinTone, setRevision)}
-        disabled={disabled}
-        thumbnailBitmap={_getThumbnail(headParts, revision.headPartNo)}
-      />
-      break;
-    case PartType.EYES:
-      selectionPane = <EyesSelectionPane 
-        className={styles.selectionPane} 
-        onAdd={() => onChooseEyes(setModalDialog)} 
-        onReplace={() => onChooseEyes(setModalDialog)} 
-        onRemove={() => onRemoveEyes(setRevision)}
-        thumbnailBitmap={_getThumbnail(eyeParts, revision.eyesPartNo)}
-        isSpecified={revision.eyesPartNo !== UNSPECIFIED} 
-        disabled={disabled}
-      />
-      break;
-    case PartType.MOUTH:
-      selectionPane = <MouthSelectionPane 
-        className={styles.selectionPane} 
-        onAdd={() => onChooseMouth(setModalDialog)} 
-        onReplace={() => onChooseMouth(setModalDialog)}
-        onRemove={() => onRemoveMouth(setRevision)}
-        thumbnailBitmap={_getThumbnail(mouthParts, revision.mouthPartNo)}
-        isSpecified={revision.mouthPartNo !== UNSPECIFIED} 
-        disabled={disabled}
-      />
-      break;
-    case PartType.NOSE:
-      selectionPane = <NoseSelectionPane 
-        className={styles.selectionPane} 
-        onAdd={() => onChooseNose(setModalDialog)} 
-        onReplace={() => onChooseNose(setModalDialog)} 
-        onRemove={() => onRemoveNose(setRevision)}
-        thumbnailBitmap={_getThumbnail(noseParts, revision.nosePartNo)}
-        isSpecified={revision.nosePartNo !== UNSPECIFIED} 
-        disabled={disabled}
-      />
-      break;
-    default:
-      selectionPane = <ExtraSelectionPane partNo={1} className={styles.selectionPane} onAdd={() => {}} onReplace={() => {}} onRemove={() => {}} isSpecified={false} disabled={disabled}/>
-      break;
-  }
+  const selectionPane:JSX.Element = _renderSelectionPane(partType, disabled, revision, headParts,
+    eyeParts, mouthParts, noseParts, setModalDialog, setRevision);
   
   const faceContent:JSX.Element = isHeadReady() 
     ? <Canvas className={styles.canvas} isAnimated={true} onDraw={onDrawFaceCanvas} 
