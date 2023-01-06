@@ -1,6 +1,6 @@
 # WISP
 
-"WISP" stands for Web Interactive Storytelling Platform. It's ultimately envisioned as a set of authoring and publishing tools that let users create animated characters you can talk to. In the early pre-alpha version you're looking at, I'm sure it falls far short of that. So the rest of this doc will mainly describe what it currently does.
+"WISP" stands for Web Interactive Storytelling Platform. It's ultimately envisioned as a set of authoring and publishing tools that let users create animated characters you can talk to with continuous speech recognition. In the early pre-alpha version you're looking at, I'm sure it falls far short of that. So the rest of this doc will mainly describe what it currently does.
 
 ## Current Features
 
