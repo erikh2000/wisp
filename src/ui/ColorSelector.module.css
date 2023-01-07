@@ -53,6 +53,22 @@
 .hairMustard { background-color: #fac93b }
 .hairMustardDark { background-color: #c59301 }
 
+
+.irisOriginal { background-color: rgb(197, 202, 226) } 
+.irisLightBlue { background-color: #8bb7de }
+.irisBlue { background-color: #417ac7 }
+.irisBlueGrey { background-color: #74899c }
+.irisLightGrey { background-color: #b3b9b9 }
+.irisGrey { background-color: #909696 }
+.irisGreen { background-color: #6f9e4e }
+.irisHazel { background-color: #7f8940 }
+.irisAmber { background-color: #a5692a }
+.irisLightBrown { background-color: #80390b }
+.irisBrown { background-color: #52260d }
+.irisDarkBrown { background-color: #3c0f09 }
+.irisBlack { background-color: #2a0001 }
+.irisAlbinoRed { background-color: #dbb3bc }
+
 .container {
     display: flex;
     align-items: stretch;

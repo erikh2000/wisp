@@ -50,6 +50,21 @@ export enum SelectableColor {
   HAIR_MUSTARD,
   HAIR_MUSTARD_DARK,
   
+  IRIS_ORIGINAL,
+  IRIS_LIGHT_BLUE,
+  IRIS_BLUE,
+  IRIS_BLUE_GREY,
+  IRIS_LIGHT_GREY,
+  IRIS_GREY,
+  IRIS_GREEN,
+  IRIS_HAZEL,
+  IRIS_AMBER,
+  IRIS_LIGHT_BROWN,
+  IRIS_BROWN,
+  IRIS_DARK_BROWN,
+  IRIS_BLACK,
+  IRIS_ALBINO_RED,
+  
   COUNT
 }
 // Array below must match enum above.
@@ -70,7 +85,11 @@ const colorToStyleMap:string[] = [
   styles.hairRoyalPurpleLight, styles.hairRoyalPurple, styles.hairRoyalPurpleDark,
   styles.hairPurplishRedLight, styles.hairPurplishRed, styles.hairPurplishRedDark,
   styles.hairSilverLight, styles.hairSilver, styles.hairSilverDark,
-  styles.hairMustardLight, styles.hairMustard, styles.hairMustardDark
+  styles.hairMustardLight, styles.hairMustard, styles.hairMustardDark,
+  
+  styles.irisOriginal, styles.irisLightBlue, styles.irisBlue, styles.irisBlueGrey, styles.irisLightGrey,
+  styles.irisGrey, styles.irisGreen, styles.irisHazel, styles.irisAmber, styles.irisLightBrown,
+  styles.irisBrown, styles.irisDarkBrown, styles.irisBlack, styles.irisAlbinoRed
 ];
 if (colorToStyleMap.length !== SelectableColor.COUNT) throw Error('Unexpected');
 
@@ -93,7 +112,7 @@ function ColorSelector(props:IProps) {
   const options = colors.map((color, optionNo) => {
     const selected = color === selectedColor;
     const colorStyle = `${styles.swatch} ${colorToStyleMap[color]}`
-    const isOriginalColor = color === SelectableColor.SKIN_ORIGINAL || color === SelectableColor.HAIR_ORIGINAL;
+    const isOriginalColor = color === SelectableColor.SKIN_ORIGINAL || color === SelectableColor.HAIR_ORIGINAL || color === SelectableColor.IRIS_ORIGINAL;
     const originalIcon = !isOriginalColor ? null :
       (<svg className={styles.originalIcon} viewBox='0 0 100 100'>
         <line x1="100" y1="0" x2="0" y2="100" stroke="#dc3d1e" strokeWidth="3" />

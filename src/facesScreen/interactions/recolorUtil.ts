@@ -1,7 +1,23 @@
-import {clearHead, getHead, getPartUiManager, performDisablingOperation, setHead} from "./coreUtil";
+import {
+  clearHead,
+  findCanvasComponentForPartType,
+  getHead,
+  getPartUiManager,
+  performDisablingOperation,
+  setHead
+} from "./coreUtil";
 import {updateForFaceRelatedRevision} from "./revisionUtil";
+import {PartType} from "facesScreen/PartSelector";
 
-import {CanvasComponent, recolorComponent, SkinTone, HairColor} from "sl-web-face";
+import {
+  CanvasComponent,
+  recolorComponent,
+  SkinTone,
+  HairColor,
+  IrisColor,
+  replaceComponentFromPartUrl, 
+  irisColorToName
+} from "sl-web-face";
 
 async function _recolorHead(headComponent:CanvasComponent, skinTone:SkinTone, hairColor:HairColor, setRevision:any) {
   return performDisablingOperation(async () => {
@@ -32,4 +48,19 @@ export async function onHairColorChange(hairColor:HairColor, setRevision:any) {
   const currentHead = getHead();
   if (currentHead.hairColor === hairColor) return;
   return _recolorHead(currentHead, currentHead.skinTone, hairColor, setRevision);
+}
+
+export async function onIrisColorChange(irisColor:IrisColor, setRevision:any) {
+  return performDisablingOperation(async () => {
+    
+    const head = getHead();
+    const currentEyes = findCanvasComponentForPartType(head, PartType.EYES);
+    if (!currentEyes) return;
+    const irisColorName = irisColorToName(irisColor);
+    await replaceComponentFromPartUrl(currentEyes, currentEyes.partUrl, { irisColor:irisColorName });
+    const partUiManager = getPartUiManager();
+    await partUiManager.trackPartsForFace(head);
+    updateForFaceRelatedRevision({}, setRevision);
+    
+  });
 }

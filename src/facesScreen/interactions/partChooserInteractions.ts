@@ -1,7 +1,7 @@
 import {
   findCanvasComponentForPartType,
   getHead,
-  getPartUiManager, isHeadReady,
+  getPartUiManager,
   performDisablingOperation, setHead,
   UNSPECIFIED
 } from "./coreUtil";
@@ -17,7 +17,7 @@ import {
   CanvasComponent,
   HEAD_PART_TYPE,
   loadComponentFromPartUrl,
-  replaceComponentFromPartUrl, sortHeadChildrenInDrawingOrder
+  replaceComponentFromPartUrl,
 } from "sl-web-face";
 
 function _reparentHeadParts(oldHead:CanvasComponent, newHead:CanvasComponent) {

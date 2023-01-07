@@ -1,6 +1,6 @@
 import styles from                      './FacesScreen.module.css';
 import PartSelector, {PartType} from    "./PartSelector";
-import {getHead, isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
+import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
 import {
   InitResults,
   deinit,
@@ -24,7 +24,8 @@ import {
 } from                                  "./interactions/partChooserInteractions";
 import {onRedo, onUndo, Revision} from  "./interactions/revisionUtil";
 import {
-  onHairColorChange, 
+  onHairColorChange,
+  onIrisColorChange,
   onSkinToneChange
 } from "./interactions/recolorUtil";
 import {
@@ -78,6 +79,7 @@ function _renderSelectionPane(partType:PartType, disabled:boolean, revision:Revi
       return <EyesSelectionPane
         className={styles.selectionPane}
         onAdd={() => onChooseEyes(setModalDialog)}
+        onIrisColorChange={(irisColor) => onIrisColorChange(irisColor, setRevision)}
         onReplace={() => onChooseEyes(setModalDialog)}
         onRemove={() => onRemoveEyes(setRevision)}
         thumbnailBitmap={_getThumbnail(eyeParts, revision.eyesPartNo)}

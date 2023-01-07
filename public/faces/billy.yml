@@ -1,5 +1,6 @@
 skinTone: lightBrown
 hairColor: inkBlack
+irisColor: hazel
 base: /parts/billy-head.yml
 parts:
   - /parts/billy-eyes.yml @25,150
