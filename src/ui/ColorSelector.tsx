@@ -61,9 +61,6 @@ export enum SelectableColor {
   IRIS_AMBER,
   IRIS_LIGHT_BROWN,
   IRIS_BROWN,
-  IRIS_DARK_BROWN,
-  IRIS_BLACK,
-  IRIS_ALBINO_RED,
   
   COUNT
 }
@@ -89,7 +86,7 @@ const colorToStyleMap:string[] = [
   
   styles.irisOriginal, styles.irisLightBlue, styles.irisBlue, styles.irisBlueGrey, styles.irisLightGrey,
   styles.irisGrey, styles.irisGreen, styles.irisHazel, styles.irisAmber, styles.irisLightBrown,
-  styles.irisBrown, styles.irisDarkBrown, styles.irisBlack, styles.irisAlbinoRed
+  styles.irisBrown
 ];
 if (colorToStyleMap.length !== SelectableColor.COUNT) throw Error('Unexpected');
 

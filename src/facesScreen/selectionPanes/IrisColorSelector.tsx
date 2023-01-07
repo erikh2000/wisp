@@ -21,10 +21,7 @@ const irisColors:SelectableColor[] = [
   SelectableColor.IRIS_HAZEL,
   SelectableColor.IRIS_AMBER,
   SelectableColor.IRIS_LIGHT_BROWN,
-  SelectableColor.IRIS_BROWN,
-  SelectableColor.IRIS_DARK_BROWN,
-  SelectableColor.IRIS_BLACK,
-  SelectableColor.IRIS_ALBINO_RED
+  SelectableColor.IRIS_BROWN
 ];
 
 // Functions below depend on SelectableColor and SkinTone enums having constants in a matching sequence.
