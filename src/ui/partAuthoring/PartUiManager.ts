@@ -46,6 +46,7 @@ class PartUiManager {
   private _focusedPart:TrackedPart|null;
   private _operation:Operation|null;
   private _operationType:OperationType;
+  private _defaultPart:TrackedPart|null;
   
   constructor(onPartFocused:IPartFocusedCallback, onPartMoved:IPartMovedCallback, onPartResized:IPartResizedCallback) {
     this._trackedParts = [];
@@ -55,6 +56,7 @@ class PartUiManager {
     this._focusedPart = null;
     this._operation = null;
     this._operationType = OperationType.NONE;
+    this._defaultPart = null;
   }
   
   setFocus(component:CanvasComponent) {
@@ -77,7 +79,11 @@ class PartUiManager {
     this._operationType = OperationType.RESIZE;
   }
   
-  private _onPartClick(part:TrackedPart, clickX:number, clickY:number) {
+  private _onPartClick(part:TrackedPart|null, clickX:number, clickY:number) {
+    if (part === null) {
+      part = this._defaultPart;
+      if (part === null) return;
+    }
     const isNewlyFocusedPart = part !== this._focusedPart;
     this.setFocus(part.component);
     if (!this._focusedPart) throw Error('Unexpected');
@@ -95,7 +101,7 @@ class PartUiManager {
     }
     const nextFocusPart = isPartAtCoords(this._focusedPart as TrackedPart, clickX, clickY) ? 
       this._focusedPart : findPartAtCoords(this._trackedParts, clickX, clickY);
-    if (nextFocusPart) this._onPartClick(nextFocusPart, clickX, clickY);
+    this._onPartClick(nextFocusPart, clickX, clickY);
   }
   
   completeOperations() {
@@ -142,11 +148,13 @@ class PartUiManager {
     }
   }
 
-  async addPart(component:CanvasComponent, isMovable:boolean, isResizable:boolean) {
-    this._trackedParts.push({
+  async addPart(component:CanvasComponent, isMovable:boolean, isResizable:boolean, isDefault:boolean) {
+    const nextPart = {
       component, isMovable, isResizable,
       selectionBox: await loadPartUi(component, isResizable)
-    });
+    };
+    if (isDefault) this._defaultPart = nextPart;
+    this._trackedParts.push(nextPart);
   }
   
   async replacePart(oldComponent:CanvasComponent, newComponent:CanvasComponent) {
@@ -175,7 +183,8 @@ class PartUiManager {
           await this.replacePart(currentPart.component, nextPart.component);
         }
       } else {
-        await this.addPart(nextPart.component, nextPart.isMovable, nextPart.isResizable);
+        const isDefault = nextPart.component === headComponent;
+        await this.addPart(nextPart.component, nextPart.isMovable, nextPart.isResizable, isDefault);
       }
     }
   }
