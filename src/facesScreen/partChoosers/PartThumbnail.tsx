@@ -7,7 +7,8 @@ import {clearContext} from "sl-web-face";
 interface IProps {
   bitmap:ImageBitmap|null,
   isSelected:boolean,
-  onClick:any
+  onClick:any,
+  disabled?:boolean
 }
 
 function _onDraw(bitmap:ImageBitmap, context:CanvasRenderingContext2D) {
@@ -16,12 +17,14 @@ function _onDraw(bitmap:ImageBitmap, context:CanvasRenderingContext2D) {
 }
 
 function PartThumbnail(props:IProps) {
-  const { bitmap, isSelected, onClick } = props;
+  const { bitmap, isSelected, onClick, disabled } = props;
   
-  const thumbnailStyle = isSelected ? styles.selectedThumbnail : styles.loadedThumbnail;
+  const thumbnailStyle = disabled 
+      ? styles.disabledThumbnail
+      : isSelected ? styles.selectedThumbnail : styles.loadedThumbnail;
   const content = bitmap === null ?
     <LoadingBox className={styles.loadingThumbnail} /> :
-    <Canvas className={thumbnailStyle} onClick={isSelected ? null : onClick} isAnimated={false} onDraw={(context) => _onDraw(bitmap, context)} />;
+    <Canvas className={thumbnailStyle} onClick={isSelected || disabled ? null : onClick} isAnimated={false} onDraw={(context) => _onDraw(bitmap, context)} />;
   
   return (
     <div className={styles.container}>

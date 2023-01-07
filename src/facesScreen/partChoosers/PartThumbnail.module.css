@@ -34,6 +34,11 @@
     cursor: default;
 }
 
+.disabledThumbnail {
+    composes: loadedThumbnail;
+    cursor: default;
+}
+
 .loadingThumbnail {
     width:100px;
     height:100px;

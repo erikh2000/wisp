@@ -29,7 +29,7 @@ function NoseSelectionPane(props:IProps) {
 
   return (
     <InnerContentPane className={className} buttons={buttons} caption='Selected: Nose' comment={comment}>
-      <PartThumbnail bitmap={thumbnailBitmap} onClick={onReplace} isSelected={false} />
+      <PartThumbnail bitmap={thumbnailBitmap} onClick={onReplace} isSelected={false} disabled={disabled}/>
     </InnerContentPane>
   );
 }

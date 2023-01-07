@@ -29,7 +29,7 @@ function HeadSelectionPane(props:IProps) {
   
   return (
     <InnerContentPane className={className} buttons={buttons} caption='Selected: Head'>
-      <PartThumbnail bitmap={thumbnailBitmap} onClick={onReplace} isSelected={false} />
+      <PartThumbnail bitmap={thumbnailBitmap} onClick={onReplace} isSelected={false} disabled={disabled} />
       <SkinToneSelector skinTone={skinTone} onChange={onSkinToneChange} disabled={disabled}/>
       <HairColorSelector hairColor={hairColor} onChange={onHairColorChange} disabled={disabled}/>
     </InnerContentPane>
