@@ -2,7 +2,8 @@ import {
   findCanvasComponentForPartType,
   getHead,
   getPartUiManager,
-  performDisablingOperation, setHead,
+  performDisablingOperation,
+  setHead,
   UNSPECIFIED
 } from "./coreUtil";
 import {updateForFaceRelatedRevision} from "./revisionUtil";
@@ -13,12 +14,7 @@ import MouthChooser from "facesScreen/partChoosers/MouthChooser";
 import NoseChooser from "facesScreen/partChoosers/NoseChooser";
 import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
-import {
-  CanvasComponent,
-  HEAD_PART_TYPE,
-  loadComponentFromPartUrl,
-  replaceComponentFromPartUrl,
-} from "sl-web-face";
+import {CanvasComponent, HEAD_PART_TYPE, loadComponentFromPartUrl, replaceComponentFromPartUrl,} from "sl-web-face";
 
 function _reparentHeadParts(oldHead:CanvasComponent, newHead:CanvasComponent) {
   const children = oldHead.findNonUiChildren();
@@ -47,7 +43,8 @@ async function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], p
 
     const currentComponent = findCanvasComponentForPartType(head, partType);
     if (currentComponent) {
-      const replacedComponent = await replaceComponentFromPartUrl(currentComponent, partUrl);
+      const initDataOverrides = (partType === PartType.EYES) ? {irisColor: currentComponent.initData.irisColor} : undefined; 
+      const replacedComponent = await replaceComponentFromPartUrl(currentComponent, partUrl, initDataOverrides);
       if (replacedComponent.partType === HEAD_PART_TYPE) {
         _reparentHeadParts(head, replacedComponent);
         setHead(replacedComponent);
