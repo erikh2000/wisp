@@ -15,8 +15,8 @@ import {
   SkinTone,
   HairColor,
   IrisColor,
-  replaceComponentFromPartUrl, 
-  irisColorToName
+  replaceComponentFromPartUrl,
+  irisColorToName, EYES_PART_TYPE
 } from "sl-web-face";
 
 async function _recolorHead(headComponent:CanvasComponent, skinTone:SkinTone, hairColor:HairColor, setRevision:any) {
@@ -27,7 +27,8 @@ async function _recolorHead(headComponent:CanvasComponent, skinTone:SkinTone, ha
     const children = headComponent.findNonUiChildren();
     await Promise.all(children.map(child => {
       child.setParent(nextHead);
-      return recolorComponent(child, skinTone, hairColor);
+      const initDataOverrides = child.partType === EYES_PART_TYPE ? {irisColor:child.initData.irisColor} : undefined;
+      return recolorComponent(child, skinTone, hairColor, initDataOverrides);
     }));
 
     setHead(nextHead);
