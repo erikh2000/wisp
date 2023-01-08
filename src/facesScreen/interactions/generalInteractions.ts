@@ -62,7 +62,8 @@ export function onPartTypeChange(partType:PartType, setRevision:any) {
   setRevision(revisionManager.currentRevision);
 }
 
-function _onPartFocused(component:CanvasComponent, setRevision:any):boolean {
+function _onPartFocused(component:CanvasComponent|null, setRevision:any):boolean {
+  if (!component) return true;
   if (!isHeadReady()) return false;
   const head = getHead();
   const revisionManager = getRevisionManager();
@@ -137,7 +138,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   
   function onFaceCanvasMouseUp(event:any) { getPartUiManager().onMouseUp(event); }
   function onFaceCanvasMouseDown(event:any) { getPartUiManager().onMouseDown(event); }
-  function onPartFocused(part:CanvasComponent) { _onPartFocused(part, setRevision); }
+  function onPartFocused(part:CanvasComponent|null) { _onPartFocused(part, setRevision); }
   function onPartMoved(part:CanvasComponent, x:number, y:number) { return _onPartMoved(part, x, y, setRevision); }
   function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return _onPartResized(setRevision); }
   function onPartLoaderUpdated(partTypeName:string, _partName:string) { _updateLoadablePartsForType(partTypeName, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts); }

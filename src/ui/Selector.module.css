@@ -59,8 +59,14 @@
     cursor: default;
 }
 
+.selectorButtonSelectedReclickable {
+    composes: selectorButton;
+    background-color: button-highlight;
+    cursor: pointer;
+}
+
 .selectorButtonSelected:hover {
-    background: button-highlight;
+    background-color: button-highlight;
 }
 
 .selectorButtonTextSelected {
@@ -75,7 +81,7 @@
 }
 
 .selectorButtonDisabled:hover {
-    background: button-disabled;
+    background-color: button-disabled;
 }
 
 .selectorButtonTextDisabled {

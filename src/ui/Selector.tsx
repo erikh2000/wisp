@@ -20,10 +20,12 @@ function Selector(props:IProps) {
   }
   
   const options = optionNames.map((optionName, optionNo) => {
+    const reclickableSelection = onClick !== undefined;
+    const selectorButtonSelected = reclickableSelection ? styles.selectorButtonSelectedReclickable : styles.selectorButtonSelected;
     const selected = optionNo === selectedOptionNo;
     let buttonClass = disabled
       ? styles.selectorButtonDisabled
-      : selected ? styles.selectorButtonSelected : styles.selectorButton;
+      : selected ? selectorButtonSelected : styles.selectorButton;
     const textClass = disabled 
       ? styles.selectorButtonTextDisabled
       : selected ? styles.selectorButtonTextSelected : styles.selectorButtonText;

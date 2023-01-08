@@ -35,7 +35,7 @@ enum OperationType {
 }
 
 export interface IPartFocusedCallback {
-  (part:CanvasComponent):void
+  (part:CanvasComponent|null):void
 }
 
 class PartUiManager {
@@ -46,7 +46,6 @@ class PartUiManager {
   private _focusedPart:TrackedPart|null;
   private _operation:Operation|null;
   private _operationType:OperationType;
-  private _defaultPart:TrackedPart|null;
   
   constructor(onPartFocused:IPartFocusedCallback, onPartMoved:IPartMovedCallback, onPartResized:IPartResizedCallback) {
     this._trackedParts = [];
@@ -56,7 +55,6 @@ class PartUiManager {
     this._focusedPart = null;
     this._operation = null;
     this._operationType = OperationType.NONE;
-    this._defaultPart = null;
   }
   
   setFocus(component:CanvasComponent) {
@@ -67,6 +65,13 @@ class PartUiManager {
     showPartUi(nextFocusedPart);
     this._focusedPart = nextFocusedPart;
     this._onPartFocused(nextFocusedPart.component);
+  }
+  
+  clearFocus() {
+    if (!this._focusedPart) return;
+    hidePartUi(this._focusedPart);
+    this._focusedPart = null;
+    this._onPartFocused(null);
   }
   
   private _onResizeButtonClick(resizeButton:CanvasComponent, clickX:number, clickY:number) {
@@ -81,8 +86,8 @@ class PartUiManager {
   
   private _onPartClick(part:TrackedPart|null, clickX:number, clickY:number) {
     if (part === null) {
-      part = this._defaultPart;
-      if (part === null) return;
+      this.clearFocus();
+      return;
     }
     const isNewlyFocusedPart = part !== this._focusedPart;
     this.setFocus(part.component);
@@ -99,8 +104,8 @@ class PartUiManager {
       this._onResizeButtonClick(nextResizeButton, clickX, clickY);
       return;
     }
-    const nextFocusPart = isPartAtCoords(this._focusedPart as TrackedPart, clickX, clickY) ? 
-      this._focusedPart : findPartAtCoords(this._trackedParts, clickX, clickY);
+    const isClickOnFocusedPart = this._focusedPart ? isPartAtCoords(this._focusedPart, clickX, clickY) : false; 
+    const nextFocusPart = isClickOnFocusedPart ? this._focusedPart : findPartAtCoords(this._trackedParts, clickX, clickY);
     this._onPartClick(nextFocusPart, clickX, clickY);
   }
   
@@ -134,7 +139,7 @@ class PartUiManager {
   
   onMouseMove(event:any) {
     const isPrimaryButtonDown = (event.buttons & 1) !== 0;
-    if (!event || !isPrimaryButtonDown) return;
+    if (!event || !isPrimaryButtonDown || !this._focusedPart) return;
     
     const mouseMoveX = event.nativeEvent.offsetX, mouseMoveY = event.nativeEvent.offsetY;
     switch(this._operationType) {
@@ -148,13 +153,11 @@ class PartUiManager {
     }
   }
 
-  async addPart(component:CanvasComponent, isMovable:boolean, isResizable:boolean, isDefault:boolean) {
-    const nextPart = {
+  async addPart(component:CanvasComponent, isMovable:boolean, isResizable:boolean) {
+    this._trackedParts.push({
       component, isMovable, isResizable,
       selectionBox: await loadPartUi(component, isResizable)
-    };
-    if (isDefault) this._defaultPart = nextPart;
-    this._trackedParts.push(nextPart);
+    });
   }
   
   async replacePart(oldComponent:CanvasComponent, newComponent:CanvasComponent) {
@@ -183,8 +186,7 @@ class PartUiManager {
           await this.replacePart(currentPart.component, nextPart.component);
         }
       } else {
-        const isDefault = nextPart.component === headComponent;
-        await this.addPart(nextPart.component, nextPart.isMovable, nextPart.isResizable, isDefault);
+        await this.addPart(nextPart.component, nextPart.isMovable, nextPart.isResizable);
       }
     }
   }

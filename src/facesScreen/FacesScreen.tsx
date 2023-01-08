@@ -166,7 +166,7 @@ function FacesScreen() {
     <ScreenContainer documentName='Old Billy' actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.FACES}>
       <div className={styles.container}>
         <InnerContentPane className={styles.facePane} caption='Face'>
-          <PartSelector partType={partType} onChange={(nextPartType) => onPartTypeChange(nextPartType, setRevision)} extraCount={0} disabled={disabled}/>
+          <PartSelector partType={partType} onChange={(nextPartType) => onPartTypeChange(nextPartType, setRevision)} extraCount={revision.extraPartNos.length} disabled={disabled}/>
           {faceContent}
         </InnerContentPane>
         <div className={styles.rightColumn}>
