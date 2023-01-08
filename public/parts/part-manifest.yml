@@ -21,4 +21,5 @@ eyes:
 mouth:
   - /parts/billy-mouth.yml
   - /parts/billy-mouth2.yml
-extra: []
+extra:
+  - /parts/tilted-hat.yml

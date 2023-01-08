@@ -2,6 +2,7 @@ import {parse} from 'yaml';
 import {
   CanvasComponent,
   EYES_PART_TYPE, 
+  EXTRA_PART_TYPE,
   HEAD_PART_TYPE,
   MOUTH_PART_TYPE, 
   NOSE_PART_TYPE,
@@ -65,9 +66,7 @@ async function _loadPart(part:LoadablePart, thumbnailContext:CanvasRenderingCont
 
 async function _loadParts(parts:LoadablePart[], thumbnailContext:CanvasRenderingContext2D, partTypeName:string, onUpdate?:UpdateCallback) {
   parts.forEach(part => _loadPart(part, thumbnailContext, partTypeName, onUpdate));
-} 
-
-const EXTRA_PART_TYPE = 'extra'; // TODO move to sl-web-face.
+}
 
 class PartLoader {
   heads:LoadablePart[];

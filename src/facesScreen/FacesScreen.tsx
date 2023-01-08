@@ -10,6 +10,7 @@ import {
   onPartTypeChange
 } from                                  "./interactions/generalInteractions";
 import {
+  onChooseExtra,
   onChooseEyes,
   onChooseHead,
   onChooseMouth,
@@ -21,7 +22,7 @@ import {
   onRemoveEyes,
   onRemoveMouth,
   onRemoveNose
-} from                                  "./interactions/partChooserInteractions";
+} from "./interactions/partChooserInteractions";
 import {onRedo, onUndo, Revision} from  "./interactions/revisionUtil";
 import {
   onHairColorChange,
@@ -33,6 +34,7 @@ import {
   onLidLevelChange, 
   onTestVoiceChange
 } from                                  "./interactions/viewSettingsInteractions";
+import ExtraChooser from                "./partChoosers/ExtraChooser";
 import HeadChooser from                 "./partChoosers/HeadChooser";
 import MouthChooser from                "./partChoosers/MouthChooser";
 import NoseChooser from                 "./partChoosers/NoseChooser";
@@ -62,7 +64,7 @@ function _getThumbnail(parts:LoadablePart[], partNo:number):ImageBitmap|null {
 }
 
 function _renderSelectionPane(partType:PartType, disabled:boolean, revision:Revision, headParts:LoadablePart[], 
-    eyeParts:LoadablePart[], mouthParts:LoadablePart[], noseParts:LoadablePart[], setModalDialog:any, 
+    eyeParts:LoadablePart[], extraParts:LoadablePart[], mouthParts:LoadablePart[], noseParts:LoadablePart[], setModalDialog:any, 
     setRevision:any):JSX.Element {
   
   switch(partType) {
@@ -110,8 +112,8 @@ function _renderSelectionPane(partType:PartType, disabled:boolean, revision:Revi
       return <ExtraSelectionPane 
         partNo={1} 
         className={styles.selectionPane} 
-        onAdd={() => {}} 
-        onReplace={() => {}} 
+        onAdd={() => onChooseExtra(setModalDialog)} 
+        onReplace={() => onChooseExtra(setModalDialog)} 
         onRemove={() => {}} 
         isSpecified={false} 
         disabled={disabled}
@@ -124,6 +126,7 @@ function FacesScreen() {
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [eyeParts, setEyeParts] = useState<LoadablePart[]>([]);
+  const [extraParts, setExtraParts] = useState<LoadablePart[]>([]);
   const [headParts, setHeadParts] = useState<LoadablePart[]>([]);
   const [mouthParts, setMouthParts] = useState<LoadablePart[]>([]);
   const [noseParts, setNoseParts] = useState<LoadablePart[]>([]);
@@ -131,7 +134,7 @@ function FacesScreen() {
   const { partType, testVoice, emotion, lidLevel } = revision;
   
   useEffectAfterMount(() => {
-    init(setRevision, setEyeParts, setHeadParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
+    init(setRevision, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
     });
     return deinit();
@@ -148,7 +151,7 @@ function FacesScreen() {
   ];
   
   const selectionPane:JSX.Element = _renderSelectionPane(partType, disabled, revision, headParts,
-    eyeParts, mouthParts, noseParts, setModalDialog, setRevision);
+    eyeParts, extraParts, mouthParts, noseParts, setModalDialog, setRevision);
   
   const faceContent:JSX.Element = isHeadReady() 
     ? <Canvas className={styles.canvas} isAnimated={true} onDraw={onDrawFaceCanvas} 
@@ -199,6 +202,13 @@ function FacesScreen() {
         onCancel={() => setModalDialog(null)}
         parts={headParts}
         selectedPartNo={revision.headPartNo}
+      />
+      <ExtraChooser
+        isOpen={modalDialog === ExtraChooser.name}
+        onChange={() => { /* TODO */ } }
+        onCancel={() => setModalDialog(null)}
+        parts={extraParts}
+        selectedPartNo={0}
       />
     </ScreenContainer>
   );

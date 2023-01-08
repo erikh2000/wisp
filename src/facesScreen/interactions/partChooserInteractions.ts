@@ -15,6 +15,7 @@ import NoseChooser from "facesScreen/partChoosers/NoseChooser";
 import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
 import {CanvasComponent, HEAD_PART_TYPE, loadComponentFromPartUrl, replaceComponentFromPartUrl,} from "sl-web-face";
+import ExtraChooser from "../partChoosers/ExtraChooser";
 
 function _reparentHeadParts(oldHead:CanvasComponent, newHead:CanvasComponent) {
   const children = oldHead.findNonUiChildren();
@@ -87,6 +88,8 @@ export function onNoseChanged(noseParts:LoadablePart[], partNo:number, setModalD
 }
 
 export function onRemoveNose(setRevision:any) { _removePart(getHead(),'nosePartNo', PartType.NOSE, setRevision); }
+
+export function onChooseExtra(setModalDialog:any) { setModalDialog(ExtraChooser.name); }
 
 export function findLoadablePartNo(loadableParts:LoadablePart[], headComponent:CanvasComponent, partType:PartType):number {
   const component = findCanvasComponentForPartType(headComponent, partType);
