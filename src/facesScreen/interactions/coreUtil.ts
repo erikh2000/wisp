@@ -1,7 +1,7 @@
 import {PartType} from "../PartSelector";
 
 import {
-  CanvasComponent,
+  CanvasComponent, EXTRA_PART_TYPE,
   EYES_PART_TYPE,
   MOUTH_PART_TYPE,
   NOSE_PART_TYPE,
@@ -58,6 +58,18 @@ export function findCanvasComponentForPartType(headComponent:CanvasComponent, pa
         break;
     }
     return child;
+  }
+  return null;
+}
+
+export function findExtraCanvasComponent(headComponent:CanvasComponent, extraSlotNo:number):CanvasComponent|null {
+  let currentSlotNo = 0;
+  const childCount = headComponent.children.length;
+  for(let childI = 0; childI < childCount; ++childI) {
+    const child = headComponent.children[childI];
+    if (!child || child.partType !== EXTRA_PART_TYPE) continue;
+    if (currentSlotNo === extraSlotNo) return child;
+    ++currentSlotNo;
   }
   return null;
 }

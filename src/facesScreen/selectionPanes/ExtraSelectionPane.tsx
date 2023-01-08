@@ -1,15 +1,17 @@
 import InnerContentPane, { ButtonDefinition } from "ui/innerContentPane/InnerContentPane";
+import PartThumbnail from "../partChoosers/PartThumbnail";
 
 type EmptyCallback = () => void;
 
 interface IProps {
-  partNo:number,
+  slotNo:number,
   className:string,
   disabled?:boolean,
   isSpecified:boolean,
   onAdd:EmptyCallback,
   onReplace:EmptyCallback,
-  onRemove:EmptyCallback
+  onRemove:EmptyCallback,
+  thumbnailBitmap:ImageBitmap|null
 }
 
 function _generateButtonDefinitions(isSpecified:boolean, onAdd:EmptyCallback, onReplace:EmptyCallback, onRemove:EmptyCallback, disabled?:boolean):ButtonDefinition[] {
@@ -19,16 +21,18 @@ function _generateButtonDefinitions(isSpecified:boolean, onAdd:EmptyCallback, on
 }
 
 function ExtraSelectionPane(props:IProps) {
-  const { className, disabled, isSpecified, onAdd, onRemove, onReplace, partNo } = props;
+  const { className, disabled, isSpecified, onAdd, onRemove, onReplace, slotNo, thumbnailBitmap } = props;
 
   const buttons:ButtonDefinition[] = _generateButtonDefinitions(isSpecified, onAdd, onReplace, onRemove, disabled);
   
-  const comment = 'Extra parts are things like hats and eyeglasses that go on top of faces.';
+  const comment = 'Extra parts are things like hats and eyeglasses that go with faces.';
 
-  if (!isSpecified) return <InnerContentPane className={className} buttons={buttons} caption={`No Extra Part #${partNo}`} comment={comment} />
+  if (!isSpecified) return <InnerContentPane className={className} buttons={buttons} caption={`No Extra Part #${slotNo+1}`} comment={comment} />
 
   return (
-    <InnerContentPane className={className} buttons={buttons} caption={`Selected: Extra #${partNo}`} comment={comment}/>
+    <InnerContentPane className={className} buttons={buttons} caption={`Selected: Extra #${slotNo+1}`} comment={comment}>
+      <PartThumbnail bitmap={thumbnailBitmap} onClick={onReplace} isSelected={false} disabled={disabled}/>
+    </InnerContentPane>
   );
 }
 

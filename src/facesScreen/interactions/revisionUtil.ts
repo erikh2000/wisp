@@ -31,8 +31,8 @@ export type Revision = {
   eyesPartNo:number,
   headPartNo:number,
   mouthPartNo:number,
-  nosePartNo:number
-  // TODO extra part#s (for multiple extra parts)
+  nosePartNo:number,
+  extraPartNos:number[]
 };
 
 export function getRevisionManager() { return revisionManager; }

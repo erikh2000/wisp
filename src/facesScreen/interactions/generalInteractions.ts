@@ -13,7 +13,7 @@ import {
   initCore, 
   isHeadReady
 } from "./coreUtil";
-import { findLoadablePartNo } from "./partChooserInteractions";
+import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
 import {getRevisionManager, Revision } from "./revisionUtil";
 
 import {
@@ -170,7 +170,8 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
     eyesPartNo: findLoadablePartNo(partLoader.eyes, head, PartType.EYES),
     nosePartNo: findLoadablePartNo(partLoader.noses, head, PartType.NOSE),
     mouthPartNo: findLoadablePartNo(partLoader.mouths, head, PartType.MOUTH),
-    headPartNo: findLoadablePartNo(partLoader.heads, head, PartType.HEAD)
+    headPartNo: findLoadablePartNo(partLoader.heads, head, PartType.HEAD),
+    extraPartNos: findLoadablePartNosForExtras(partLoader.extras, head)
   }
   revisionManager.clear();
   revisionManager.add(nextRevision);
@@ -213,6 +214,7 @@ export function getRevisionForMount():Revision {
     testVoice: TestVoiceType.MUTED,
     document: null,
     eyesPartNo: UNSPECIFIED,
+    extraPartNos: [],
     headPartNo: UNSPECIFIED,
     nosePartNo: UNSPECIFIED,
     mouthPartNo: UNSPECIFIED

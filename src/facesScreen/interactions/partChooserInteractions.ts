@@ -1,5 +1,5 @@
 import {
-  findCanvasComponentForPartType,
+  findCanvasComponentForPartType, findExtraCanvasComponent,
   getHead,
   getPartUiManager,
   performDisablingOperation,
@@ -14,7 +14,13 @@ import MouthChooser from "facesScreen/partChoosers/MouthChooser";
 import NoseChooser from "facesScreen/partChoosers/NoseChooser";
 import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
-import {CanvasComponent, HEAD_PART_TYPE, loadComponentFromPartUrl, replaceComponentFromPartUrl,} from "sl-web-face";
+import {
+  CanvasComponent,
+  EXTRA_PART_TYPE,
+  HEAD_PART_TYPE,
+  loadComponentFromPartUrl,
+  replaceComponentFromPartUrl,
+} from "sl-web-face";
 import ExtraChooser from "../partChoosers/ExtraChooser";
 
 function _reparentHeadParts(oldHead:CanvasComponent, newHead:CanvasComponent) {
@@ -29,6 +35,17 @@ function _removePart(headComponent:CanvasComponent, revisionPartNoName:string, p
   if (!component) return;
   component.setParent(null);
   const changes = {[revisionPartNoName]:UNSPECIFIED};
+  performDisablingOperation(async () => {
+    updateForFaceRelatedRevision(changes, setRevision);
+  });
+}
+
+function _removeExtra(headComponent:CanvasComponent, extraSlotNo:number, extraPartNos:number[], setRevision:any) {
+  const component = findExtraCanvasComponent(headComponent, extraSlotNo);
+  if (!component) return;
+  component.setParent(null);
+  const nextExtraPartNos = extraPartNos.filter((_ignored, slotNo) => slotNo != extraSlotNo);
+  const changes = {extraPartNos:nextExtraPartNos};
   performDisablingOperation(async () => {
     updateForFaceRelatedRevision(changes, setRevision);
   });
@@ -58,6 +75,28 @@ async function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], p
     updateForFaceRelatedRevision({[revisionPartNoName]:partNo}, setRevision);
   });
 }
+
+async function _onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], extraPartNos:number[], partNo:number, setModalDialog:any, setRevision:any) {
+  return await performDisablingOperation(async () => {
+    setModalDialog(null);
+    const partUrl = extraParts[partNo].url;
+    const head = getHead();
+    const partUiManager = getPartUiManager();
+
+    const currentComponent = findExtraCanvasComponent(head, extraSlotNo);
+    if (currentComponent) {
+      await replaceComponentFromPartUrl(currentComponent, partUrl);
+    } else {
+      const newComponent = await loadComponentFromPartUrl(partUrl, head.skinTone, head.hairColor);
+      newComponent.setParent(head);
+    }
+    await partUiManager.trackPartsForFace(getHead());
+    const nextExtraPartNos = [...extraPartNos];
+    nextExtraPartNos[extraSlotNo] = partNo;
+    updateForFaceRelatedRevision({extraPartNos:nextExtraPartNos}, setRevision);
+  });
+}
+
 
 export function onChooseHead(setModalDialog:any) { setModalDialog(HeadChooser.name); }
 
@@ -91,8 +130,25 @@ export function onRemoveNose(setRevision:any) { _removePart(getHead(),'nosePartN
 
 export function onChooseExtra(setModalDialog:any) { setModalDialog(ExtraChooser.name); }
 
+export function onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], extraPartNos:number[], partNo:number, setModalDialog:any, setRevision:any) {
+  _onExtraChanged(extraSlotNo, extraParts, extraPartNos, partNo, setModalDialog, setRevision);
+}
+
+export function onRemoveExtra(extraSlotNo:number, extraPartNos:number[], setRevision:any) {
+  _removeExtra(getHead(), extraSlotNo, extraPartNos, setRevision);
+}
+
 export function findLoadablePartNo(loadableParts:LoadablePart[], headComponent:CanvasComponent, partType:PartType):number {
   const component = findCanvasComponentForPartType(headComponent, partType);
   if (!component) return UNSPECIFIED;
   return loadableParts.findIndex(loadablePart => loadablePart.url === component.partUrl);
+}
+
+export function findLoadablePartNosForExtras(loadableParts:LoadablePart[], headComponent:CanvasComponent):number[] {
+  const extraComponents = headComponent.children.filter(child => child.partType === EXTRA_PART_TYPE);
+  const partNos:number[] = [];
+  for(let extraSlotNo = 0; extraSlotNo < extraComponents.length; ++extraSlotNo) {
+    partNos[extraSlotNo] = loadableParts.findIndex(loadablePart => loadablePart.url === extraComponents[extraSlotNo].partUrl);
+  }
+  return partNos;
 }
