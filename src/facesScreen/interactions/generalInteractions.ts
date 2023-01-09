@@ -57,7 +57,13 @@ export function onPartTypeChange(partType:PartType, setRevision:any) {
   if (head) {
     const partUiManager = getPartUiManager();
     const nextFocusPart = findCanvasComponentForPartType(head, partType);
-    if (partUiManager && nextFocusPart) partUiManager.setFocus(nextFocusPart);
+    if (partUiManager) {
+      if (nextFocusPart) {
+        partUiManager.setFocus(nextFocusPart);
+      } else {
+        partUiManager.clearFocus();
+      }
+    }
   }
   setRevision(revisionManager.currentRevision);
 }

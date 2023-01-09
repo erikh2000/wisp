@@ -1,8 +1,9 @@
-import {PartType} from "../PartSelector";
+import {MAX_EXTRA_COUNT, PartType} from "../PartSelector";
 
 import {
-  CanvasComponent, EXTRA_PART_TYPE,
+  CanvasComponent, 
   EYES_PART_TYPE,
+  EXTRA_PART_TYPE,
   MOUTH_PART_TYPE,
   NOSE_PART_TYPE,
 } from "sl-web-face";
@@ -37,7 +38,7 @@ export function findCanvasComponentForPartType(headComponent:CanvasComponent, pa
     const childPartType = child.partType;
     if (child.isUi) continue;
 
-    if (childPartType !== EYES_PART_TYPE && childPartType !== MOUTH_PART_TYPE) ++extraNo;
+    if (childPartType === EXTRA_PART_TYPE) ++extraNo;
 
     switch(partType) {
       case PartType.EYES:
@@ -96,7 +97,7 @@ export function findPartTypeForCanvasComponent(component:CanvasComponent, compon
     }
     ++extraCount;
     if (isMatch) {
-      if (extraCount > 5) return PartType.HEAD;
+      if (extraCount >= MAX_EXTRA_COUNT) return PartType.NONE;
       return PartType.EXTRA1 + extraCount - 1;
     }
   }

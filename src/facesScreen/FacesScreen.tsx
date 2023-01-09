@@ -161,12 +161,13 @@ function FacesScreen() {
               onMouseUp={initResults?.onFaceCanvasMouseUp} />
     : <LoadingBox className={styles.faceLoadingBox} text='loading face' />;
   const extraSlotNo = _getExtraSlotNo(partType);
+  const extraCount = revision.extraPartNos.length;
   
   return (
     <ScreenContainer documentName='Old Billy' actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.FACES}>
       <div className={styles.container}>
         <InnerContentPane className={styles.facePane} caption='Face'>
-          <PartSelector partType={partType} onChange={(nextPartType) => onPartTypeChange(nextPartType, setRevision)} extraCount={revision.extraPartNos.length} disabled={disabled}/>
+          <PartSelector partType={partType} onChange={(nextPartType) => onPartTypeChange(nextPartType, setRevision)} extraCount={extraCount} disabled={disabled}/>
           {faceContent}
         </InnerContentPane>
         <div className={styles.rightColumn}>
