@@ -44,7 +44,7 @@ function _removeExtra(headComponent:CanvasComponent, extraSlotNo:number, extraPa
   const component = findExtraCanvasComponent(headComponent, extraSlotNo);
   if (!component) return;
   component.setParent(null);
-  const nextExtraPartNos = extraPartNos.filter((_ignored, slotNo) => slotNo != extraSlotNo);
+  const nextExtraPartNos = extraPartNos.filter((_ignored, slotNo) => slotNo !== extraSlotNo);
   const changes = {extraPartNos:nextExtraPartNos};
   performDisablingOperation(async () => {
     updateForFaceRelatedRevision(changes, setRevision);

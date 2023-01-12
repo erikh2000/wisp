@@ -1,15 +1,15 @@
 import {TestVoiceType} from "facesScreen/view/TestVoiceSelector";
-import {updateForFaceRelatedRevision} from "./revisionUtil";
+import {updateForStaticFaceRevision} from "./revisionUtil";
 import {Emotion, LidLevel} from "sl-web-face";
 
 export function onTestVoiceChange(testVoice:TestVoiceType, setRevision:any) {
-  updateForFaceRelatedRevision({testVoice}, setRevision);
+  updateForStaticFaceRevision({testVoice}, setRevision);
 }
 
 export function onEmotionChange(emotion:Emotion, setRevision:any) {
-  updateForFaceRelatedRevision({emotion}, setRevision);
+  updateForStaticFaceRevision({emotion}, setRevision);
 }
 
 export function onLidLevelChange(lidLevel:LidLevel, setRevision:any) {
-  updateForFaceRelatedRevision({lidLevel}, setRevision);
+  updateForStaticFaceRevision({lidLevel}, setRevision);
 }

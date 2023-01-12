@@ -14,13 +14,12 @@ import {
   isHeadReady
 } from "./coreUtil";
 import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
-import {getRevisionManager, Revision } from "./revisionUtil";
+import {getRevisionManager, Revision, updateForFaceRelatedRevision, updateForStaticFaceRevision} from "./revisionUtil";
 
 import {
   AttentionController,
   BlinkController,
   CanvasComponent,
-  createFaceDocument,
   Emotion,
   EYES_PART_TYPE,
   EXTRA_PART_TYPE,
@@ -42,30 +41,22 @@ const blinkController = new BlinkController();
 const attentionController = new AttentionController();
 
 function _onPartMoved(component:CanvasComponent, x:number, y:number, setRevision:any):boolean {
-  const document = createFaceDocument(getHead());
-  const revisionManager = getRevisionManager();
-  revisionManager.addChanges({document});
-  setRevision(revisionManager.currentRevision);
+  updateForFaceRelatedRevision({}, setRevision);
   return true;
 }
 
 export function onPartTypeChange(partType:PartType, setRevision:any) {
   const head = getHead();
-  const document = createFaceDocument(head);
-  const revisionManager = getRevisionManager();
-  revisionManager.addChanges({partType, document});
-  if (head) {
-    const partUiManager = getPartUiManager();
-    const nextFocusPart = findCanvasComponentForPartType(head, partType);
-    if (partUiManager) {
-      if (nextFocusPart) {
-        partUiManager.setFocus(nextFocusPart);
-      } else {
-        partUiManager.clearFocus();
-      }
+  updateForStaticFaceRevision({partType}, setRevision);
+  const partUiManager = getPartUiManager();
+  const nextFocusPart = findCanvasComponentForPartType(head, partType);
+  if (partUiManager) {
+    if (nextFocusPart) {
+      partUiManager.setFocus(nextFocusPart);
+    } else {
+      partUiManager.clearFocus();
     }
   }
-  setRevision(revisionManager.currentRevision);
 }
 
 function _onPartFocused(component:CanvasComponent|null, setRevision:any):boolean {
@@ -75,20 +66,12 @@ function _onPartFocused(component:CanvasComponent|null, setRevision:any):boolean
   const revisionManager = getRevisionManager();
   const currentPartType = revisionManager.currentRevision?.partType;
   const partType = findPartTypeForCanvasComponent(component, head.children);
-  if (partType !== currentPartType) {
-    const document = head ? createFaceDocument(head) : undefined;
-    revisionManager.addChanges({partType, document});
-    setRevision(revisionManager.currentRevision);
-  }
+  if (partType !== currentPartType) updateForStaticFaceRevision({partType}, setRevision);
   return true;
 }
 
 function _onPartResized(setRevision:any):boolean {
-  const head = getHead();
-  const revisionManager = getRevisionManager();
-  const document = createFaceDocument(head);
-  revisionManager.addChanges({document});
-  setRevision(revisionManager.currentRevision);
+  updateForFaceRelatedRevision({}, setRevision);
   return true;
 }
 
@@ -173,7 +156,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
     partType:PartType.HEAD,
     lidLevel:LidLevel.NORMAL,
     testVoice:TestVoiceType.MUTED,
-    document: createFaceDocument(head),
+    headComponent: head.duplicate(),
     eyesPartNo: findLoadablePartNo(partLoader.eyes, head, PartType.EYES),
     nosePartNo: findLoadablePartNo(partLoader.noses, head, PartType.NOSE),
     mouthPartNo: findLoadablePartNo(partLoader.mouths, head, PartType.MOUTH),
@@ -219,7 +202,7 @@ export function getRevisionForMount():Revision {
     lidLevel: LidLevel.NORMAL,
     partType: PartType.HEAD,
     testVoice: TestVoiceType.MUTED,
-    document: null,
+    headComponent: null,
     eyesPartNo: UNSPECIFIED,
     extraPartNos: [],
     headPartNo: UNSPECIFIED,

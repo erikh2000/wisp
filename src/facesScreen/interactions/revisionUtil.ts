@@ -2,13 +2,11 @@ import {PartType} from "facesScreen/PartSelector";
 import {TestVoiceType} from "facesScreen/view/TestVoiceSelector";
 
 import {
-  createFaceDocument,
+  CanvasComponent,
   Emotion,
-  FaceDocument,
   LidLevel,
   publishEvent,
-  Topic,
-  updateFaceFromDocument
+  Topic
 } from "sl-web-face";
 import RevisionManager from "documents/RevisionManager";
 import {
@@ -18,12 +16,12 @@ import {
   performDisablingOperation,
   setHead
 } from "./coreUtil";
-import {updateSelectionBoxesToMatchFace} from "../../ui/partAuthoring/SelectionBoxCanvasComponent";
+import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
 
 const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>();
 
 export type Revision = {
-  document:FaceDocument|null, // A null document indicates no document is loaded. Used only for initial revision. 
+  headComponent:CanvasComponent|null, 
   emotion:Emotion,
   lidLevel:LidLevel,
   partType:PartType,
@@ -44,17 +42,15 @@ function _publishFaceEventsForRevision(revision:Revision) {
 
 async function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
   if (!revision) return;
-  const head = getHead();
+  const head = revision.headComponent?.duplicate();
+  if (!head) throw Error('Unexpected');
+  setHead(head);
   const partUiManager = getPartUiManager();
-  if (revision.document) {
-    const nextHead = await updateFaceFromDocument(head, revision.document);
-    if (head !== nextHead) setHead(nextHead);
-  }
   await partUiManager.trackPartsForFace(head);
   updateSelectionBoxesToMatchFace(head);
   _publishFaceEventsForRevision(revision);
   const nextFocusPart = findCanvasComponentForPartType(head, revision.partType);
-  if (partUiManager && nextFocusPart) partUiManager.setFocus(nextFocusPart);
+  if (nextFocusPart) partUiManager.setFocus(nextFocusPart);
   setRevision(revision);
 }
 
@@ -68,9 +64,18 @@ export function onRedo(setRevision:any) {
 
 export function updateForFaceRelatedRevision(changes:any, setRevision:any) {
   const head = getHead();
-  const document = createFaceDocument(head);
+  const headComponent = head.duplicate();
   const revisionManager = getRevisionManager();
-  revisionManager.addChanges({document, ...changes});
+  revisionManager.addChanges({headComponent, ...changes});
+  const nextRevision = revisionManager.currentRevision;
+  if (!nextRevision) return;
+  _publishFaceEventsForRevision(nextRevision);
+  setRevision(nextRevision);
+}
+
+export function updateForStaticFaceRevision(changes:any, setRevision:any) {
+  const revisionManager = getRevisionManager();
+  revisionManager.addChanges({...changes});
   const nextRevision = revisionManager.currentRevision;
   if (!nextRevision) return;
   _publishFaceEventsForRevision(nextRevision);
