@@ -30,7 +30,7 @@ export type Revision = {
   headPartNo:number,
   mouthPartNo:number,
   nosePartNo:number,
-  extraPartNos:number[]
+  extraSlotPartNos:number[]
 };
 
 export function getRevisionManager() { return revisionManager; }

@@ -53,6 +53,12 @@ export function findPartByComponent(parts:TrackedPart[], component:CanvasCompone
   return parts[i];
 }
 
+export function findPartById(parts:TrackedPart[], id:number):TrackedPart|null {
+  const i = parts.findIndex(trackedPart => trackedPart.component.id === id);
+  if (i === -1) return null;
+  return parts[i];
+}
+
 export function createTrackedPartsForFace(headComponent:CanvasComponent):TrackedPart[] {
   const trackedParts:TrackedPart[] = [];
   const componentPlaceholder = (null as unknown) as CanvasComponent;

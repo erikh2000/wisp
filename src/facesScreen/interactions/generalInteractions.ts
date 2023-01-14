@@ -161,7 +161,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
     nosePartNo: findLoadablePartNo(partLoader.noses, head, PartType.NOSE),
     mouthPartNo: findLoadablePartNo(partLoader.mouths, head, PartType.MOUTH),
     headPartNo: findLoadablePartNo(partLoader.heads, head, PartType.HEAD),
-    extraPartNos: findLoadablePartNosForExtras(partLoader.extras, head)
+    extraSlotPartNos: findLoadablePartNosForExtras(partLoader.extras, head)
   }
   revisionManager.clear();
   revisionManager.add(nextRevision);
@@ -204,7 +204,7 @@ export function getRevisionForMount():Revision {
     testVoice: TestVoiceType.MUTED,
     headComponent: null,
     eyesPartNo: UNSPECIFIED,
-    extraPartNos: [],
+    extraSlotPartNos: [],
     headPartNo: UNSPECIFIED,
     nosePartNo: UNSPECIFIED,
     mouthPartNo: UNSPECIFIED

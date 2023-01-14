@@ -58,8 +58,8 @@ function _getThumbnail(parts:LoadablePart[], partNo:number):ImageBitmap|null {
 
 function _getExtraSlotNo(partType:PartType):number { return partType - PartType.EXTRA1; }
 
-function _getSelectedPartNoForSlot(extraPartNos:number[], slotNo:number):number {
-  return slotNo < extraPartNos.length ? extraPartNos[slotNo] : UNSPECIFIED;
+function _getSelectedPartNoForSlot(extraSlotPartNos:number[], slotNo:number):number {
+  return slotNo < extraSlotPartNos.length ? extraSlotPartNos[slotNo] : UNSPECIFIED;
 }
 
 function _renderSelectionPane(partType:PartType, disabled:boolean, revision:Revision, headParts:LoadablePart[], 
@@ -109,14 +109,14 @@ function _renderSelectionPane(partType:PartType, disabled:boolean, revision:Revi
       />
     default:
       const slotNo = _getExtraSlotNo(partType);
-      const extraPartNo = _getSelectedPartNoForSlot(revision.extraPartNos, slotNo);
+      const extraPartNo = _getSelectedPartNoForSlot(revision.extraSlotPartNos, slotNo);
       return <ExtraSelectionPane 
         slotNo={slotNo} 
         className={styles.selectionPane} 
         onAdd={() => onChooseExtra(setModalDialog)} 
         onReplace={() => onChooseExtra(setModalDialog)} 
-        onRemove={() => onRemoveExtra(slotNo, revision.extraPartNos, setRevision)} 
-        isSpecified={slotNo < revision.extraPartNos.length} 
+        onRemove={() => onRemoveExtra(slotNo, revision.extraSlotPartNos, setRevision)} 
+        isSpecified={slotNo < revision.extraSlotPartNos.length} 
         disabled={disabled}
         thumbnailBitmap={_getThumbnail(extraParts, extraPartNo)}
       />
@@ -161,7 +161,7 @@ function FacesScreen() {
               onMouseUp={initResults?.onFaceCanvasMouseUp} />
     : <LoadingBox className={styles.faceLoadingBox} text='loading face' />;
   const extraSlotNo = _getExtraSlotNo(partType);
-  const extraCount = revision.extraPartNos.length;
+  const extraCount = revision.extraSlotPartNos.length;
   
   return (
     <ScreenContainer documentName='Old Billy' actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.FACES}>
@@ -209,10 +209,10 @@ function FacesScreen() {
       />
       <ExtraChooser
         isOpen={modalDialog === ExtraChooser.name}
-        onChange={(partNo:number) => onExtraChanged(extraSlotNo, extraParts, revision.extraPartNos, partNo, setModalDialog, setRevision)}
+        onChange={(partNo:number) => onExtraChanged(extraSlotNo, extraParts, revision.extraSlotPartNos, partNo, setModalDialog, setRevision)}
         onCancel={() => setModalDialog(null)}
         parts={extraParts}
-        selectedPartNo={_getSelectedPartNoForSlot(revision.extraPartNos, extraSlotNo)}
+        selectedPartNo={_getSelectedPartNoForSlot(revision.extraSlotPartNos, extraSlotNo)}
       />
     </ScreenContainer>
   );

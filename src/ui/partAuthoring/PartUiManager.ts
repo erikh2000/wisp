@@ -18,7 +18,8 @@ import {
   createTrackedPartsForFace,
   findNextPartAtCoords,
   findPartAtCoords,
-  findPartByComponent, findPartByTypeName,
+  findPartByComponent, 
+  findPartById,
   hidePartUi, isPartAtCoords,
   loadPartUi, removeMissingParts,
   showPartUi,
@@ -170,7 +171,7 @@ class PartUiManager {
   }
   
   removePart(component:CanvasComponent) {
-    this._trackedParts = this._trackedParts.filter(part => part.component !== component);
+    this._trackedParts = this._trackedParts.filter(part => part.component.id !== component.id);
   }
   
   async trackPartsForFace(headComponent:CanvasComponent) {
@@ -180,7 +181,7 @@ class PartUiManager {
     
     for(let i = 0; i < nextTrackedParts.length; ++i) {
       const nextPart = nextTrackedParts[i];
-      const currentPart = findPartByTypeName(this._trackedParts, nextPart.component.partType);
+      const currentPart = findPartById(this._trackedParts, nextPart.component.id);
       if (currentPart) {
         if (currentPart.component !== nextPart.component) {
           await this.replacePart(currentPart.component, nextPart.component);

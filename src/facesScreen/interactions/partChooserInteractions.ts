@@ -40,12 +40,12 @@ function _removePart(headComponent:CanvasComponent, revisionPartNoName:string, p
   });
 }
 
-function _removeExtra(headComponent:CanvasComponent, extraSlotNo:number, extraPartNos:number[], setRevision:any) {
+function _removeExtra(headComponent:CanvasComponent, extraSlotNo:number, extraSlotPartNos:number[], setRevision:any) {
   const component = findExtraCanvasComponent(headComponent, extraSlotNo);
   if (!component) return;
   component.setParent(null);
-  const nextExtraPartNos = extraPartNos.filter((_ignored, slotNo) => slotNo !== extraSlotNo);
-  const changes = {extraPartNos:nextExtraPartNos};
+  const nextExtraSlotPartNos = extraSlotPartNos.filter((_ignored, slotNo) => slotNo !== extraSlotNo);
+  const changes = {extraPartNos:nextExtraSlotPartNos};
   performDisablingOperation(async () => {
     updateForFaceRelatedRevision(changes, setRevision);
   });
@@ -76,7 +76,7 @@ async function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], p
   });
 }
 
-async function _onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], extraPartNos:number[], partNo:number, setModalDialog:any, setRevision:any) {
+async function _onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], extraSlotPartNos:number[], partNo:number, setModalDialog:any, setRevision:any) {
   return await performDisablingOperation(async () => {
     setModalDialog(null);
     const partUrl = extraParts[partNo].url;
@@ -91,9 +91,9 @@ async function _onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], ex
       newComponent.setParent(head);
     }
     await partUiManager.trackPartsForFace(getHead());
-    const nextExtraPartNos = [...extraPartNos];
-    nextExtraPartNos[extraSlotNo] = partNo;
-    updateForFaceRelatedRevision({extraPartNos:nextExtraPartNos}, setRevision);
+    const nextExtraSlotPartNos = [...extraSlotPartNos];
+    nextExtraSlotPartNos[extraSlotNo] = partNo;
+    updateForFaceRelatedRevision({extraSlotPartNos:nextExtraSlotPartNos}, setRevision);
   });
 }
 
@@ -130,12 +130,12 @@ export function onRemoveNose(setRevision:any) { _removePart(getHead(),'nosePartN
 
 export function onChooseExtra(setModalDialog:any) { setModalDialog(ExtraChooser.name); }
 
-export function onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], extraPartNos:number[], partNo:number, setModalDialog:any, setRevision:any) {
-  _onExtraChanged(extraSlotNo, extraParts, extraPartNos, partNo, setModalDialog, setRevision);
+export function onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], extraSlotPartNos:number[], partNo:number, setModalDialog:any, setRevision:any) {
+  _onExtraChanged(extraSlotNo, extraParts, extraSlotPartNos, partNo, setModalDialog, setRevision);
 }
 
-export function onRemoveExtra(extraSlotNo:number, extraPartNos:number[], setRevision:any) {
-  _removeExtra(getHead(), extraSlotNo, extraPartNos, setRevision);
+export function onRemoveExtra(extraSlotNo:number, extraSlotPartNos:number[], setRevision:any) {
+  _removeExtra(getHead(), extraSlotNo, extraSlotPartNos, setRevision);
 }
 
 export function findLoadablePartNo(loadableParts:LoadablePart[], headComponent:CanvasComponent, partType:PartType):number {
