@@ -44,8 +44,8 @@ export function onLidLevelChange(lidLevel:LidLevel, setRevision:any) {
 export function getTestVoiceCredits():string|undefined {
   const testVoice = _getTestVoiceType();
   switch (testVoice) {
-    case TestVoiceType.MALE: return 'Voice acting by Geoffrey M. Butler.';
-    case TestVoiceType.FEMALE: return 'Voice acting by Chelsea Blackwell.';
+    case TestVoiceType.MALE: return 'Voice acting by Geoffrey M. Butler';
+    case TestVoiceType.FEMALE: return 'Voice acting by Chelsea Blackwell';
     default: return undefined;
   }
 }
