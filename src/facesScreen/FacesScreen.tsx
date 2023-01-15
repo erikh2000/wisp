@@ -24,8 +24,8 @@ import {
   onRemoveMouth,
   onRemoveNose
 } from "./interactions/partChooserInteractions";
-import {onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import {onHairColorChange, onIrisColorChange, onSkinToneChange} from "./interactions/recolorUtil";
+import {onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import {
   getTestVoiceCredits,
   onEmotionChange,
@@ -46,15 +46,17 @@ import EyesChooser from "./partChoosers/EyesChooser";
 import EmotionSelector from "./view/EmotionSelector";
 import LidLevelSelector from "./view/LidLevelSelector";
 import TestVoiceSelector from "./view/TestVoiceSelector";
+import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import useEffectAfterMount from "common/useEffectAfterMount";
 import Canvas from "ui/Canvas";
 import LoadingBox from "ui/LoadingBox";
 import ScreenContainer from 'ui/screen/ScreenContainer';
 import Screen from 'ui/screen/screens';
-import {LoadablePart} from "ui/partAuthoring/PartLoader";
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
+import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
 import React, {useState} from 'react';
+import {useNavigate} from "react-router-dom";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -139,9 +141,11 @@ function FacesScreen() {
   const [mouthParts, setMouthParts] = useState<LoadablePart[]>([]);
   const [noseParts, setNoseParts] = useState<LoadablePart[]>([]);
   const [disabled, setDisabled] = useState<boolean>(true);
+  const navigate = useNavigate();
   const { partType, testVoice, emotion, lidLevel } = revision;
   
   useEffectAfterMount(() => {
+    if (navigateToHomeIfMissingAudioContext(navigate)) return;
     init(setRevision, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
       setDisabled(false);
