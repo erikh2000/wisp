@@ -27,6 +27,7 @@ import {
 import {onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import {onHairColorChange, onIrisColorChange, onSkinToneChange} from "./interactions/recolorUtil";
 import {
+  getTestVoiceCredits,
   onEmotionChange,
   onEmotionClick,
   onLidLevelChange,
@@ -137,12 +138,13 @@ function FacesScreen() {
   const [headParts, setHeadParts] = useState<LoadablePart[]>([]);
   const [mouthParts, setMouthParts] = useState<LoadablePart[]>([]);
   const [noseParts, setNoseParts] = useState<LoadablePart[]>([]);
-  const [disabled, setDisabled] = useState<boolean>(false);
+  const [disabled, setDisabled] = useState<boolean>(true);
   const { partType, testVoice, emotion, lidLevel } = revision;
   
   useEffectAfterMount(() => {
     init(setRevision, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
       setInitResults(nextInitResults);
+      setDisabled(false);
     });
     return deinit();
   }, []);
@@ -176,7 +178,7 @@ function FacesScreen() {
           {faceContent}
         </InnerContentPane>
         <div className={styles.rightColumn}>
-          <InnerContentPane className={styles.viewPane} caption='View'>
+          <InnerContentPane className={styles.viewPane} caption='View' comment={getTestVoiceCredits()}>
             <EmotionSelector emotion={emotion} onChange={(nextEmotion) => onEmotionChange(nextEmotion, setRevision)} onClick={(nextEmotion) => onEmotionClick(nextEmotion)} disabled={disabled}/>
             <LidLevelSelector lidLevel={lidLevel} onChange={(nextLidLevel) => onLidLevelChange(nextLidLevel, setRevision)} disabled={disabled}/>
             <TestVoiceSelector testVoiceType={testVoice} onChange={(nextTestVoice) => onTestVoiceChange(nextTestVoice, setRevision)} disabled={disabled}/>

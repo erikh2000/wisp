@@ -7,12 +7,16 @@ import {Emotion, LidLevel} from "sl-web-face";
 
 let testVoices:TestVoices|null = null;
 
-function _playTestVoiceForEmotion(emotion:Emotion) {
+function _getTestVoiceType():TestVoiceType {
   const revisionManager = getRevisionManager();
   const currentRevision = revisionManager.currentRevision;
-  if (!testVoices || !currentRevision) return;
-  const testVoice:TestVoiceType = currentRevision.testVoice;
-  if (testVoice === TestVoiceType.MUTED) return;
+  if (!currentRevision) return TestVoiceType.MUTED;
+  return currentRevision.testVoice;
+}
+
+function _playTestVoiceForEmotion(emotion:Emotion) {
+  const testVoice = _getTestVoiceType();
+  if (!testVoices || testVoice === TestVoiceType.MUTED) return;
   testVoices.play(testVoice, emotion);
 }
 
@@ -35,4 +39,13 @@ export function onEmotionChange(emotion:Emotion, setRevision:any) {
 
 export function onLidLevelChange(lidLevel:LidLevel, setRevision:any) {
   updateForStaticFaceRevision({lidLevel}, setRevision);
+}
+
+export function getTestVoiceCredits():string|undefined {
+  const testVoice = _getTestVoiceType();
+  switch (testVoice) {
+    case TestVoiceType.MALE: return 'Voice acting by Geoffrey M. Butler.';
+    case TestVoiceType.FEMALE: return 'Voice acting by Chelsea Blackwell.';
+    default: return undefined;
+  }
 }
