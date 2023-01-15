@@ -26,7 +26,12 @@ import {
 } from "./interactions/partChooserInteractions";
 import {onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import {onHairColorChange, onIrisColorChange, onSkinToneChange} from "./interactions/recolorUtil";
-import {onEmotionChange, onLidLevelChange, onTestVoiceChange} from "./interactions/viewSettingsInteractions";
+import {
+  onEmotionChange,
+  onEmotionClick,
+  onLidLevelChange,
+  onTestVoiceChange
+} from "./interactions/viewSettingsInteractions";
 import ExtraChooser from "./partChoosers/ExtraChooser";
 import HeadChooser from "./partChoosers/HeadChooser";
 import MouthChooser from "./partChoosers/MouthChooser";
@@ -172,7 +177,7 @@ function FacesScreen() {
         </InnerContentPane>
         <div className={styles.rightColumn}>
           <InnerContentPane className={styles.viewPane} caption='View'>
-            <EmotionSelector emotion={emotion} onChange={(nextEmotion) => onEmotionChange(nextEmotion, setRevision)} disabled={disabled}/>
+            <EmotionSelector emotion={emotion} onChange={(nextEmotion) => onEmotionChange(nextEmotion, setRevision)} onClick={(nextEmotion) => onEmotionClick(nextEmotion)} disabled={disabled}/>
             <LidLevelSelector lidLevel={lidLevel} onChange={(nextLidLevel) => onLidLevelChange(nextLidLevel, setRevision)} disabled={disabled}/>
             <TestVoiceSelector testVoiceType={testVoice} onChange={(nextTestVoice) => onTestVoiceChange(nextTestVoice, setRevision)} disabled={disabled}/>
           </InnerContentPane>

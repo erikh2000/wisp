@@ -1,8 +1,6 @@
+import TestVoiceType from "facesScreen/testVoices/TestVoiceType";
 import Selector from 'ui/Selector';
 
-export enum TestVoiceType {
-  MALE, FEMALE, MUTED
-}
 const optionNames = ['Male', 'Female', 'Muted'];
 
 interface IProps {

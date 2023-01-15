@@ -1,0 +1,68 @@
+male:
+  neutral:
+    - /speech/test-voices/male-neutral-1.wav
+    - /speech/test-voices/male-neutral-2.wav
+  confused:
+    - /speech/test-voices/male-confused-1.wav
+    - /speech/test-voices/male-confused-2.wav
+  sad:
+    - /speech/test-voices/male-sad-1.wav
+    - /speech/test-voices/male-sad-2.wav
+  afraid:
+    - /speech/test-voices/male-afraid-1.wav
+    - /speech/test-voices/male-afraid-2.wav
+  evil:
+    - /speech/test-voices/male-evil-1.wav
+    - /speech/test-voices/male-evil-2.wav
+  suspicious:
+    - /speech/test-voices/male-suspicious-1.wav
+    - /speech/test-voices/male-suspicious-2.wav
+  amused:
+    - /speech/test-voices/male-amused-1.wav
+    - /speech/test-voices/male-amused-2.wav
+  happy:
+    - /speech/test-voices/male-happy-1.wav
+    - /speech/test-voices/male-happy-2.wav
+  thinking:
+    - /speech/test-voices/male-thinking-1.wav
+    - /speech/test-voices/male-thinking-2.wav
+  angry:
+    - /speech/test-voices/male-angry-1.wav
+    - /speech/test-voices/male-angry-2.wav
+  irritated:
+    - /speech/test-voices/male-irritated-1.wav
+    - /speech/test-voices/male-irritated-2.wav
+female:
+  neutral:
+    - /speech/test-voices/female-neutral-1.wav
+    - /speech/test-voices/female-neutral-2.wav
+  confused:
+    - /speech/test-voices/female-confused-1.wav
+    - /speech/test-voices/female-confused-2.wav
+  sad:
+    - /speech/test-voices/female-sad-1.wav
+    - /speech/test-voices/female-sad-2.wav
+  afraid:
+    - /speech/test-voices/female-afraid-1.wav
+    - /speech/test-voices/female-afraid-2.wav
+  evil:
+    - /speech/test-voices/female-evil-1.wav
+    - /speech/test-voices/female-evil-2.wav
+  suspicious:
+    - /speech/test-voices/female-suspicious-1.wav
+    - /speech/test-voices/female-suspicious-2.wav
+  amused:
+    - /speech/test-voices/female-amused-1.wav
+    - /speech/test-voices/female-amused-2.wav
+  happy:
+    - /speech/test-voices/female-happy-1.wav
+    - /speech/test-voices/female-happy-2.wav
+  thinking:
+    - /speech/test-voices/female-thinking-1.wav
+    - /speech/test-voices/female-thinking-2.wav
+  angry:
+    - /speech/test-voices/female-angry-1.wav
+    - /speech/test-voices/female-angry-2.wav
+  irritated:
+    - /speech/test-voices/female-irritated-1.wav
+    - /speech/test-voices/female-irritated-2.wav

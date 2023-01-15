@@ -1,5 +1,5 @@
 import {PartType} from "facesScreen/PartSelector";
-import {TestVoiceType} from "facesScreen/view/TestVoiceSelector";
+import {TestVoiceType} from 'facesScreen/testVoices/TestVoiceType';
 import PartUiManager from "ui/partAuthoring/PartUiManager";
 import PartLoader from "ui/partAuthoring/PartLoader";
 import {
@@ -29,6 +29,8 @@ import {
   MOUTH_PART_TYPE,
   NOSE_PART_TYPE
 } from "sl-web-face";
+import {initViewSettings} from "./viewSettingsInteractions";
+
 
 export type InitResults = {
   onFaceCanvasMouseMove:any,
@@ -149,6 +151,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   const partLoader = new PartLoader(onPartLoaderUpdated);
   await partLoader.loadManifest('/parts/part-manifest.yml');
   initCore(head, partUiManager, partLoader, _setDisabled);
+  await initViewSettings('/speech/test-voices/test-voice-manifest.yml');
 
   const revisionManager = getRevisionManager();
   const nextRevision:Revision = {

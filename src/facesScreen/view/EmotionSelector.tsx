@@ -10,17 +10,19 @@ interface IProps {
   disabled?:boolean,
   emotion:Emotion,
   onChange:(emotion:Emotion) => void
+  onClick:(emotion:Emotion) => void
 }
 
 function EmotionSelector(props:IProps) {
-  const {disabled, emotion, onChange} = props;
+  const {disabled, emotion, onChange, onClick} = props;
   return (
     <Selector
       disabled={disabled}  
       selectedOptionNo={emotion} 
       label='Emotion' 
       optionNames={optionNames} 
-      onChange={(optionNo) => onChange(optionEmotions[optionNo])} 
+      onChange={(optionNo) => onChange(optionEmotions[optionNo])}
+      onClick={(optionNo) => onClick(optionEmotions[optionNo])}
     />);
 }
 
