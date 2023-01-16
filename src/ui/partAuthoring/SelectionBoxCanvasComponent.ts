@@ -69,8 +69,10 @@ function _onResizingButtonBoundingDimensions(_componentState:any):[width:number,
   return [RESIZING_BUTTON_WIDTH, RESIZING_BUTTON_HEIGHT];
 }
 
+function _onComponentStateUpdated(_componentState:any, _changes:any) {};
+
 async function _createResizingButton(selectionBox:CanvasComponent, partType:string):Promise<CanvasComponent> {
-  const component = new CanvasComponent(_onResizingButtonLoad, _onResizingButtonRender, _onResizingButtonBoundingDimensions);
+  const component = new CanvasComponent(_onResizingButtonLoad, _onResizingButtonRender, _onResizingButtonBoundingDimensions, _onComponentStateUpdated);
   const initData = { partType };
   await component.load(initData);
   component.setParent(selectionBox);
@@ -126,7 +128,7 @@ export function updateSelectionBoxesToMatchFace(head:CanvasComponent) {
 }
 
 export async function loadSelectionBox(width:number, height:number, isResizable:boolean):Promise<CanvasComponent> {
-  const selectionBoxComponent = new CanvasComponent(_onLoad, _onRender, _onBoundingDimensions);
+  const selectionBoxComponent = new CanvasComponent(_onLoad, _onRender, _onBoundingDimensions, _onComponentStateUpdated);
   const initData = { partType:SELECTION_BOX_PART_TYPE, width, height };
   await selectionBoxComponent.load(initData);
   if (isResizable) {

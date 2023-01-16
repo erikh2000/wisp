@@ -9,6 +9,7 @@ import {
 } from "sl-web-face";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
 import PartLoader from "ui/partAuthoring/PartLoader";
+import {setHeadForFaceEvents} from "./faceEventUtil";
 
 export const UNSPECIFIED = -1;
 
@@ -123,7 +124,10 @@ export function getHead():CanvasComponent {
 
 export function isHeadReady() { return head !== null; }
 
-export function setHead(_head:CanvasComponent):void { head = _head; }
+export function setHead(_head:CanvasComponent):void {
+  if (_head !== head) setHeadForFaceEvents(_head);
+  head = _head; 
+}
 
 export function clearHead():void { head = null; }
 

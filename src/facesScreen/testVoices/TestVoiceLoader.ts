@@ -2,7 +2,7 @@ import TestVoices, {PerEmotionSpeech, PerVoiceSpeech} from "facesScreen/testVoic
 import TestVoiceManifest, {PerVoiceManifest} from "facesScreen/testVoices/TestVoiceManifest";
 
 import {parse} from "yaml";
-import {loadSpeechFromUrl} from "sl-web-face";
+import {FaceEventManager, loadSpeechFromUrl} from "sl-web-face";
 
 async function _loadManifest(manifestUrl:string):Promise<TestVoiceManifest> {
   const response = await fetch(manifestUrl);
@@ -43,17 +43,17 @@ function _loadPerVoiceSpeech(perVoiceManifest:PerVoiceManifest):PerVoiceSpeech {
   ];
 }
 
-function _loadTestVoicesFromManifest(manifest:TestVoiceManifest):TestVoices {
+function _loadTestVoicesFromManifest(manifest:TestVoiceManifest, faceEventManager:FaceEventManager, faceId:number):TestVoices {
   const maleVoiceSpeech:PerVoiceSpeech = _loadPerVoiceSpeech(manifest.male);
   const femaleVoiceSpeech:PerVoiceSpeech = _loadPerVoiceSpeech(manifest.female);
   const perVoiceSpeech:PerVoiceSpeech[] = [maleVoiceSpeech, femaleVoiceSpeech];
-  return new TestVoices(perVoiceSpeech);
+  return new TestVoices(perVoiceSpeech, faceEventManager, faceId);
 }
 
 class TestVoiceLoader {
-  async loadManifest(manifestUrl:string):Promise<TestVoices> {
+  async loadManifest(manifestUrl:string, faceEventManager:FaceEventManager, faceId:number):Promise<TestVoices> {
     const manifest = await _loadManifest(manifestUrl);
-    return _loadTestVoicesFromManifest(manifest);
+    return _loadTestVoicesFromManifest(manifest, faceEventManager, faceId);
   } 
 }
 

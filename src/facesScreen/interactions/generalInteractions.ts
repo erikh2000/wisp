@@ -17,8 +17,6 @@ import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInt
 import {getRevisionManager, Revision, updateForFaceRelatedRevision, updateForStaticFaceRevision} from "./revisionUtil";
 
 import {
-  AttentionController,
-  BlinkController,
   CanvasComponent,
   Emotion,
   EYES_PART_TYPE,
@@ -30,6 +28,7 @@ import {
   NOSE_PART_TYPE
 } from "sl-web-face";
 import {initViewSettings} from "./viewSettingsInteractions";
+import {initFaceEvents} from "./faceEventUtil";
 
 
 export type InitResults = {
@@ -39,8 +38,6 @@ export type InitResults = {
 }
 
 let _isInitialized = false;
-const blinkController = new BlinkController();
-const attentionController = new AttentionController();
 
 function _onPartMoved(component:CanvasComponent, x:number, y:number, setRevision:any):boolean {
   updateForFaceRelatedRevision({}, setRevision);
@@ -143,15 +140,14 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   }
   
   const head = await loadFaceFromUrl('/faces/billy.yml');
-  blinkController.start();
-  attentionController.start();
   const partUiManager = new PartUiManager(onPartFocused, onPartMoved, onPartResized);
   await partUiManager.trackPartsForFace(head);
   partUiManager.setFocus(head);
   const partLoader = new PartLoader(onPartLoaderUpdated);
   await partLoader.loadManifest('/parts/part-manifest.yml');
   initCore(head, partUiManager, partLoader, _setDisabled);
-  await initViewSettings('/speech/test-voices/test-voice-manifest.yml');
+  const [faceEventManager, faceId] = initFaceEvents(head);
+  await initViewSettings('/speech/test-voices/test-voice-manifest.yml', faceEventManager, faceId);
 
   const revisionManager = getRevisionManager();
   const nextRevision:Revision = {

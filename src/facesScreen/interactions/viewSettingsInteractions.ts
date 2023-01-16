@@ -1,9 +1,9 @@
-import TestVoiceType from "facesScreen/testVoices/TestVoiceType";
 import {getRevisionManager, updateForStaticFaceRevision} from "./revisionUtil";
+import TestVoiceType from "facesScreen/testVoices/TestVoiceType";
 import TestVoices from "facesScreen/testVoices/TestVoices";
 import TestVoiceLoader from "facesScreen/testVoices/TestVoiceLoader";
 
-import {Emotion, LidLevel} from "sl-web-face";
+import {Emotion, FaceEventManager, LidLevel} from "sl-web-face";
 
 let testVoices:TestVoices|null = null;
 
@@ -20,9 +20,9 @@ function _playTestVoiceForEmotion(emotion:Emotion) {
   testVoices.play(testVoice, emotion);
 }
 
-export async function initViewSettings(testVoiceManifestUrl:string) {
+export async function initViewSettings(testVoiceManifestUrl:string, faceEventManager:FaceEventManager, faceId:number) {
   const testVoiceLoader = new TestVoiceLoader();
-  testVoices = await testVoiceLoader.loadManifest(testVoiceManifestUrl);
+  testVoices = await testVoiceLoader.loadManifest(testVoiceManifestUrl, faceEventManager, faceId);
 } 
 
 export function onTestVoiceChange(testVoice:TestVoiceType, setRevision:any) {

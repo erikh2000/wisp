@@ -1,14 +1,3 @@
-import {PartType} from "facesScreen/PartSelector";
-import {TestVoiceType} from "facesScreen/testVoices/TestVoiceType";
-
-import {
-  CanvasComponent,
-  Emotion,
-  LidLevel,
-  publishEvent,
-  Topic
-} from "sl-web-face";
-import RevisionManager from "documents/RevisionManager";
 import {
   findCanvasComponentForPartType,
   getHead,
@@ -16,7 +5,13 @@ import {
   performDisablingOperation,
   setHead
 } from "./coreUtil";
+import {setEmotion, setLidLevel} from "./faceEventUtil";
+import {PartType} from "facesScreen/PartSelector";
+import {TestVoiceType} from "facesScreen/testVoices/TestVoiceType";
+import RevisionManager from "documents/RevisionManager";
 import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
+
+import { CanvasComponent, Emotion, LidLevel } from "sl-web-face";
 
 const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>();
 
@@ -36,8 +31,8 @@ export type Revision = {
 export function getRevisionManager() { return revisionManager; }
 
 function _publishFaceEventsForRevision(revision:Revision) {
-  publishEvent(Topic.EMOTION, revision.emotion);
-  publishEvent(Topic.LID_LEVEL, revision.lidLevel);
+  setEmotion(revision.emotion);
+  setLidLevel(revision.lidLevel);
 }
 
 async function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
