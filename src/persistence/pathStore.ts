@@ -1,4 +1,4 @@
-import {pathFromKey} from "./keyStorePathUtil";
+import {keyToPath} from "./pathUtil";
 import {MIMETYPE_OCTET_STREAM, MIMETYPE_PLAIN_TEXT} from "./mimeTypes";
 
 const DB_NAME = 'wisp';
@@ -24,6 +24,7 @@ type KeyValueRecord = {
   key:string,
   path:string,
   mimeType:string,
+  lastModified:number,
   text:string|null,
   bytes:Uint8Array|null
 };
@@ -48,8 +49,6 @@ function _populateStores(_db:IDBDatabase, _schema:any) {
   // If you need this, then add something into your schema definition above that says how records will be populated.
   // For a reference implementation, see encryption-at-rest-poc database.ts.
 }
-
-
 
 async function _open(name:string, schema:any):Promise<IDBDatabase> {
   const version = schema.__version;
@@ -119,17 +118,18 @@ async function _setFieldValue(key:string, fieldName:string, fieldValue:any, mime
   const record = await _getRecordByKey(key)
     ?? { key } as KeyValueRecord;
   (record as any)[fieldName] = fieldValue;
-  record.path = pathFromKey(key);
+  record.path = keyToPath(key);
   record.mimeType = mimeType;
+  record.lastModified = Date.now();
   await _put(db, KEY_VALUE_STORE, record);
 }
 
-export async function setText(key:string, text:string|null) {
-  await _setFieldValue(key, 'text', text, MIMETYPE_PLAIN_TEXT);
+export async function setText(key:string, text:string|null, mimeType:string = MIMETYPE_PLAIN_TEXT) {
+  await _setFieldValue(key, 'text', text, mimeType);
 }
 
-export async function setBytes(key:string, bytes:Uint8Array|null) {
-  await _setFieldValue(key, 'bytes', bytes, MIMETYPE_OCTET_STREAM);
+export async function setBytes(key:string, bytes:Uint8Array|null, mimeType = MIMETYPE_OCTET_STREAM) {
+  await _setFieldValue(key, 'bytes', bytes, mimeType);
 }
 
 export async function doesDatabaseExist():Promise<boolean> {
