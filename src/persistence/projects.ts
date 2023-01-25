@@ -24,10 +24,10 @@ export async function createProject(projectName:string) {
   // Avoid creating things under a project just to have defaults. Data should be created as needed.
 }
 
-export async function createDefaultProjectIfNeeded() {
+export async function createDefaultProjectIfMissing() {
   const keys = await getAllKeysAtPath(PROJECTS_PATH);
   if (keys.length) return;
-  createProject(DEFAULT_PROJECT_NAME);
+  await createProject(DEFAULT_PROJECT_NAME);
 }
 
 export function getActiveProjectName():string { return activeProjectName; }
