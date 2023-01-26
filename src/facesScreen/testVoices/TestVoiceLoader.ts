@@ -1,15 +1,11 @@
+import {fetchYaml} from "common/fetchUtil";
 import TestVoices, {PerEmotionSpeech, PerVoiceSpeech} from "facesScreen/testVoices/TestVoices";
 import TestVoiceManifest, {PerVoiceManifest} from "facesScreen/testVoices/TestVoiceManifest";
 
-import {parse} from "yaml";
 import {FaceEventManager, loadSpeechFromUrl} from "sl-web-face";
 
 async function _loadManifest(manifestUrl:string):Promise<TestVoiceManifest> {
-  const response = await fetch(manifestUrl);
-  if (response.status !== 200 && response.status !== 304) throw Error(`Failed to fetch test voice manifest - HTTP status ${response.status}.`);
-  const text = await response.text();
-  const object:any = parse(text);
-  return object as TestVoiceManifest;
+  return await fetchYaml(manifestUrl) as TestVoiceManifest;
 }
 
 function _loadPerEmotionSpeech(waveUrls:string[]):PerEmotionSpeech {

@@ -1,4 +1,5 @@
-import {parse} from 'yaml';
+import {fetchYaml} from "common/fetchUtil";
+
 import {
   CanvasComponent,
   EYES_PART_TYPE, 
@@ -30,11 +31,7 @@ type PartManifest = {
 export const THUMBNAIL_WIDTH = 100, THUMBNAIL_HEIGHT = 100;
 
 async function _loadManifest(partManifestUrl:string):Promise<PartManifest> {
-  const response = await fetch(partManifestUrl);
-  if (response.status !== 200 && response.status !== 304) throw Error(`Failed to fetch part manifest - HTTP status ${response.status}.`);
-  const text = await response.text();
-  const object:any = parse(text);
-  return object as PartManifest;
+  return (await fetchYaml(partManifestUrl)) as PartManifest;
 }
 
 function _initLoadableParts(partUrls:string[]):LoadablePart[] {

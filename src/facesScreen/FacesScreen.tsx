@@ -57,6 +57,9 @@ import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
+import NewFaceDialog from "./fileDialogs/NewFaceDialog";
+import {onNewFaceName} from "./interactions/fileInteractions";
+import {UNSPECIFIED_NAME} from "../persistence/projects";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -132,6 +135,7 @@ function _renderSelectionPane(partType:PartType, disabled:boolean, revision:Revi
 }
 
 function FacesScreen() {
+  const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
@@ -147,6 +151,7 @@ function FacesScreen() {
   useEffectAfterMount(() => {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
     init(setRevision, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
+      if (nextInitResults.faceName === '') setModalDialog(NewFaceDialog.name);
       setInitResults(nextInitResults);
       setDisabled(false);
     });
@@ -175,7 +180,7 @@ function FacesScreen() {
   const extraCount = revision.extraSlotPartNos.length;
   
   return (
-    <ScreenContainer documentName='Old Billy' actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.FACES}>
+    <ScreenContainer documentName={documentName} actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.FACES}>
       <div className={styles.container}>
         <InnerContentPane className={styles.facePane} caption='Face'>
           <PartSelector partType={partType} onChange={(nextPartType) => onPartTypeChange(nextPartType, setRevision)} extraCount={extraCount} disabled={disabled}/>
@@ -224,6 +229,10 @@ function FacesScreen() {
         onCancel={() => setModalDialog(null)}
         parts={extraParts}
         selectedPartNo={_getSelectedPartNoForSlot(revision.extraSlotPartNos, extraSlotNo)}
+      />
+      <NewFaceDialog
+        isOpen={modalDialog === NewFaceDialog.name}
+        onSubmit={(nextFaceName:string) => onNewFaceName(nextFaceName, setModalDialog, setDocumentName) }
       />
     </ScreenContainer>
   );

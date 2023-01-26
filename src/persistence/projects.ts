@@ -1,12 +1,14 @@
 import {PROJECT_PATH_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
 import {MIMETYPE_WISP_PROJECT} from "./mimeTypes";
-import {getAllKeysAtPath, setText} from "./pathStore";
+import {getAllKeysAtPath, getText, setText} from "./pathStore";
 import {fillTemplate, isValidName, keyToName} from "./pathUtil";
 import Project from "./Project";
 
-import {stringify} from 'yaml';
+import {parse, stringify} from 'yaml';
 
 export const DEFAULT_PROJECT_NAME = 'default';
+export const UNSPECIFIED_NAME = '';
+
 let activeProjectName:string = DEFAULT_PROJECT_NAME;
 
 export async function getProjectNames():Promise<string[]> {
@@ -17,7 +19,7 @@ export async function getProjectNames():Promise<string[]> {
 export async function createProject(projectName:string) {
   if (!isValidName(projectName)) throw Error('Invalid project name');
   const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName});
-  const project:Project = { created:Date.now() };
+  const project:Project = { created:Date.now(), activeFace:UNSPECIFIED_NAME };
   const projectYaml = stringify(project);
   await setText(key, projectYaml, MIMETYPE_WISP_PROJECT);
   
@@ -28,6 +30,29 @@ export async function createDefaultProjectIfMissing() {
   const keys = await getAllKeysAtPath(PROJECTS_PATH);
   if (keys.length) return;
   await createProject(DEFAULT_PROJECT_NAME);
+}
+
+async function _getProjectByKey(key:string) {
+  const projectYaml = await getText(key);
+  if (!projectYaml) throw Error('Unexpected');
+  return parse(projectYaml);
+}
+
+export async function getActiveProject():Promise<Project> {
+  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
+  return _getProjectByKey(key);
+} 
+
+export async function getActiveFaceName():Promise<string> {
+  const project = await getActiveProject();
+  return project.activeFace ?? UNSPECIFIED_NAME;
+}
+
+export async function setActiveFaceName(faceName:string) {
+  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
+  const project:Project = await _getProjectByKey(key);
+  project.activeFace = faceName;
+  await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
 }
 
 export function getActiveProjectName():string { return activeProjectName; }

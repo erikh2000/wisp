@@ -1,5 +1,6 @@
 type Project = {
-  created:number
+  created:number,
+  activeFace:string
 };
 
 export default Project;

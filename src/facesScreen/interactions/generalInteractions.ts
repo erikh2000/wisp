@@ -1,7 +1,4 @@
-import {PartType} from "facesScreen/PartSelector";
-import {TestVoiceType} from 'facesScreen/testVoices/TestVoiceType';
-import PartUiManager from "ui/partAuthoring/PartUiManager";
-import PartLoader from "ui/partAuthoring/PartLoader";
+import {initFaceEvents} from "./faceEventUtil";
 import {
   UNSPECIFIED,
   bindSetDisabled,
@@ -15,6 +12,13 @@ import {
 } from "./coreUtil";
 import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
 import {getRevisionManager, Revision, updateForFaceRelatedRevision, updateForStaticFaceRevision} from "./revisionUtil";
+import {initViewSettings} from "./viewSettingsInteractions";
+import {PartType} from "facesScreen/PartSelector";
+import {TestVoiceType} from 'facesScreen/testVoices/TestVoiceType';
+import {getFaceDefinition} from "persistence/faces";
+import {getActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
+import PartLoader from "ui/partAuthoring/PartLoader";
+import PartUiManager from "ui/partAuthoring/PartUiManager";
 
 import {
   CanvasComponent,
@@ -25,16 +29,16 @@ import {
   LidLevel,
   loadFaceFromUrl,
   MOUTH_PART_TYPE,
-  NOSE_PART_TYPE
+  NOSE_PART_TYPE, loadFaceFromDefinition
 } from "sl-web-face";
-import {initViewSettings} from "./viewSettingsInteractions";
-import {initFaceEvents} from "./faceEventUtil";
 
+const DEFAULT_FACE_URL = '/faces/billy.yml';
 
 export type InitResults = {
   onFaceCanvasMouseMove:any,
   onFaceCanvasMouseDown:any,
-  onFaceCanvasMouseUp:any
+  onFaceCanvasMouseUp:any,
+  faceName:string
 }
 
 let _isInitialized = false;
@@ -109,6 +113,13 @@ function _updateLoadablePartsForType(partTypeName:string, setEyeParts:any, setEx
   }
 }
 
+async function _loadFace(faceName:string):Promise<CanvasComponent> {
+  if (faceName === UNSPECIFIED_NAME) return loadFaceFromUrl(DEFAULT_FACE_URL);
+  const faceDef:string|null = await getFaceDefinition(faceName);
+  if (!faceDef) throw Error('Unexpected');
+  return loadFaceFromDefinition(faceDef);
+}
+
 /* Handle any initialization needed for mount after a previous initialization was completed. This will cover
    refreshing any module-scope vars that stored instances tied to a React component's lifetime and calling setters
    to on React components to synchronize their state with module-scope vars. */
@@ -131,15 +142,17 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return _onPartResized(setRevision); }
   function onPartLoaderUpdated(partTypeName:string, _partName:string) { _updateLoadablePartsForType(partTypeName, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts); }
   
-  const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp };
+  const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp, faceName:UNSPECIFIED_NAME };
   _addDocumentMouseUpListener(onFaceCanvasMouseUp);
+  
+  initResults.faceName = await getActiveFaceName();
   
   if (_isInitialized) {
     await _initForSubsequentMount(_setDisabled, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts);
     return initResults
   }
   
-  const head = await loadFaceFromUrl('/faces/billy.yml');
+  const head = await _loadFace(initResults.faceName);
   const partUiManager = new PartUiManager(onPartFocused, onPartMoved, onPartResized);
   await partUiManager.trackPartsForFace(head);
   partUiManager.setFocus(head);
