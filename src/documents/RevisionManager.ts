@@ -1,22 +1,31 @@
+import RevisionPersister, {IPersistRevisionCallback} from "documents/RevisionPersister";
+
 class RevisionManager<T> {
   private revisions:T[];
-  private currentRevisonNo:number;
+  private currentRevisionNo:number;
+  private persister:RevisionPersister<T>;
   
-  constructor() {
-    this.currentRevisonNo = -1;
+  constructor(onPersistRevision:IPersistRevisionCallback<T>) {
+    this.currentRevisionNo = -1;
     this.revisions = [];
+    this.persister = new RevisionPersister<T>(onPersistRevision);
   }
 
   clear() {
-    this.currentRevisonNo = -1;
+    this.currentRevisionNo = -1;
     this.revisions = [];
   }
   
   add(revision:T) {
-    const removeFromNo = this.currentRevisonNo + 1;
+    const removeFromNo = this.currentRevisionNo + 1;
     if (removeFromNo < this.revisions.length) this.revisions = this.revisions.slice(0, removeFromNo);
     this.revisions.push(revision);
-    ++this.currentRevisonNo;
+    this.persister.persist(revision);
+    ++this.currentRevisionNo;
+  }
+  
+  async waitForPersist():Promise<void> {
+    return this.persister.waitForCompletion();
   }
   
   addChanges(changes:any) {
@@ -32,27 +41,27 @@ class RevisionManager<T> {
       }
     });
     if (!hasChanged) {
-      console.warn('Changes pass to addChanges() all matched current state. No revision added.');
+      console.warn('Changes passed to addChanges() all matched current state. No revision added.');
       return;
     }
     this.add(nextRevision);
   }
   
   prev():T|null {
-    if (this.currentRevisonNo <= 0) return null;
-    --this.currentRevisonNo;
-    return this.revisions[this.currentRevisonNo]
+    if (this.currentRevisionNo <= 0) return null;
+    --this.currentRevisionNo;
+    return this.revisions[this.currentRevisionNo]
   }
   
   next():T|null {
-    if (this.currentRevisonNo >= this.revisions.length - 1) return null;
-    ++this.currentRevisonNo;
-    return this.revisions[this.currentRevisonNo];
+    if (this.currentRevisionNo >= this.revisions.length - 1) return null;
+    ++this.currentRevisionNo;
+    return this.revisions[this.currentRevisionNo];
   }
   
   get currentRevision():T|null {
     return this.revisions.length === 0 
-      ? null : this.revisions[this.currentRevisonNo];
+      ? null : this.revisions[this.currentRevisionNo];
   }
 }
 

@@ -6,14 +6,25 @@ import {
   setHead
 } from "./coreUtil";
 import {setEmotion, setLidLevel} from "./faceEventUtil";
+import RevisionManager from "documents/RevisionManager";
 import {PartType} from "facesScreen/PartSelector";
 import {TestVoiceType} from "facesScreen/testVoices/TestVoiceType";
-import RevisionManager from "documents/RevisionManager";
+import {setFaceDefinition} from "persistence/faces";
+import {getActiveFaceName} from "persistence/projects";
 import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
 
-import { CanvasComponent, Emotion, LidLevel } from "sl-web-face";
+import {CanvasComponent, createFaceDocument, Emotion, FaceDocument, LidLevel} from "sl-web-face";
+import { stringify } from 'yaml';
 
-const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>();
+async function onPersistRevision(revision:Revision):Promise<void> {
+  if (!revision.headComponent) return;
+  const faceDocument:FaceDocument = createFaceDocument(revision.headComponent);
+  const faceDefYaml = stringify(faceDocument);
+  const activeFaceName = await getActiveFaceName();
+  await setFaceDefinition(activeFaceName, faceDefYaml);
+}
+
+const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(onPersistRevision);
 
 export type Revision = {
   headComponent:CanvasComponent|null, 

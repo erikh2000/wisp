@@ -1,3 +1,5 @@
+import RevisionManager from "documents/RevisionManager";
+import {Markers, createEmptyMarkers, createMarkersFromTimelines} from "lipzGeneratorScreen/markerGeneration";
 import {CanvasComponent, loadComponentFromPartUrl, SpeechAudio} from "sl-web-face";
 import {
   generateLipzTextFromAudioBuffer,
@@ -5,14 +7,17 @@ import {
   wavToLipzTextFilename
 } from "sl-web-speech";
 import {loadWavFromFileSystem, mSecsToSampleCount} from "sl-web-audio";
-import RevisionManager from "../documents/RevisionManager";
-import {Markers, createEmptyMarkers, createMarkersFromTimelines} from "lipzGeneratorScreen/markerGeneration";
 
 let _isInitialized = false;
 let mouth:CanvasComponent|null = null;
 let speechAudio:SpeechAudio|null = null;
 let audioBuffer:AudioBuffer|null = null;
-const revisionManager = new RevisionManager<Revision>();
+
+async function onPersistRevision(revision:Revision):Promise<void> {
+  // TODO
+}
+
+const revisionManager = new RevisionManager<Revision>(onPersistRevision);
 
 export type Revision = {
   lipzText:string|null,

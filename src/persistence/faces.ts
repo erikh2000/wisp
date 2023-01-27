@@ -18,7 +18,14 @@ export async function createFace(faceName:string, duplicateFromUrl:string, proje
   await setText(key, faceDef, MIMETYPE_WISP_FACE);
 }
 
-export async function getFaceDefinition(faceName:string, projectName:string = getActiveProjectName()) {
+export async function getFaceDefinition(faceName:string, projectName:string = getActiveProjectName()):Promise<string> {
   const key = fillTemplate(FACE_PATH_TEMPLATE, {projectName, faceName});
-  return await getText(key);
+  const faceDefYaml = await getText(key);
+  if (!faceDefYaml) throw Error('Unexpected');
+  return faceDefYaml;
+}
+
+export async function setFaceDefinition(faceName:string, faceDefYaml:string, projectName:string = getActiveProjectName()) {
+  const key = fillTemplate(FACE_PATH_TEMPLATE, {projectName, faceName});
+  await setText(key, faceDefYaml, MIMETYPE_WISP_FACE);
 }

@@ -1,4 +1,8 @@
+import {setActiveFaceName} from "persistence/projects";
+
 export function onNewFaceName(faceName:string, setModalDialog:any, setDocumentName:any) {
-  setDocumentName(faceName);
-  setModalDialog(null);
+  setActiveFaceName(faceName).then(() => {
+    setDocumentName(faceName);
+    setModalDialog(null);
+  });
 }
