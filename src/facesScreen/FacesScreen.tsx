@@ -151,7 +151,11 @@ function FacesScreen() {
   useEffectAfterMount(() => {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
     init(setRevision, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
-      if (nextInitResults.faceName === '') setModalDialog(NewFaceDialog.name);
+      if (nextInitResults.faceName === UNSPECIFIED_NAME) { 
+        setModalDialog(NewFaceDialog.name);
+      } else {
+        setDocumentName(nextInitResults.faceName);
+      }
       setInitResults(nextInitResults);
       setDisabled(false);
     });

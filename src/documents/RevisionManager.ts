@@ -49,14 +49,16 @@ class RevisionManager<T> {
   
   prev():T|null {
     if (this.currentRevisionNo <= 0) return null;
-    --this.currentRevisionNo;
-    return this.revisions[this.currentRevisionNo]
+    const revision = this.revisions[--this.currentRevisionNo];
+    this.persister.persist(revision);
+    return revision;
   }
   
   next():T|null {
     if (this.currentRevisionNo >= this.revisions.length - 1) return null;
-    ++this.currentRevisionNo;
-    return this.revisions[this.currentRevisionNo];
+    const revision = this.revisions[++this.currentRevisionNo];
+    this.persister.persist(revision);
+    return revision;
   }
   
   get currentRevision():T|null {
