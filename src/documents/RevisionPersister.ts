@@ -1,3 +1,5 @@
+import {disableAwayNavigation, enableAwayNavigation} from "common/awayNavigationUtil";
+
 const DEBOUNCE_PERSIST_INTERVAL = 500;
 
 export interface IPersistRevisionCallback<T> {
@@ -23,12 +25,14 @@ class RevisionPersister<T> {
   }
   
   persist(revision:T) {
+    disableAwayNavigation();
     this._revision = revision;
     if (this._debounceTimer) clearTimeout(this._debounceTimer); // Prevent previous revision from being persisted since this one is newer.
     this._debounceTimer = setTimeout(() => {
       this.waitForCompletion().then(() => {
         const callback:any = this._onPersistRevision; // Cast to any because I can't get TSC to be happy with the function signature containing a generic.
         this._lastPersistPromise = callback(revision);
+        (this._lastPersistPromise as Promise<void>).then(() => enableAwayNavigation());
       });
     }, DEBOUNCE_PERSIST_INTERVAL);
   }
