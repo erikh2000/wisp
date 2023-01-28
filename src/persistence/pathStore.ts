@@ -86,7 +86,17 @@ async function _put(db:IDBDatabase, storeName:string, objectToStore:object):Prom
   const request = objectStore.put(objectToStore);
   return new Promise((resolve, reject) => {
     request.onerror = (event:any) => reject(`Failed to put to "${storeName} with error code ${event.target.errorCode}.`);
-    request.onsuccess = () => resolve()
+    request.onsuccess = () => resolve();
+  });
+}
+
+async function _delete(db:IDBDatabase, storeName:string, key:string):Promise<void> {
+  const transaction = db.transaction(storeName, 'readwrite');
+  const objectStore = transaction.objectStore(storeName);
+  const request = objectStore.delete(key);
+  return new Promise((resolve, reject) => {
+    request.onerror = (event:any) => reject(`Failed to delete record at "${key}" in "${storeName} with error code ${event.target.errorCode}.`);
+    request.onsuccess = () => resolve();
   });
 }
 
@@ -159,4 +169,15 @@ export async function getAllKeysAtPath(path:string):Promise<string[]> {
     request.onerror = (event:any) => reject(`Failed to get all keys from "${path}" path with error code ${event.target.errorCode}.`);
     request.onsuccess = () => resolve(request.result as string[]);
   });
+}
+
+export async function renameKey(currentKey:string, nextKey:string):Promise<void> {
+  const db = await _open(DB_NAME, SCHEMA);
+  const record:KeyValueRecord|null = await _get(db, KEY_VALUE_STORE, currentKey) as KeyValueRecord|null;
+  if (!record) throw Error(`Did not find existing record matching "${currentKey}" key.`);
+  record.key = nextKey;
+  record.path = keyToPath(nextKey);
+  record.lastModified = Date.now();
+  await _put(db, KEY_VALUE_STORE, record);
+  await _delete(db, KEY_VALUE_STORE, currentKey);
 }

@@ -4,7 +4,7 @@ import DialogFooter from "./DialogFooter";
 import styles from './TextInputDialog.module.css';
 import {IFixInputCallback, IValidateCallback} from "ui/validation/validationCallbacks";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface IProps {
   cancelText?:string,
@@ -23,7 +23,13 @@ function TextInputDialog(props:IProps) {
   const {submitText, defaultValue, description, isOpen, onCancel, cancelText, onSubmit, onSubmitValidate, onFixInput, title} = props;
   const [value, setValue] = useState<string>(defaultValue);
   const [validationFailure, setValidationFailure] = useState<string|null>(null);
-  const isSubmitDisabled = onSubmitValidate && onSubmitValidate(value) !== null; 
+  const isSubmitDisabled = onSubmitValidate && onSubmitValidate(value) !== null;
+  
+  useEffect(() => {
+    if (!isOpen) return;
+    setValue(defaultValue);
+    setValidationFailure(null);
+  }, [isOpen]);
   
   function _onValueChange(nextValue:string) {
     if (onFixInput) {

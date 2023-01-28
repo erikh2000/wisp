@@ -11,7 +11,13 @@ import {
   isHeadReady
 } from "./coreUtil";
 import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
-import {getRevisionManager, Revision, updateForFaceRelatedRevision, updateForStaticFaceRevision} from "./revisionUtil";
+import {
+  getRevisionManager,
+  Revision,
+  setUpRevisionForNewFace,
+  updateForFaceRelatedRevision,
+  updateForStaticFaceRevision
+} from "./revisionUtil";
 import {initViewSettings} from "./viewSettingsInteractions";
 import {PartType} from "facesScreen/PartSelector";
 import {TestVoiceType} from 'facesScreen/testVoices/TestVoiceType';
@@ -31,8 +37,7 @@ import {
   MOUTH_PART_TYPE,
   NOSE_PART_TYPE, loadFaceFromDefinition
 } from "sl-web-face";
-
-const DEFAULT_FACE_URL = '/faces/billy.yml';
+import {loadFace} from "./fileInteractions";
 
 export type InitResults = {
   onFaceCanvasMouseMove:any,
@@ -113,13 +118,6 @@ function _updateLoadablePartsForType(partTypeName:string, setEyeParts:any, setEx
   }
 }
 
-async function _loadFace(faceName:string):Promise<CanvasComponent> {
-  if (faceName === UNSPECIFIED_NAME) return loadFaceFromUrl(DEFAULT_FACE_URL);
-  const faceDef:string|null = await getFaceDefinition(faceName);
-  if (!faceDef) throw Error('Unexpected');
-  return loadFaceFromDefinition(faceDef);
-}
-
 /* Handle any initialization needed for mount after a previous initialization was completed. This will cover
    refreshing any module-scope vars that stored instances tied to a React component's lifetime and calling setters
    to on React components to synchronize their state with module-scope vars. */
@@ -152,7 +150,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
     return initResults
   }
   
-  const head = await _loadFace(initResults.faceName);
+  const head = await loadFace(initResults.faceName);
   const partUiManager = new PartUiManager(onPartFocused, onPartMoved, onPartResized);
   await partUiManager.trackPartsForFace(head);
   partUiManager.setFocus(head);
@@ -162,22 +160,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   const [faceEventManager, faceId] = initFaceEvents(head);
   await initViewSettings('/speech/test-voices/test-voice-manifest.yml', faceEventManager, faceId);
 
-  const revisionManager = getRevisionManager();
-  const nextRevision:Revision = {
-    emotion:Emotion.NEUTRAL,
-    partType:PartType.HEAD,
-    lidLevel:LidLevel.NORMAL,
-    testVoice:TestVoiceType.MUTED,
-    headComponent: head.duplicate(),
-    eyesPartNo: findLoadablePartNo(partLoader.eyes, head, PartType.EYES),
-    nosePartNo: findLoadablePartNo(partLoader.noses, head, PartType.NOSE),
-    mouthPartNo: findLoadablePartNo(partLoader.mouths, head, PartType.MOUTH),
-    headPartNo: findLoadablePartNo(partLoader.heads, head, PartType.HEAD),
-    extraSlotPartNos: findLoadablePartNosForExtras(partLoader.extras, head)
-  }
-  revisionManager.clear();
-  revisionManager.add(nextRevision);
-  setRevision(nextRevision);
+  setUpRevisionForNewFace(head, setRevision);
   
   _isInitialized = true;
   

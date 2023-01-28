@@ -1,3 +1,4 @@
+import {renameFace} from "./faces";
 import {PROJECT_PATH_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
 import {MIMETYPE_WISP_PROJECT} from "./mimeTypes";
 import {getAllKeysAtPath, getText, setText} from "./pathStore";
@@ -52,6 +53,15 @@ export async function setActiveFaceName(faceName:string) {
   const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
   const project:Project = await _getProjectByKey(key);
   project.activeFace = faceName;
+  await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
+}
+
+export async function renameActiveFaceName(nextFaceName:string) {
+  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
+  const project:Project = await _getProjectByKey(key);
+  const currentFaceName = project.activeFace;
+  await renameFace(currentFaceName, nextFaceName);
+  project.activeFace = nextFaceName;
   await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
 }
 

@@ -1,4 +1,4 @@
-import {getAllKeysAtPath, getText, setText} from "./pathStore";
+import {getAllKeysAtPath, getText, renameKey, setText} from "./pathStore";
 import {FACE_PATH_TEMPLATE, FACES_PATH_TEMPLATE} from "./keyPaths";
 import {fillTemplate, isValidName, keyToName} from "./pathUtil";
 import {MIMETYPE_WISP_FACE} from "./mimeTypes";
@@ -28,4 +28,10 @@ export async function getFaceDefinition(faceName:string, projectName:string = ge
 export async function setFaceDefinition(faceName:string, faceDefYaml:string, projectName:string = getActiveProjectName()) {
   const key = fillTemplate(FACE_PATH_TEMPLATE, {projectName, faceName});
   await setText(key, faceDefYaml, MIMETYPE_WISP_FACE);
+}
+
+export async function renameFace(currentFaceName:string, nextFaceName:string, projectName:string = getActiveProjectName()) {
+  const currentKey = fillTemplate(FACE_PATH_TEMPLATE, {projectName, faceName:currentFaceName});
+  const nextKey = fillTemplate(FACE_PATH_TEMPLATE, {projectName, faceName:nextFaceName});
+  await renameKey(currentKey, nextKey);
 }

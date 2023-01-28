@@ -1,6 +1,9 @@
 import styles from './FacesScreen.module.css';
+import NewFaceDialog from "./fileDialogs/NewFaceDialog";
+import RenameFaceDialog from "./fileDialogs/RenameFaceDialog";
 import PartSelector, {PartType} from "./PartSelector";
 import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
+import {onNewFace, onNewFaceName, onRenameFace} from "./interactions/fileInteractions";
 import {
   deinit,
   getRevisionForMount,
@@ -48,6 +51,7 @@ import LidLevelSelector from "./view/LidLevelSelector";
 import TestVoiceSelector from "./view/TestVoiceSelector";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import useEffectAfterMount from "common/useEffectAfterMount";
+import {UNSPECIFIED_NAME} from "persistence/projects";
 import Canvas from "ui/Canvas";
 import LoadingBox from "ui/LoadingBox";
 import ScreenContainer from 'ui/screen/ScreenContainer';
@@ -57,9 +61,6 @@ import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
-import NewFaceDialog from "./fileDialogs/NewFaceDialog";
-import {onNewFaceName} from "./interactions/fileInteractions";
-import {UNSPECIFIED_NAME} from "../persistence/projects";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -163,9 +164,9 @@ function FacesScreen() {
   }, []);
   
   const actionBarButtons = [
-    {text:'New', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'New', onClick:() => onNewFace(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Open', onClick:emptyCallback, groupNo:0, disabled},
-    {text:'Rename', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'Rename', onClick:() => setModalDialog(RenameFaceDialog.name), groupNo:0, disabled},
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:0, disabled},
     {text:'Redo', onClick:() => onRedo(setRevision), groupNo:0, disabled},
     {text:'Import', onClick:emptyCallback, groupNo:1, disabled},
@@ -237,6 +238,11 @@ function FacesScreen() {
       <NewFaceDialog
         isOpen={modalDialog === NewFaceDialog.name}
         onSubmit={(nextFaceName:string) => onNewFaceName(nextFaceName, setModalDialog, setDocumentName) }
+      />
+      <RenameFaceDialog
+        isOpen={modalDialog === RenameFaceDialog.name}
+        onSubmit={(nextFaceName:string) => onRenameFace(nextFaceName, setModalDialog, setDocumentName) }
+        onCancel={() => setModalDialog(null)}
       />
     </ScreenContainer>
   );

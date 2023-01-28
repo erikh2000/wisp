@@ -1,7 +1,7 @@
-skinTone: lightBrown
-hairColor: inkBlack
-irisColor: hazel
-base: /parts/billy-head.yml
+skinTone: original
+hairColor: original
+irisColor: original
+base: /parts/billy-head.yml @0,0,290,400
 parts:
   - /parts/billy-eyes.yml @25,150
   - /parts/billy-mouth.yml @20,290

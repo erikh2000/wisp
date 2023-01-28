@@ -1,6 +1,6 @@
 import {
   findCanvasComponentForPartType,
-  getHead,
+  getHead, getPartLoader,
   getPartUiManager,
   performDisablingOperation,
   setHead
@@ -15,6 +15,7 @@ import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanv
 
 import {CanvasComponent, createFaceDocument, Emotion, FaceDocument, LidLevel} from "sl-web-face";
 import { stringify } from 'yaml';
+import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
 
 export type Revision = {
   headComponent:CanvasComponent|null,
@@ -86,5 +87,24 @@ export function updateForStaticFaceRevision(changes:any, setRevision:any) {
   const nextRevision = revisionManager.currentRevision;
   if (!nextRevision) return;
   _publishFaceEventsForRevision(nextRevision);
+  setRevision(nextRevision);
+}
+
+export function setUpRevisionForNewFace(headComponent:CanvasComponent, setRevision:any) {
+  const partLoader = getPartLoader();
+  const nextRevision:Revision = {
+    emotion:Emotion.NEUTRAL,
+    partType:PartType.HEAD,
+    lidLevel:LidLevel.NORMAL,
+    testVoice:TestVoiceType.MUTED,
+    headComponent: headComponent.duplicate(),
+    eyesPartNo: findLoadablePartNo(partLoader.eyes, headComponent, PartType.EYES),
+    nosePartNo: findLoadablePartNo(partLoader.noses, headComponent, PartType.NOSE),
+    mouthPartNo: findLoadablePartNo(partLoader.mouths, headComponent, PartType.MOUTH),
+    headPartNo: findLoadablePartNo(partLoader.heads, headComponent, PartType.HEAD),
+    extraSlotPartNos: findLoadablePartNosForExtras(partLoader.extras, headComponent)
+  }
+  revisionManager.clear();
+  revisionManager.add(nextRevision);
   setRevision(nextRevision);
 }
