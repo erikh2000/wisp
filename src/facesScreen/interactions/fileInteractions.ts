@@ -22,7 +22,7 @@ export function onRenameFace(nextFaceName:string, setModalDialog:any, setDocumen
   });
 }
 
-export async function loadFace(faceName:string):Promise<CanvasComponent> {
+export async function loadFaceFromName(faceName:string):Promise<CanvasComponent> {
   if (faceName === UNSPECIFIED_NAME) return loadFaceFromUrl(DEFAULT_FACE_URL);
   let faceDef:string|null = null;
   try {
@@ -35,18 +35,31 @@ export async function loadFace(faceName:string):Promise<CanvasComponent> {
   return await loadFaceFromDefinition(faceDef);
 }
 
-export async function onNewFace(setModalDialog:any, setDocumentName:any, setRevision:any) {
+async function _setUpForNewFace(loadHeadFunc:() => Promise<CanvasComponent>, setDocumentName:any, setRevision:any) {
   await performDisablingOperation(async () => {
+    setDocumentName(UNSPECIFIED_NAME); // If anything fails, it's better to leave the document name cleared to avoid overwriting a previous face.
+    await setActiveFaceName(UNSPECIFIED_NAME);
     const partUiManager = getPartUiManager();
     const revisionManager = getRevisionManager();
     await revisionManager.waitForPersist();
     revisionManager.clear();
-    const head = await loadFaceFromUrl(DEFAULT_FACE_URL);
+    const head = await loadHeadFunc();
     await partUiManager.trackPartsForFace(head);
     setHead(head);
-    setDocumentName(UNSPECIFIED_NAME);
     await setUpRevisionForNewFace(head, setRevision);
     partUiManager.setFocus(head);
   });
+}
+
+export async function onNewFace(setModalDialog:any, setDocumentName:any, setRevision:any) {
+  await _setUpForNewFace(() => loadFaceFromUrl(DEFAULT_FACE_URL), setDocumentName, setRevision);
   setModalDialog(NewFaceDialog.name);
+}
+
+export async function onOpenFace(faceName:string, setModalDialog:any, setDocumentName:any, setRevision:any) {
+  if (faceName === UNSPECIFIED_NAME) throw Error('Unexpected');
+  setModalDialog(null);
+  await _setUpForNewFace(() => loadFaceFromName(faceName), setDocumentName, setRevision);
+  setDocumentName(faceName);
+  await setActiveFaceName(faceName);
 }

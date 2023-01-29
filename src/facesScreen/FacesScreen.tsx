@@ -3,7 +3,7 @@ import NewFaceDialog from "./fileDialogs/NewFaceDialog";
 import RenameFaceDialog from "./fileDialogs/RenameFaceDialog";
 import PartSelector, {PartType} from "./PartSelector";
 import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
-import {onNewFace, onNewFaceName, onRenameFace} from "./interactions/fileInteractions";
+import {onNewFace, onNewFaceName, onOpenFace, onRenameFace} from "./interactions/fileInteractions";
 import {
   deinit,
   getRevisionForMount,
@@ -61,6 +61,7 @@ import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
+import OpenFaceChooser from "./fileDialogs/OpenFaceChooser";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -165,7 +166,7 @@ function FacesScreen() {
   
   const actionBarButtons = [
     {text:'New', onClick:() => onNewFace(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
-    {text:'Open', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'Open', onClick:() => setModalDialog(OpenFaceChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:() => setModalDialog(RenameFaceDialog.name), groupNo:0, disabled},
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:0, disabled},
     {text:'Redo', onClick:() => onRedo(setRevision), groupNo:0, disabled},
@@ -243,6 +244,12 @@ function FacesScreen() {
         isOpen={modalDialog === RenameFaceDialog.name}
         onSubmit={(nextFaceName:string) => onRenameFace(nextFaceName, setModalDialog, setDocumentName) }
         onCancel={() => setModalDialog(null)}
+      />
+      <OpenFaceChooser
+        isOpen={modalDialog === OpenFaceChooser.name}
+        onChoose={(nextFaceName:string) => onOpenFace(nextFaceName, setModalDialog, setDocumentName, setRevision) }
+        onCancel={() => setModalDialog(null)}
+        originalDocumentName={documentName}
       />
     </ScreenContainer>
   );

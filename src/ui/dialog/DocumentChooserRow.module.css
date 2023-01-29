@@ -1,0 +1,23 @@
+@value colors: "ui/commonPalette.module.css";
+@value accent-yellow, primary-silver, button-disabled, button-text-disabled from colors;
+
+.row {
+    list-style-type: none;
+    margin-right: 1.5rem;
+}
+
+.rowSelected {
+    composes: row;
+    list-style-type: square;
+    background-color: primary-silver;
+}
+
+.rowDisabled {
+    composes: row;
+    color: button-text-disabled;
+}
+
+.date {
+    position: absolute;
+    right: 1.5rem;
+}

@@ -1,0 +1,6 @@
+.rowList {
+    width: 100%;
+    max-height: 30rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

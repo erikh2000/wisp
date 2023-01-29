@@ -1,4 +1,3 @@
-import {initFaceEvents} from "./faceEventUtil";
 import {
   UNSPECIFIED,
   bindSetDisabled,
@@ -10,7 +9,8 @@ import {
   initCore, 
   isHeadReady
 } from "./coreUtil";
-import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
+import {initFaceEvents} from "./faceEventUtil";
+import {loadFaceFromName} from "./fileInteractions";
 import {
   getRevisionManager,
   Revision,
@@ -21,7 +21,6 @@ import {
 import {initViewSettings} from "./viewSettingsInteractions";
 import {PartType} from "facesScreen/PartSelector";
 import {TestVoiceType} from 'facesScreen/testVoices/TestVoiceType';
-import {getFaceDefinition} from "persistence/faces";
 import {getActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import PartLoader from "ui/partAuthoring/PartLoader";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
@@ -33,11 +32,9 @@ import {
   EXTRA_PART_TYPE,
   HEAD_PART_TYPE,
   LidLevel,
-  loadFaceFromUrl,
   MOUTH_PART_TYPE,
-  NOSE_PART_TYPE, loadFaceFromDefinition
+  NOSE_PART_TYPE
 } from "sl-web-face";
-import {loadFace} from "./fileInteractions";
 
 export type InitResults = {
   onFaceCanvasMouseMove:any,
@@ -150,7 +147,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
     return initResults
   }
   
-  const head = await loadFace(initResults.faceName);
+  const head = await loadFaceFromName(initResults.faceName);
   const partUiManager = new PartUiManager(onPartFocused, onPartMoved, onPartResized);
   await partUiManager.trackPartsForFace(head);
   partUiManager.setFocus(head);

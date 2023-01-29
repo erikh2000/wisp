@@ -20,7 +20,7 @@ const SCHEMA = {
   }
 };
 
-type KeyValueRecord = {
+export type KeyValueRecord = {
   key:string,
   path:string,
   mimeType:string,
@@ -168,6 +168,18 @@ export async function getAllKeysAtPath(path:string):Promise<string[]> {
   return new Promise((resolve, reject) => {
     request.onerror = (event:any) => reject(`Failed to get all keys from "${path}" path with error code ${event.target.errorCode}.`);
     request.onsuccess = () => resolve(request.result as string[]);
+  });
+}
+
+export async function getAllValuesAtPath(path:string):Promise<KeyValueRecord[]> {
+  const db = await _open(DB_NAME, SCHEMA);
+  const transaction = db.transaction(KEY_VALUE_STORE);
+  const objectStore = transaction.objectStore(KEY_VALUE_STORE);
+  const pathIndex = objectStore.index(PATH_INDEX_NAME);
+  const request = pathIndex.getAll(path);
+  return new Promise((resolve, reject) => {
+    request.onerror = (event:any) => reject(`Failed to get all values from "${path}" path with error code ${event.target.errorCode}.`);
+    request.onsuccess = () => resolve(request.result as KeyValueRecord[]);
   });
 }
 
