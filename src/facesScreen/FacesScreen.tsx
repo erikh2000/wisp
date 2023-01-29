@@ -3,7 +3,7 @@ import NewFaceDialog from "./fileDialogs/NewFaceDialog";
 import RenameFaceDialog from "./fileDialogs/RenameFaceDialog";
 import PartSelector, {PartType} from "./PartSelector";
 import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
-import {onNewFace, onNewFaceName, onOpenFace, onRenameFace} from "./interactions/fileInteractions";
+import {onConfirmDeleteFace, onNewFace, onNewFaceName, onOpenFace, onRenameFace} from "./interactions/fileInteractions";
 import {
   deinit,
   getRevisionForMount,
@@ -62,6 +62,7 @@ import {LoadablePart} from "ui/partAuthoring/PartLoader";
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import OpenFaceChooser from "./fileDialogs/OpenFaceChooser";
+import ConfirmDeleteFaceDialog from "./fileDialogs/ConfirmDeleteFaceDialog";
 
 function emptyCallback() {} // TODO delete when not using
 
@@ -168,10 +169,12 @@ function FacesScreen() {
     {text:'New', onClick:() => onNewFace(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Open', onClick:() => setModalDialog(OpenFaceChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:() => setModalDialog(RenameFaceDialog.name), groupNo:0, disabled},
-    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:0, disabled},
-    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:0, disabled},
-    {text:'Import', onClick:emptyCallback, groupNo:1, disabled},
-    {text:'Export', onClick:emptyCallback, groupNo:1, disabled}
+    {text:'Delete', onClick:() => setModalDialog(ConfirmDeleteFaceDialog.name), groupNo:0, disabled},
+    {text:'Import', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'Export', onClick:emptyCallback, groupNo:0, disabled},
+    
+    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled},
+    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled}
   ];
   
   const selectionPane:JSX.Element = _renderSelectionPane(partType, disabled, revision, headParts,
@@ -250,6 +253,12 @@ function FacesScreen() {
         onChoose={(nextFaceName:string) => onOpenFace(nextFaceName, setModalDialog, setDocumentName, setRevision) }
         onCancel={() => setModalDialog(null)}
         originalDocumentName={documentName}
+      />
+      <ConfirmDeleteFaceDialog
+        isOpen={modalDialog === ConfirmDeleteFaceDialog.name}
+        documentName={documentName}
+        onConfirm={() => onConfirmDeleteFace(documentName, navigate)}
+        onCancel={() => setModalDialog(null)}
       />
     </ScreenContainer>
   );

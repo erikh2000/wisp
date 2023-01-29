@@ -1,10 +1,12 @@
 import {getPartUiManager, performDisablingOperation, setHead} from "./coreUtil";
 import {getRevisionManager, setUpRevisionForNewFace} from "./revisionUtil";
 import NewFaceDialog from "facesScreen/fileDialogs/NewFaceDialog";
-import {getFaceDefinition} from "persistence/faces";
+import {deleteFace, getFaceDefinition} from "persistence/faces";
 import {renameActiveFaceName, setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
+import Screen, {screenConfigs} from "ui/screen/screens";
 
 import {CanvasComponent, loadFaceFromDefinition, loadFaceFromUrl} from "sl-web-face";
+import {NavigateFunction} from "react-router";
 
 const DEFAULT_FACE_URL = '/faces/default.yml';
 
@@ -62,4 +64,15 @@ export async function onOpenFace(faceName:string, setModalDialog:any, setDocumen
   await _setUpForNewFace(() => loadFaceFromName(faceName), setDocumentName, setRevision);
   setDocumentName(faceName);
   await setActiveFaceName(faceName);
+}
+
+export async function onConfirmDeleteFace(faceName:string, navigate:NavigateFunction) {
+  try {
+    await deleteFace(faceName);
+    await setActiveFaceName(UNSPECIFIED_NAME);
+    const revisionManager = getRevisionManager();
+    revisionManager.clear();
+  } finally {
+    navigate(screenConfigs[Screen.HOME].url);
+  }
 }

@@ -193,3 +193,8 @@ export async function renameKey(currentKey:string, nextKey:string):Promise<void>
   await _put(db, KEY_VALUE_STORE, record);
   await _delete(db, KEY_VALUE_STORE, currentKey);
 }
+
+export async function deleteByKey(key:string):Promise<void> {
+  const db = await _open(DB_NAME, SCHEMA);
+  await _delete(db, KEY_VALUE_STORE, key);
+}
