@@ -3,7 +3,14 @@ import NewFaceDialog from "./fileDialogs/NewFaceDialog";
 import RenameFaceDialog from "./fileDialogs/RenameFaceDialog";
 import PartSelector, {PartType} from "./PartSelector";
 import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
-import {onConfirmDeleteFace, onNewFace, onNewFaceName, onOpenFace, onRenameFace} from "./interactions/fileInteractions";
+import {
+  importFace,
+  onConfirmDeleteFace,
+  onNewFace,
+  onNewFaceName,
+  onOpenFace,
+  onRenameFace
+} from "./interactions/fileInteractions";
 import {
   deinit,
   getRevisionForMount,
@@ -170,7 +177,7 @@ function FacesScreen() {
     {text:'Open', onClick:() => setModalDialog(OpenFaceChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:() => setModalDialog(RenameFaceDialog.name), groupNo:0, disabled},
     {text:'Delete', onClick:() => setModalDialog(ConfirmDeleteFaceDialog.name), groupNo:0, disabled},
-    {text:'Import', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'Import', onClick:() => importFace(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Export', onClick:emptyCallback, groupNo:0, disabled},
     
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled},
