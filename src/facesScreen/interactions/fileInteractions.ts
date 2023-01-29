@@ -1,4 +1,4 @@
-import {getPartUiManager, performDisablingOperation, setHead} from "./coreUtil";
+import {getHead, getPartUiManager, performDisablingOperation, setHead} from "./coreUtil";
 import {getRevisionManager, setUpRevisionForNewFace} from "./revisionUtil";
 import NewFaceDialog from "facesScreen/fileDialogs/NewFaceDialog";
 import {deleteFace, getFaceDefinition} from "persistence/faces";
@@ -6,8 +6,9 @@ import {MIMETYPE_WISP_FACE} from "persistence/mimeTypes";
 import {renameActiveFaceName, setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import Screen, {screenConfigs} from "ui/screen/screens";
 
-import {CanvasComponent, loadFaceFromDefinition, loadFaceFromUrl} from "sl-web-face";
+import {CanvasComponent, createFaceDocument, loadFaceFromDefinition, loadFaceFromUrl} from "sl-web-face";
 import {NavigateFunction} from "react-router";
+import {stringify} from 'yaml';
 
 const DEFAULT_FACE_URL = '/faces/default.face';
 
@@ -47,8 +48,9 @@ export async function _loadFaceFromFaceDefFileHandle(fileHandle:FileSystemFileHa
 async function _selectFaceFileHandle():Promise<FileSystemFileHandle|null> {
   const openFileOptions = {
     excludeAcceptAllOption: true,
+    multiple:false,
     types: [{
-      description: 'Face Files',
+      description: 'Face Definitions',
       accept: {[MIMETYPE_WISP_FACE]: ['.face']}
     }]
   };
@@ -60,7 +62,25 @@ async function _selectFaceFileHandle():Promise<FileSystemFileHandle|null> {
   }
 }
 
-async function _setUpForNewFace(loadHeadFunc:() => Promise<CanvasComponent>, setDocumentName:any, setRevision:any) {
+export async function _selectNewFaceFileHandle(suggestedFilename:string):Promise<FileSystemFileHandle|null> {
+  let fileHandle:FileSystemFileHandle|null = null;
+  try {
+    const saveFileOptions = {
+      suggestedName:suggestedFilename,
+      excludeAcceptAllOption: true,
+      multiple:false,
+      types: [{
+        description: 'Face Definitions',
+        accept: {[MIMETYPE_WISP_FACE]: ['.face']}
+      }]
+    };
+    return await (window as any).showSaveFilePicker(saveFileOptions);
+  } catch(_ignoredAbortError) {
+    return null;
+  }
+}
+
+async function _setUpForNewFace(loadHeadFunc:() => Promise<CanvasComponent>, setDocumentName:any, setRevision:any):Promise<void> {
   await performDisablingOperation(async () => {
     setDocumentName(UNSPECIFIED_NAME); // If anything fails, it's better to leave the document name cleared to avoid overwriting a previous face.
     await setActiveFaceName(UNSPECIFIED_NAME);
@@ -76,12 +96,12 @@ async function _setUpForNewFace(loadHeadFunc:() => Promise<CanvasComponent>, set
   });
 }
 
-export async function onNewFace(setModalDialog:any, setDocumentName:any, setRevision:any) {
+export async function onNewFace(setModalDialog:any, setDocumentName:any, setRevision:any):Promise<void> {
   await _setUpForNewFace(() => loadFaceFromUrl(DEFAULT_FACE_URL), setDocumentName, setRevision);
   setModalDialog(NewFaceDialog.name);
 }
 
-export async function onOpenFace(faceName:string, setModalDialog:any, setDocumentName:any, setRevision:any) {
+export async function onOpenFace(faceName:string, setModalDialog:any, setDocumentName:any, setRevision:any):Promise<void> {
   if (faceName === UNSPECIFIED_NAME) throw Error('Unexpected');
   setModalDialog(null);
   await _setUpForNewFace(() => loadFaceFromName(faceName), setDocumentName, setRevision);
@@ -89,7 +109,7 @@ export async function onOpenFace(faceName:string, setModalDialog:any, setDocumen
   await setActiveFaceName(faceName);
 }
 
-export async function onConfirmDeleteFace(faceName:string, navigate:NavigateFunction) {
+export async function onConfirmDeleteFace(faceName:string, navigate:NavigateFunction):Promise<void> {
   try {
     await deleteFace(faceName);
     await setActiveFaceName(UNSPECIFIED_NAME);
@@ -100,9 +120,24 @@ export async function onConfirmDeleteFace(faceName:string, navigate:NavigateFunc
   }
 }
 
-export async function importFace(setModalDialog:any, setDocumentName:any, setRevision:any) {
-  const faceFileHandle = await _selectFaceFileHandle();
-  if (faceFileHandle === null) return;
-  await _setUpForNewFace(() => _loadFaceFromFaceDefFileHandle(faceFileHandle), setDocumentName, setRevision);
-  setModalDialog(NewFaceDialog.name);
+export async function importFace(setModalDialog:any, setDocumentName:any, setRevision:any):Promise<void> {
+  await performDisablingOperation(async () => {
+    const faceFileHandle = await _selectFaceFileHandle();
+    if (!faceFileHandle) return;
+    await _setUpForNewFace(() => _loadFaceFromFaceDefFileHandle(faceFileHandle), setDocumentName, setRevision);
+    setModalDialog(NewFaceDialog.name);
+  });
+}
+
+export async function exportFace(documentName:string):Promise<void> {
+  await performDisablingOperation(async () => {
+    let fileHandle = await _selectNewFaceFileHandle(documentName);
+    if (!fileHandle) return;
+    const head = getHead();
+    const faceDef = createFaceDocument(head);
+    const faceDefYml = stringify(faceDef);
+    const writable = await (fileHandle as any).createWritable();
+    await writable.write(faceDefYml);
+    return await writable.close();
+  });
 }

@@ -1,9 +1,12 @@
 import styles from './FacesScreen.module.css';
+import ConfirmDeleteFaceDialog from "./fileDialogs/ConfirmDeleteFaceDialog";
 import NewFaceDialog from "./fileDialogs/NewFaceDialog";
 import RenameFaceDialog from "./fileDialogs/RenameFaceDialog";
+import OpenFaceChooser from "./fileDialogs/OpenFaceChooser";
 import PartSelector, {PartType} from "./PartSelector";
 import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
 import {
+  exportFace,
   importFace,
   onConfirmDeleteFace,
   onNewFace,
@@ -68,10 +71,6 @@ import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
-import OpenFaceChooser from "./fileDialogs/OpenFaceChooser";
-import ConfirmDeleteFaceDialog from "./fileDialogs/ConfirmDeleteFaceDialog";
-
-function emptyCallback() {} // TODO delete when not using
 
 function _getThumbnail(parts:LoadablePart[], partNo:number):ImageBitmap|null {
   return partNo !== UNSPECIFIED && partNo < parts.length ? parts[partNo].thumbnail : null;
@@ -178,7 +177,7 @@ function FacesScreen() {
     {text:'Rename', onClick:() => setModalDialog(RenameFaceDialog.name), groupNo:0, disabled},
     {text:'Delete', onClick:() => setModalDialog(ConfirmDeleteFaceDialog.name), groupNo:0, disabled},
     {text:'Import', onClick:() => importFace(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
-    {text:'Export', onClick:emptyCallback, groupNo:0, disabled},
+    {text:'Export', onClick:() => exportFace(documentName), groupNo:0, disabled},
     
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled},
     {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled}
