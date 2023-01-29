@@ -81,5 +81,5 @@ export function findPartByTypeName(parts:TrackedPart[], partTypeName:string):Tra
 }
 
 export function removeMissingParts(compareAgainstParts:TrackedPart[], parts:TrackedPart[]):TrackedPart[] {
-  return parts.filter(part => findPartByTypeName(compareAgainstParts, part.component.partType) !== null);
+  return parts.filter(part => findPartById(compareAgainstParts, part.component.id) !== null);
 }
