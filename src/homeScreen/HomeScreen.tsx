@@ -2,7 +2,7 @@ import MenuTile from './MenuTile';
 import styles from './HomeScreen.module.css';
 import wispLogoImage from './images/wispLogo.png';
 import seespaceLabsLogoImage from './images/seespaceLabsLogo.png';
-import Screen, { ScreenConfig, screenConfigs } from "../ui/screen/screens";
+import Screen, { ScreenConfig, screenConfigs } from "ui/screen/screens";
 
 import { useState } from 'react';
 

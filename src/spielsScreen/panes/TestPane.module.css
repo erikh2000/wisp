@@ -1,0 +1,13 @@
+.testPane {
+    height: 30rem;
+}
+
+.faceCanvas {
+    height: 100%;
+    width: 100%;
+}
+
+.faceLoadingBox {
+    height: 100%;
+    width: 100%;
+}
