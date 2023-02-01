@@ -5,7 +5,7 @@ import {
   performDisablingOperation,
   setHead
 } from "./coreUtil";
-import {setEmotion, setLidLevel} from "./faceEventUtil";
+import {setEmotion, setLidLevel} from "facesCommon/interactions/faceEventUtil";
 import RevisionManager from "documents/RevisionManager";
 import {PartType} from "facesScreen/PartSelector";
 import {TestVoiceType} from "facesScreen/testVoices/TestVoiceType";

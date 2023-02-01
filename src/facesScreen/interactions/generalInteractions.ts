@@ -9,8 +9,8 @@ import {
   initCore, 
   isHeadReady
 } from "./coreUtil";
-import {initFaceEvents} from "./faceEventUtil";
-import {loadFaceFromName} from "./fileInteractions";
+import {initFaceEvents} from "facesCommon/interactions/faceEventUtil";
+import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {
   getRevisionManager,
   Revision,

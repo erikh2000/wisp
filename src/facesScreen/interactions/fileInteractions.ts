@@ -1,7 +1,8 @@
 import {getHead, getPartUiManager, performDisablingOperation, setHead} from "./coreUtil";
 import {getRevisionManager, setUpRevisionForNewFace} from "./revisionUtil";
 import NewFaceDialog from "facesScreen/fileDialogs/NewFaceDialog";
-import {deleteFace, getFaceDefinition} from "persistence/faces";
+import {DEFAULT_FACE_URL, loadFaceFromName} from "facesCommon/interactions/fileInteractions";
+import {deleteFace} from "persistence/faces";
 import {MIMETYPE_WISP_FACE} from "persistence/mimeTypes";
 import {renameActiveFaceName, setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import Screen, {screenConfigs} from "ui/screen/screens";
@@ -9,8 +10,6 @@ import Screen, {screenConfigs} from "ui/screen/screens";
 import {CanvasComponent, createFaceDocument, loadFaceFromDefinition, loadFaceFromUrl} from "sl-web-face";
 import {NavigateFunction} from "react-router";
 import {stringify} from 'yaml';
-
-const DEFAULT_FACE_URL = '/faces/default.face';
 
 export function onNewFaceName(faceName:string, setModalDialog:any, setDocumentName:any) {
   setActiveFaceName(faceName).then(() => {
@@ -24,19 +23,6 @@ export function onRenameFace(nextFaceName:string, setModalDialog:any, setDocumen
     setDocumentName(nextFaceName);
     setModalDialog(null);
   });
-}
-
-export async function loadFaceFromName(faceName:string):Promise<CanvasComponent> {
-  if (faceName === UNSPECIFIED_NAME) return loadFaceFromUrl(DEFAULT_FACE_URL);
-  let faceDef:string|null = null;
-  try {
-    faceDef = await getFaceDefinition(faceName);
-  } catch(err) {
-    console.warn(`Could not find "${faceName}" in browser persistent storage. Loading default face.`);
-    return loadFaceFromUrl(DEFAULT_FACE_URL);
-  }
-  if (!faceDef) throw Error('Unexpected');
-  return await loadFaceFromDefinition(faceDef);
 }
 
 export async function _loadFaceFromFaceDefFileHandle(fileHandle:FileSystemFileHandle):Promise<CanvasComponent> {
@@ -63,7 +49,6 @@ async function _selectFaceFileHandle():Promise<FileSystemFileHandle|null> {
 }
 
 export async function _selectNewFaceFileHandle(suggestedFilename:string):Promise<FileSystemFileHandle|null> {
-  let fileHandle:FileSystemFileHandle|null = null;
   try {
     const saveFileOptions = {
       suggestedName:suggestedFilename,

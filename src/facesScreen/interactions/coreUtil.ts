@@ -9,7 +9,7 @@ import {
 } from "sl-web-face";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
 import PartLoader from "ui/partAuthoring/PartLoader";
-import {setHeadForFaceEvents} from "./faceEventUtil";
+import {setHeadForFaceEvents} from "facesCommon/interactions/faceEventUtil";
 
 export const UNSPECIFIED = -1;
 
