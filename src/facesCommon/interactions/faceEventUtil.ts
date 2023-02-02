@@ -1,4 +1,12 @@
-import {FaceEventManager, CanvasComponent, AttentionController, BlinkController, Emotion, LidLevel} from "sl-web-face";
+import {
+  FaceEventManager,
+  CanvasComponent,
+  AttentionController,
+  BlinkController,
+  Emotion,
+  LidLevel,
+  SpeechAudio
+} from "sl-web-face";
 
 let faceEventManager:FaceEventManager|null;
 let faceId = -1;
@@ -29,4 +37,9 @@ export function setEmotion(emotion:Emotion) {
 export function setLidLevel(lidLevel:LidLevel) {
   if (!faceEventManager) return;
   faceEventManager.setLidLevel(faceId, lidLevel);
+}
+
+export function setSpeechAudioSpeakingFace(speechAudio:SpeechAudio) {
+  if (!faceEventManager) throw Error('Unexpected');
+  speechAudio.setSpeakingFace(faceEventManager, faceId);
 }

@@ -12,6 +12,10 @@ export function getHead():CanvasComponent {
   return head;
 }
 
+export function getHeadIfReady():CanvasComponent|null {
+  return head ?? null;
+}
+
 export function setHead(_head:CanvasComponent):void {
   if (_head !== head) setHeadForFaceEvents(_head);
   head = _head;

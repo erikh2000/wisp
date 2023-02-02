@@ -22,11 +22,16 @@
     margin-left: 1rem;
 }
 
-.mouth {
-    width: 17rem;
-    height: 7.5rem;
+.face {
+    width: 20rem;
+    height: 30rem;
     cursor: pointer;
  }
+
+.faceLoadingBox {
+    width: 20rem;
+    height: 30rem;
+}
 
 .loadingBox {
     width: 30rem;

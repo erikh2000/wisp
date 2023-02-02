@@ -1,6 +1,10 @@
 import RevisionManager from "documents/RevisionManager";
+import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
+import {initFaceEvents, setSpeechAudioSpeakingFace} from "facesCommon/interactions/faceEventUtil";
 import {Markers, createEmptyMarkers, createMarkersFromTimelines} from "lipzGeneratorScreen/markerGeneration";
-import {CanvasComponent, loadComponentFromPartUrl, SpeechAudio} from "sl-web-face";
+import {getActiveFaceName} from "persistence/projects";
+
+import {CanvasComponent, SpeechAudio} from "sl-web-face";
 import {
   generateLipzTextFromAudioBuffer,
   init as initWebSpeech,
@@ -8,8 +12,9 @@ import {
 } from "sl-web-speech";
 import {loadWavFromFileSystem, mSecsToSampleCount} from "sl-web-audio";
 
+
 let _isInitialized = false;
-let mouth:CanvasComponent|null = null;
+let head:CanvasComponent|null = null;
 let speechAudio:SpeechAudio|null = null;
 let audioBuffer:AudioBuffer|null = null;
 
@@ -41,7 +46,9 @@ export function getRevisionForMount():Revision {
 
 export async function init():Promise<void> {
   if (_isInitialized) return;
-  mouth = await loadComponentFromPartUrl('/parts/billy-mouth.yml');
+  const faceName = await getActiveFaceName();
+  head = await loadFaceFromName(faceName);
+  initFaceEvents(head);
   await initWebSpeech();
   _isInitialized = true;
   return;
@@ -68,6 +75,7 @@ export async function openWav(setRevision:any, setIsLoadingWav:any) {
     const debugCapture:any = {};
     const lipzText = await generateLipzTextFromAudioBuffer(audioBuffer, debugCapture);
     speechAudio = new SpeechAudio(audioBuffer, lipzText);
+    setSpeechAudioSpeakingFace(speechAudio);
     const lipzSuggestedFilename = wavToLipzTextFilename(filename);
     const sampleRate = audioBuffer.sampleRate;
     const { wordTimeline, phonemeTimeline } = debugCapture;
@@ -113,16 +121,16 @@ export async function saveLipz(lipzText:string, suggestedFilename:string):Promis
   }
 }
 
-export function onDrawMouth(context:CanvasRenderingContext2D) {
+export function onDrawFace(context:CanvasRenderingContext2D) {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-  if (!mouth) return;
-  mouth.render(context);
+  if (!head) return;
+  head.render(context);
 }
 
 let updateNeedleTimeout:NodeJS.Timeout|null = null;
 const UPDATE_NEEDLE_INTERVAL = 1000 / 40;
 
-export function onMouthClick(setNeedleSampleNo:any) {
+export function onFaceClick(setNeedleSampleNo:any) {
   if (!speechAudio || !audioBuffer) return;
   speechAudio.play();
   if (updateNeedleTimeout) clearTimeout(updateNeedleTimeout);

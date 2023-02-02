@@ -5,8 +5,8 @@ import {
   getRevisionForMount,
   init,
   isInitialized,
-  onDrawMouth,
-  onMouthClick,
+  onDrawFace,
+  onFaceClick,
   openWav,
   redo,
   saveLipz,
@@ -76,7 +76,7 @@ function LipzGeneratorScreen() {
           <input className={styles.lipzTextInput} type='text' value={lipzText ?? ''}
                  onChange={(event) => changeLipzText(event.target.value, setRevision)} />
         </label>
-        <Canvas className={styles.mouth} isAnimated={true} onDraw={onDrawMouth} onClick={() => onMouthClick(setNeedleSampleNo)} />
+        <Canvas className={styles.face} isAnimated={true} onDraw={onDrawFace} onClick={() => onFaceClick(setNeedleSampleNo)} />
       </React.Fragment>
     );
   }

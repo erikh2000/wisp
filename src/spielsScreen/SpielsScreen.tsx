@@ -3,7 +3,7 @@ import useEffectAfterMount from "common/useEffectAfterMount";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ChangeFaceChooser from "spielsScreen/fileDialogs/ChangeFaceChooser";
-import {getHead} from "spielsScreen/interactions/coreUtil";
+import {getHeadIfReady} from "spielsScreen/interactions/coreUtil";
 import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
 import {onChangeFace} from "spielsScreen/interactions/testInteractions";
 import SpielPane from "spielsScreen/panes/SpielPane";
@@ -50,7 +50,7 @@ function SpielsScreen() {
       <div className={styles.container}>
         <SpielPane />
         <div className={styles.rightColumn}>
-          <TestPane headComponent={getHead()} onChangeFace={() => setModalDialog(ChangeFaceChooser.name)} disabled={disabled} />
+          <TestPane headComponent={getHeadIfReady()} onChangeFace={() => setModalDialog(ChangeFaceChooser.name)} disabled={disabled} />
           <TranscriptPane />
         </div>
       </div>
