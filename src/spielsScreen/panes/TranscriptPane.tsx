@@ -2,6 +2,7 @@ import styles from "./TranscriptPane.module.css";
 import InnerContentPane, {ButtonDefinition} from "ui/innerContentPane/InnerContentPane";
 import TextConsole from "ui/TextConsole";
 import {TextConsoleLine} from "ui/TextConsoleBuffer";
+import {clearTranscript, addJunkText} from "spielsScreen/interactions/transcriptInteractions";
 
 import React from "react";
 
@@ -15,7 +16,10 @@ function _onRenderLine(key:number, text:string):JSX.Element {
 }
 
 function _generateButtonDefinitions(disabled?:boolean):ButtonDefinition[] {
-  return [{text:'Clear', onClick:() => {}, disabled}];
+  return [
+    {text:'Add Junk Lines', onClick:() => addJunkText(), disabled},
+    {text:'Clear', onClick:() => clearTranscript(), disabled}
+  ];
 }
 
 function TranscriptPane(props:IProps) {

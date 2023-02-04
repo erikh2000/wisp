@@ -14,14 +14,19 @@ export function initTranscript(_setTranscriptLines:any) {
   bindSetTranscriptLines(_setTranscriptLines);
 }
 
-export function sendText(text:string) {
+export function addText(text:string) {
   textConsoleBuffer.addLine(text);
   if (setTranscriptLines) setTranscriptLines(textConsoleBuffer.lines);
 }
 
-export function sendJunkText() { // TODO delete
-  sendText('The quick brown fox jumped over the lazy dog.');
-  sendText('The lazy dog hated that.');
-  sendText('Just cuz your lazy does not mean people should jump over you.');
-  sendText('Let sleeping dogs lie.');
+export function clearTranscript() {
+  textConsoleBuffer.clear();
+  if (setTranscriptLines) setTranscriptLines(textConsoleBuffer.lines);
+}
+
+export function addJunkText() { // TODO delete
+  addText('The quick brown fox jumped over the lazy dog.');
+  addText('The lazy dog hated that.');
+  addText('Just cuz your lazy does not mean people should jump over you.');
+  addText('Let sleeping dogs lie.');
 }

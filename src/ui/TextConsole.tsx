@@ -38,22 +38,47 @@ function _updateRenderedLines(lines:TextConsoleLine[], onRenderLine:RenderLineCa
   return renderedLines;
 }
 
+function _scrollDivToBottom(divElement:HTMLDivElement|null) {
+  if (!divElement) return;
+  divElement.scrollTop = divElement.scrollHeight;
+}
+
+function _isDivScrolledToBottom(divElement:HTMLDivElement|null) {
+  if (!divElement) return;
+  return (divElement.scrollTop >= (divElement.scrollHeight - divElement.offsetHeight));
+}
+
+function _onScroll(event:any, divElement:HTMLDivElement|null, setAutoScrolling:any) {
+  if (!event.isTrusted) return;
+  const isAtBottom = _isDivScrolledToBottom(divElement);
+  setAutoScrolling(isAtBottom);
+}
+
 function TextConsole(props:IProps) {
   const { className, lines, onRenderLine } = props;
   const renderedLinesRef = useRef<RenderedLines>({keys:[], elements:[]}); // A ref is used so that it isn't necessary to copy the entire buffer on each render.
-  const [, forceUpdate] = useState({});                                 // But that means I need this separate state variable for signalling the need for an update.
+  const [renderedLinesUpdate, forceRenderedLinesUpdate] = useState({}); // But that means I need this separate state variable for signalling the need for an update.
+  const [isAutoScrolling, setAutoScrolling] = useState<boolean>(true);
   const containerElementRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     const renderedLines = renderedLinesRef.current;
     if (renderedLines) {
       _updateRenderedLines(lines, onRenderLine, renderedLines);
-      forceUpdate({});
+      forceRenderedLinesUpdate({});
     }
   }, [lines]);
   
+  useEffect(() => {
+    if (isAutoScrolling) _scrollDivToBottom(containerElementRef.current);
+  }, [renderedLinesUpdate, isAutoScrolling]);
+  
   return (
-    <div className={`${styles.container} ${className}`} ref={containerElementRef}>{renderedLinesRef.current.elements}</div>
+    <div 
+      className={`${styles.container} ${className}`}
+      onScroll={(event) => _onScroll(event, containerElementRef.current, setAutoScrolling)} 
+      ref={containerElementRef}
+    >{renderedLinesRef.current.elements}</div>
   );
 }
 

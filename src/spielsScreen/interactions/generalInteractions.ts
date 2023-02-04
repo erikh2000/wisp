@@ -2,7 +2,7 @@ import {getActiveFaceName} from "persistence/projects";
 import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {initFaceEvents} from 'facesCommon/interactions/faceEventUtil';
 import {initCore} from "spielsScreen/interactions/coreUtil";
-import {bindSetTranscriptLines, initTranscript, sendJunkText} from "./transcriptInteractions"; // TODO delete
+import {bindSetTranscriptLines, initTranscript} from "./transcriptInteractions"; // TODO delete
 
 let isInitialized = false;
 
@@ -32,7 +32,6 @@ export async function init(setTranscriptLines:any):Promise<InitResults> {
   initFaceEvents(headComponent);
   await initCore(headComponent);
   initTranscript(setTranscriptLines);
-  sendJunkText(); // TODO delete
 
   isInitialized = true;
   return initResults;
