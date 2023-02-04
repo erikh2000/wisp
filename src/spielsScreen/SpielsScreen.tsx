@@ -11,6 +11,7 @@ import TestPane from "spielsScreen/panes/TestPane";
 import TranscriptPane from "spielsScreen/panes/TranscriptPane";
 import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
+import {TextConsoleLine} from "ui/TextConsoleBuffer";
 
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
@@ -23,11 +24,12 @@ function SpielsScreen() {
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [transcriptLines, setTranscriptLines] = useState<TextConsoleLine[]>([]);
   const navigate = useNavigate();
 
   useEffectAfterMount(() => {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
-    init().then(nextInitResults => {
+    init(setTranscriptLines).then(nextInitResults => {
         setInitResults(nextInitResults);
         setDisabled(false);
       });
@@ -51,7 +53,7 @@ function SpielsScreen() {
         <SpielPane />
         <div className={styles.rightColumn}>
           <TestPane headComponent={getHeadIfReady()} onChangeFace={() => setModalDialog(ChangeFaceChooser.name)} disabled={disabled} />
-          <TranscriptPane />
+          <TranscriptPane lines={transcriptLines}/>
         </div>
       </div>
       <ChangeFaceChooser

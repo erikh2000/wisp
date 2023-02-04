@@ -1,3 +1,7 @@
 .transcriptPane {
     height: 100%;
 }
+
+.textConsole {
+    height:20rem;
+}

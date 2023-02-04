@@ -3,7 +3,7 @@ import {getFaceDefinition} from "persistence/faces";
 
 import {CanvasComponent, loadFaceFromDefinition, loadFaceFromUrl} from "sl-web-face";
 
-export const DEFAULT_FACE_URL = '/faces/default.yml';
+export const DEFAULT_FACE_URL = '/faces/default.face';
 
 export async function loadFaceFromName(faceName:string):Promise<CanvasComponent> {
   if (faceName === UNSPECIFIED_NAME) return loadFaceFromUrl(DEFAULT_FACE_URL);
