@@ -1,6 +1,7 @@
 type Project = {
   created:number,
-  activeFace:string
+  activeFace:string,
+  activeSpiel:string
 };
 
 export default Project;

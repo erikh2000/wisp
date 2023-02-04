@@ -5,7 +5,7 @@ import {TextConsoleLine} from "./TextConsoleBuffer";
 
 export type RenderLineCallback = (key:number, text:string) => JSX.Element;
 
-let ignoreNextScrollEvent = false; // If you have more than one TextConsole on a page, this will probably break. In that case, consider moving to a React ref inside the component.
+let ignoreScrollEvents = false; // If you have more than one TextConsole on a page, this will probably break. In that case, consider moving to a React ref inside the component.
 
 type RenderedLines = {
   elements:JSX.Element[],
@@ -42,9 +42,9 @@ function _updateRenderedLines(lines:TextConsoleLine[], onRenderLine:RenderLineCa
 
 function _scrollDivToBottom(divElement:HTMLDivElement|null) {
   if (!divElement) return;
-  ignoreNextScrollEvent = true;
+  ignoreScrollEvents = true;
   divElement.scrollTop = divElement.scrollHeight;
-  setTimeout(() => ignoreNextScrollEvent = false, 100);
+  setTimeout(() => ignoreScrollEvents = false, 100); // Wait long enough for the scroll event to fire and be ignored.
 }
 
 function _isDivScrolledToBottom(divElement:HTMLDivElement|null) {
@@ -53,7 +53,7 @@ function _isDivScrolledToBottom(divElement:HTMLDivElement|null) {
 }
 
 function _onScroll(event:any, divElement:HTMLDivElement|null, setAutoScrolling:any) {
-  if (!event.isTrusted || ignoreNextScrollEvent) return;
+  if (!event.isTrusted || ignoreScrollEvents) return;
   const isAtBottom = _isDivScrolledToBottom(divElement);
   setAutoScrolling(isAtBottom);
 }

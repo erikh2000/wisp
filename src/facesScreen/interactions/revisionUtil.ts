@@ -5,6 +5,7 @@ import {
   performDisablingOperation,
   setHead
 } from "./coreUtil";
+import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
 import {setEmotion, setLidLevel} from "facesCommon/interactions/faceEventUtil";
 import RevisionManager from "documents/RevisionManager";
 import {PartType} from "facesScreen/PartSelector";
@@ -15,7 +16,6 @@ import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanv
 
 import {CanvasComponent, createFaceDocument, Emotion, FaceDocument, LidLevel} from "sl-web-face";
 import { stringify } from 'yaml';
-import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
 
 export type Revision = {
   headComponent:CanvasComponent|null,

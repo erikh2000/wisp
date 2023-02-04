@@ -20,7 +20,7 @@ export async function getProjectNames():Promise<string[]> {
 export async function createProject(projectName:string) {
   if (!isValidName(projectName)) throw Error('Invalid project name');
   const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName});
-  const project:Project = { created:Date.now(), activeFace:UNSPECIFIED_NAME };
+  const project:Project = { created:Date.now(), activeFace:UNSPECIFIED_NAME, activeSpiel:UNSPECIFIED_NAME };
   const projectYaml = stringify(project);
   await setText(key, projectYaml, MIMETYPE_WISP_PROJECT);
   
@@ -53,6 +53,18 @@ export async function setActiveFaceName(faceName:string) {
   const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
   const project:Project = await _getProjectByKey(key);
   project.activeFace = faceName;
+  await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
+}
+
+export async function getActiveSpielName():Promise<string> {
+  const project = await getActiveProject();
+  return project.activeSpiel ?? UNSPECIFIED_NAME;
+}
+
+export async function setActiveSpielName(spielName:string) {
+  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
+  const project:Project = await _getProjectByKey(key);
+  project.activeSpiel = spielName;
   await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
 }
 
