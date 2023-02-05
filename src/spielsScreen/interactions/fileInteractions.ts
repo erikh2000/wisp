@@ -1,8 +1,64 @@
-import {setActiveSpielName} from "persistence/projects";
+import {setActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
+import {MIMETYPE_WISP_SPIEL, MIMETYPE_FOUNTAIN} from "persistence/mimeTypes";
+import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
+import {performDisablingOperation} from "spielsScreen/interactions/coreUtil";
+import {setUpRevisionForNewSpiel, getRevisionManager} from "spielsScreen/interactions/revisionUtil";
+
+import {importFountain, exportSpielFile} from 'sl-spiel';
 
 export function onNewSpielName(spielName:string, setModalDialog:Function, setDocumentName:Function) {
   setActiveSpielName(spielName).then(() => {
     setDocumentName(spielName);
     setModalDialog(null);
+  });
+}
+
+async function _selectSpielFileHandle():Promise<FileSystemFileHandle|null> {
+  const openFileOptions = {
+    excludeAcceptAllOption: true,
+    multiple:false,
+    types: [{
+      description: 'Spiel (.spiel)',
+      accept: {[MIMETYPE_WISP_SPIEL]: ['.spiel']}
+    },
+    {
+      description: 'Fountain Script (.fountain, .spmd, .text)',
+      accept: {[MIMETYPE_FOUNTAIN]: ['.fountain', '.txt', '.spmd']}
+    }]
+  };
+  try {
+    const handles:FileSystemFileHandle[] = await ((window as any).showOpenFilePicker(openFileOptions));
+    return handles[0];
+  } catch(_ignoredAbortError) {
+    return null;
+  }
+}
+
+async function _loadSpielTextFromFileHandle(fileHandle:FileSystemFileHandle):Promise<string> {
+  const isFountainFile = !fileHandle.name.endsWith('.spiel');
+  const file = await fileHandle.getFile();
+  const text = await file.text();
+  if (!isFountainFile) return text;
+  const spiel = importFountain(text);
+  return exportSpielFile(spiel);
+}
+
+async function _setUpForNewSpiel(loadSpielTextFunc:() => Promise<string>, setDocumentName:any, setRevision:any):Promise<void> {
+  await performDisablingOperation(async () => {
+    setDocumentName(UNSPECIFIED_NAME); // If anything fails, it's better to leave the document name cleared to avoid overwriting a previous face.
+    await setActiveSpielName(UNSPECIFIED_NAME);
+    const revisionManager = getRevisionManager();
+    await revisionManager.waitForPersist();
+    const spielText = await loadSpielTextFunc();
+    await setUpRevisionForNewSpiel(spielText, setRevision);
+  });
+}
+
+export async function importSpiel(setModalDialog:Function, setDocumentName:Function, setRevision:Function):Promise<void> {
+  await performDisablingOperation(async () => {
+    const spielFileHandle = await _selectSpielFileHandle();
+    if (!spielFileHandle) return;
+    await _setUpForNewSpiel(() => _loadSpielTextFromFileHandle(spielFileHandle), setDocumentName, setRevision);
+    setModalDialog(NewSpielDialog.name);
   });
 }

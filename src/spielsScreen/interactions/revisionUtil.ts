@@ -18,6 +18,13 @@ async function onPersistRevision(revision:Revision):Promise<void> {
   await setSpiel(activeSpielName, revision.spielText);
 }
 
+export function setUpRevisionForNewSpiel(spielText:string, setRevision:any) {
+  const nextRevision:Revision = { spielText };
+  revisionManager.clear();
+  revisionManager.add(nextRevision);
+  setRevision(nextRevision);
+}
+
 const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(onPersistRevision);
 
 export function getRevisionManager() { return revisionManager; }
