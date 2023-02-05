@@ -8,7 +8,7 @@ import {getHeadIfReady} from "spielsScreen/interactions/coreUtil";
 import {exportSpiel, importSpiel, onNewSpielName} from "spielsScreen/interactions/fileInteractions";
 import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
 import {onChangeFace} from "spielsScreen/interactions/testInteractions";
-import {getRevisionForMount, onRedo, onUndo, Revision, updateRevisionForSpielText} from "spielsScreen/interactions/revisionUtil";
+import {getRevisionForMount, onRedo, onUndo, Revision} from "spielsScreen/interactions/revisionUtil";
 import SpielPane from "spielsScreen/panes/SpielPane";
 import TestPane from "spielsScreen/panes/TestPane";
 import TranscriptPane from "spielsScreen/panes/TranscriptPane";
@@ -16,7 +16,7 @@ import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import {TextConsoleLine} from "ui/TextConsoleBuffer";
 
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 
 function doNothing() {} // TODO - delete after not used
@@ -24,7 +24,6 @@ function doNothing() {} // TODO - delete after not used
 function SpielsScreen() {
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [revision, setRevision] = useState<Revision|null>(getRevisionForMount());
-  const [spielText, setSpielText] = useState<string>('');
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [disabled, setDisabled] = useState<boolean>(true);
@@ -44,10 +43,6 @@ function SpielsScreen() {
     });
   }, []);
   
-  useEffect(() => {
-    setSpielText(revision?.spielText ?? '');
-  }, [revision]);
-  
   const actionBarButtons = [
     {text:'New', onClick:doNothing, groupNo:0, disabled},
     {text:'Open', onClick:doNothing, groupNo:0, disabled},
@@ -56,14 +51,14 @@ function SpielsScreen() {
     {text:'Import', onClick:() => importSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Export', onClick:() => exportSpiel(documentName), groupNo:0, disabled},
     
-    {text:'Undo', onClick:() => onUndo(setRevision, setSpielText), groupNo:1, disabled},
-    {text:'Redo', onClick:() => onRedo(setRevision, setSpielText), groupNo:1, disabled}
+    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled},
+    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled}
   ];
 
   return (
     <ScreenContainer documentName={documentName} actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.SPIELS}>
       <div className={styles.container}>
-        <SpielPane text={spielText} onChangeText={nextSpielText => updateRevisionForSpielText(nextSpielText, setSpielText, setRevision)} disabled={disabled}/>
+        <SpielPane spiel={revision?.spiel ?? null} disabled={true}/>
         <div className={styles.rightColumn}>
           <TestPane headComponent={getHeadIfReady()} onChangeFace={() => setModalDialog(ChangeFaceChooser.name)} disabled={disabled} />
           <TranscriptPane lines={transcriptLines}/>

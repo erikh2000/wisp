@@ -1,0 +1,13 @@
+.container {
+    padding-bottom: .5rem;
+}
+
+.character {
+    display: block;
+    text-align: center;
+}
+
+.dialogue {
+    display: block;
+    text-align: center;
+}

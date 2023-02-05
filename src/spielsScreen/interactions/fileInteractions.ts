@@ -4,7 +4,7 @@ import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
 import {performDisablingOperation} from "spielsScreen/interactions/coreUtil";
 import {setUpRevisionForNewSpiel, getRevisionManager} from "spielsScreen/interactions/revisionUtil";
 
-import {importFountain, exportSpielFile} from 'sl-spiel';
+import {importFountain, exportSpielFile, Spiel} from 'sl-spiel';
 
 export function onNewSpielName(spielName:string, setModalDialog:Function, setDocumentName:Function) {
   setActiveSpielName(spielName).then(() => {
@@ -86,7 +86,8 @@ export async function exportSpiel(documentName:string):Promise<void> {
     if (!fileHandle) return;
     const revisionManager = getRevisionManager();
     await revisionManager.waitForPersist();
-    const spielText = revisionManager.currentRevision?.spielText ?? '';
+    const spiel = revisionManager.currentRevision?.spiel ?? new Spiel();
+    const spielText = exportSpielFile(spiel);
     const writable = await (fileHandle as any).createWritable();
     await writable.write(spielText);
     return await writable.close();

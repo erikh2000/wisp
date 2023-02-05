@@ -6,6 +6,8 @@ import {bindSetDisabled, initCore} from "spielsScreen/interactions/coreUtil";
 import {bindSetTranscriptLines, initTranscript} from "./transcriptInteractions";
 import {getRevisionManager} from "./revisionUtil";
 
+import { Spiel, importSpielFile } from 'sl-spiel';
+
 let isInitialized = false;
 
 export type InitResults = {
@@ -21,9 +23,10 @@ function _initForSubsequentMount(setTranscriptLines:Function, setDisabled:Functi
   bindSetDisabled(setDisabled);
 }
 
-async function _loadSpielFromName(spielName:string):Promise<string> {
-  if (spielName === UNSPECIFIED_NAME) return '';
-  return await getSpiel(spielName);
+async function _loadSpielFromName(spielName:string):Promise<Spiel> {
+  if (spielName === UNSPECIFIED_NAME) return new Spiel();
+  const spielText = await getSpiel(spielName);
+  return importSpielFile(spielText);
 }
 
 export async function init(setTranscriptLines:Function, setDisabled:Function, setRevision:Function):Promise<InitResults> {
@@ -36,12 +39,12 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
     return initResults; 
   }
   
-  const spielText = await _loadSpielFromName(spielName);
+  const spiel = await _loadSpielFromName(spielName);
   const headComponent = await loadFaceFromName(faceName);
   initFaceEvents(headComponent);
   await initCore(headComponent, setDisabled);
   initTranscript(setTranscriptLines);
-  const revision = { spielText };
+  const revision = { spiel };
   setRevision(revision);
   getRevisionManager().add(revision);
 

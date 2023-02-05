@@ -3,23 +3,23 @@ import RevisionManager from "documents/RevisionManager";
 import {getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
 import {setSpiel} from "persistence/spiels";
 
+import { Spiel, importSpielFile, exportSpielFile } from 'sl-spiel';
+
 export type Revision = {
-  spielText:string
+  spiel:Spiel
 }
 
-const DEBOUNCE_SPIEL_TEXT_UPDATE_MS = 1000;
-
-let updateSpielTextTimeout:NodeJS.Timeout|null = null;
-
 async function onPersistRevision(revision:Revision):Promise<void> {
-  if (!revision.spielText) return;
+  if (!revision.spiel) return;
   const activeSpielName = await getActiveSpielName();
   if (activeSpielName === UNSPECIFIED_NAME) return;
-  await setSpiel(activeSpielName, revision.spielText);
+  const spielText = exportSpielFile(revision.spiel);
+  await setSpiel(activeSpielName, spielText);
 }
 
 export function setUpRevisionForNewSpiel(spielText:string, setRevision:any) {
-  const nextRevision:Revision = { spielText };
+  const spiel = importSpielFile(spielText);
+  const nextRevision:Revision = { spiel };
   revisionManager.clear();
   revisionManager.add(nextRevision);
   setRevision(nextRevision);
@@ -31,29 +31,24 @@ export function getRevisionManager() { return revisionManager; }
 
 export function getRevisionForMount() { return revisionManager.currentRevision; }
 
-export function updateRevisionForSpielText(spielText:string, setSpielText:Function, setRevision:Function) {
-  setSpielText(spielText);
-  if (updateSpielTextTimeout) { clearTimeout(updateSpielTextTimeout); }
-  updateSpielTextTimeout = setTimeout(() => {
-    revisionManager.addChanges({spielText});
-    setRevision(revisionManager.currentRevision);
-  }, DEBOUNCE_SPIEL_TEXT_UPDATE_MS);
+export function updateRevisionForSpiel(spiel:Spiel, setRevision:Function) {
+  const nextSpiel = spiel.duplicate()
+  revisionManager.addChanges({spiel:nextSpiel});
+  setRevision(revisionManager.currentRevision);
 }
 
-export async function onUndo(setRevision:Function, setSpielText:Function) {
+export async function onUndo(setRevision:Function) {
   await performDisablingOperation(() => {
     revisionManager.prev();
     const revision = revisionManager.currentRevision;
     setRevision(revision);
-    setSpielText(revision?.spielText ?? '');
   });
 }
 
-export async function onRedo(setRevision:Function, setSpielText:Function) {
+export async function onRedo(setRevision:Function) {
   await performDisablingOperation(() => {
     revisionManager.next();
     const revision = revisionManager.currentRevision;
     setRevision(revision);
-    setSpielText(revision?.spielText ?? '');
   });
 }
