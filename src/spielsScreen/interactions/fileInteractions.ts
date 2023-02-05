@@ -34,6 +34,23 @@ async function _selectSpielFileHandle():Promise<FileSystemFileHandle|null> {
   }
 }
 
+export async function _selectNewSpielFileHandle(suggestedFilename:string):Promise<FileSystemFileHandle|null> {
+  try {
+    const saveFileOptions = {
+      suggestedName:suggestedFilename,
+      excludeAcceptAllOption: true,
+      multiple:false,
+      types: [{
+        description: 'Spiel (.spiel)',
+        accept: {[MIMETYPE_WISP_SPIEL]: ['.spiel']}
+      }]
+    };
+    return await (window as any).showSaveFilePicker(saveFileOptions);
+  } catch(_ignoredAbortError) {
+    return null;
+  }
+}
+
 async function _loadSpielTextFromFileHandle(fileHandle:FileSystemFileHandle):Promise<string> {
   const isFountainFile = !fileHandle.name.endsWith('.spiel');
   const file = await fileHandle.getFile();
@@ -60,5 +77,18 @@ export async function importSpiel(setModalDialog:Function, setDocumentName:Funct
     if (!spielFileHandle) return;
     await _setUpForNewSpiel(() => _loadSpielTextFromFileHandle(spielFileHandle), setDocumentName, setRevision);
     setModalDialog(NewSpielDialog.name);
+  });
+}
+
+export async function exportSpiel(documentName:string):Promise<void> {
+  await performDisablingOperation(async () => {
+    let fileHandle = await _selectNewSpielFileHandle(documentName);
+    if (!fileHandle) return;
+    const revisionManager = getRevisionManager();
+    await revisionManager.waitForPersist();
+    const spielText = revisionManager.currentRevision?.spielText ?? '';
+    const writable = await (fileHandle as any).createWritable();
+    await writable.write(spielText);
+    return await writable.close();
   });
 }

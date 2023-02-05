@@ -5,7 +5,7 @@ import {UNSPECIFIED_NAME} from "persistence/projects";
 import ChangeFaceChooser from "spielsScreen/fileDialogs/ChangeFaceChooser";
 import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
 import {getHeadIfReady} from "spielsScreen/interactions/coreUtil";
-import {importSpiel, onNewSpielName} from "spielsScreen/interactions/fileInteractions";
+import {exportSpiel, importSpiel, onNewSpielName} from "spielsScreen/interactions/fileInteractions";
 import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
 import {onChangeFace} from "spielsScreen/interactions/testInteractions";
 import {getRevisionForMount, onRedo, onUndo, Revision, updateRevisionForSpielText} from "spielsScreen/interactions/revisionUtil";
@@ -54,7 +54,7 @@ function SpielsScreen() {
     {text:'Rename', onClick:doNothing, groupNo:0, disabled},
     {text:'Delete', onClick:doNothing, groupNo:0, disabled},
     {text:'Import', onClick:() => importSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
-    {text:'Export', onClick:doNothing, groupNo:0, disabled},
+    {text:'Export', onClick:() => exportSpiel(documentName), groupNo:0, disabled},
     
     {text:'Undo', onClick:() => onUndo(setRevision, setSpielText), groupNo:1, disabled},
     {text:'Redo', onClick:() => onRedo(setRevision, setSpielText), groupNo:1, disabled}
