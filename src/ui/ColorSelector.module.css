@@ -1,4 +1,3 @@
-
 @value colors: "ui/commonPalette.module.css";
 @value button, button-text, button-highlight, button-text-highlight, button-disabled, button-text-disabled from colors;
 @value commonStyles: "ui/commonStyles.module.css";

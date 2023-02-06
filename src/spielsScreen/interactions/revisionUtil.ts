@@ -32,7 +32,7 @@ export function getRevisionManager() { return revisionManager; }
 export function getRevisionForMount() { return revisionManager.currentRevision; }
 
 export function updateRevisionForSpiel(spiel:Spiel, setRevision:Function) {
-  const nextSpiel = spiel.duplicate()
+  const nextSpiel = spiel.duplicate();
   revisionManager.addChanges({spiel:nextSpiel});
   setRevision(revisionManager.currentRevision);
 }

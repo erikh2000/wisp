@@ -1,5 +1,22 @@
+@value colors: "ui/commonPalette.module.css";
+@value button-highlight from colors;
+
 .container {
     padding-bottom: .5rem;
+    cursor: pointer;
+    border-style: solid;
+    border-color: transparent;
+    text-align: center;
+}
+
+.containerSelected {
+    composes: container;
+    border-color: button-highlight;
+}
+
+.container:hover {
+    background-color: button-highlight;
+    border-color: button-highlight;
 }
 
 .character {
@@ -8,6 +25,6 @@
 }
 
 .dialogue {
-    display: block;
-    text-align: center;
+    display: inline-block;
+    max-width: 20rem;
 }

@@ -4,18 +4,25 @@ import { SpielNode } from 'sl-spiel';
 import { Emotion } from 'sl-web-face'
 
 interface IProps {
-  lastCharacterName:string,
   disabled?:boolean,
-  node:SpielNode
+  isSelected:boolean,
+  lastCharacterName:string,
+  node:SpielNode,
+  onSelect:() => void
+  onSelectForEdit:() => void
 }
 
 function SpielNodeView(props:IProps) {
-  const { node, lastCharacterName } = props;
+  const { isSelected, lastCharacterName, node, onSelect, onSelectForEdit } = props;
   const parenthetical = node.line.emotion !== Emotion.NEUTRAL 
     ? <span className={styles.parenthetical}>`(${node.line.emotion})`</span> : null;
   const character = node.line.character === lastCharacterName ? null : <span className={styles.character}>{node.line.character}</span>;
   return (
-    <div className={styles.container}>
+    <div 
+        className={isSelected ? styles.containerSelected : styles.container}
+        onClick={() => onSelect()}
+        onDoubleClick={() => onSelectForEdit()}
+    >
       {character}
       {parenthetical}
       <span className={styles.dialogue}>{node.line.dialogue}</span>

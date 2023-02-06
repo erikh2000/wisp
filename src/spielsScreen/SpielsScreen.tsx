@@ -5,6 +5,7 @@ import {UNSPECIFIED_NAME} from "persistence/projects";
 import ChangeFaceChooser from "spielsScreen/fileDialogs/ChangeFaceChooser";
 import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
 import {getHeadIfReady} from "spielsScreen/interactions/coreUtil";
+import {editSpielNode, selectSpielNode} from "spielsScreen/interactions/editInteractions";
 import {exportSpiel, importSpiel, onNewSpielName} from "spielsScreen/interactions/fileInteractions";
 import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
 import {onChangeFace} from "spielsScreen/interactions/testInteractions";
@@ -12,6 +13,7 @@ import {getRevisionForMount, onRedo, onUndo, Revision} from "spielsScreen/intera
 import SpielPane from "spielsScreen/panes/SpielPane";
 import TestPane from "spielsScreen/panes/TestPane";
 import TranscriptPane from "spielsScreen/panes/TranscriptPane";
+import EditSpielNodeDialog from "spielsScreen/spielDialogs/EditSpielNodeDialog";
 import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import {TextConsoleLine} from "ui/TextConsoleBuffer";
@@ -54,11 +56,19 @@ function SpielsScreen() {
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled},
     {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled}
   ];
+  
+  if (!revision) return null;
 
   return (
     <ScreenContainer documentName={documentName} actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.SPIELS}>
       <div className={styles.container}>
-        <SpielPane spiel={revision?.spiel ?? null} disabled={true}/>
+        <SpielPane 
+          spiel={revision.spiel} 
+          disabled={disabled}
+          onSelectNode={(nodeNo) => selectSpielNode(revision.spiel, nodeNo, setRevision)}
+          onSelectNodeForEdit={(nodeNo) => editSpielNode(revision.spiel, nodeNo, setRevision, setModalDialog)}
+          selectedNodeNo={revision.spiel.currentNodeIndex}
+        />
         <div className={styles.rightColumn}>
           <TestPane headComponent={getHeadIfReady()} onChangeFace={() => setModalDialog(ChangeFaceChooser.name)} disabled={disabled} />
           <TranscriptPane lines={transcriptLines}/>
@@ -73,6 +83,12 @@ function SpielsScreen() {
       <NewSpielDialog
         isOpen={modalDialog === NewSpielDialog.name}
         onSubmit={(nextSpielName) => onNewSpielName(nextSpielName, setModalDialog, setDocumentName)}
+      />
+      <EditSpielNodeDialog
+        isOpen={modalDialog === EditSpielNodeDialog.name}
+        originalNode={revision.spiel.currentNode}
+        onSubmit={() => setModalDialog(null)}
+        onCancel={() => setModalDialog(null)}
       />
     </ScreenContainer>
   );
