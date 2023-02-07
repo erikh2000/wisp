@@ -71,7 +71,7 @@ function TextConsole(props:IProps) {
       _updateRenderedLines(lines, onRenderLine, renderedLines);
       forceRenderedLinesUpdate({});
     }
-  }, [lines]);
+  }, [lines, onRenderLine]);
   
   useEffect(() => {
     if (isAutoScrolling) _scrollDivToBottom(containerElementRef.current);

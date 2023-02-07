@@ -5,7 +5,7 @@ import {UNSPECIFIED_NAME} from "persistence/projects";
 import ChangeFaceChooser from "spielsScreen/fileDialogs/ChangeFaceChooser";
 import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
 import {getHeadIfReady} from "spielsScreen/interactions/coreUtil";
-import {editSpielNode, selectSpielNode} from "spielsScreen/interactions/editInteractions";
+import {editSpielNode, selectSpielNode, updateNodeAfterEdit} from "spielsScreen/interactions/editInteractions";
 import {exportSpiel, importSpiel, onNewSpielName} from "spielsScreen/interactions/fileInteractions";
 import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
 import {onChangeFace} from "spielsScreen/interactions/testInteractions";
@@ -87,7 +87,7 @@ function SpielsScreen() {
       <EditSpielNodeDialog
         isOpen={modalDialog === EditSpielNodeDialog.name}
         originalNode={revision.spiel.currentNode}
-        onSubmit={() => setModalDialog(null)}
+        onSubmit={(nextNode) => updateNodeAfterEdit(nextNode, revision.spiel, setRevision, setModalDialog)}
         onCancel={() => setModalDialog(null)}
       />
     </ScreenContainer>

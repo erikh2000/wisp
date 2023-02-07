@@ -28,3 +28,8 @@
     display: inline-block;
     max-width: 20rem;
 }
+
+.parenthetical {
+    display: block;
+    text-align: center;
+}

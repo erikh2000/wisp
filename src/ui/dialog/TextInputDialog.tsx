@@ -29,7 +29,7 @@ function TextInputDialog(props:IProps) {
     if (!isOpen) return;
     setValue(defaultValue);
     setValidationFailure(null);
-  }, [isOpen]);
+  }, [isOpen, defaultValue]);
   
   function _onValueChange(nextValue:string) {
     if (onFixInput) {
