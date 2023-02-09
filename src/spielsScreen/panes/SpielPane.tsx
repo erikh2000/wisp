@@ -10,22 +10,24 @@ interface IProps {
   disabled?:boolean,
   onSelectNode:(nodeNo:number) => void,
   onSelectNodeForEdit:(nodeNo:number) => void,
+  onAddReplyToSelectedNode:() => void,
   selectedNodeNo:number,
   spiel:Spiel|null
 }
 
-function _generateButtonDefinitions(disabled?:boolean):ButtonDefinition[] {
+function _generateButtonDefinitions(onAddReplyToSelectedNode:Function, disabled?:boolean):ButtonDefinition[] {
   return [
     {text:'Add Line', onClick:() => null, disabled},
-    {text:'Add General Reply', onClick:() => null, disabled},
+    {text:'Add Reply', onClick:() => onAddReplyToSelectedNode(), disabled},
+    {text:'Add General Reply', onClick:() => null, disabled}
   ];
 }
 
 function SpielPane(props:IProps) {
-  const {disabled, onSelectNode, onSelectNodeForEdit, selectedNodeNo, spiel} = props;
+  const {disabled, onAddReplyToSelectedNode, onSelectNode, onSelectNodeForEdit, selectedNodeNo, spiel} = props;
   if (!spiel) return null;
   
-  const buttons:ButtonDefinition[] = _generateButtonDefinitions(disabled);
+  const buttons:ButtonDefinition[] = _generateButtonDefinitions(onAddReplyToSelectedNode, disabled);
   
   return (
     <InnerContentPane className={styles.spielPane} caption='Spiel' buttons={buttons}>

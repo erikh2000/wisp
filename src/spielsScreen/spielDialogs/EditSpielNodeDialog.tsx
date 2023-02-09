@@ -1,3 +1,4 @@
+import {splitText, joinText} from "common/textFormatUtil";
 import DialogButton from "ui/dialog/DialogButton";
 import DialogFooter from "ui/dialog/DialogFooter";
 import ModalDialog from "ui/dialog/ModalDialog";
@@ -18,7 +19,7 @@ interface IProps {
 
 function _createNodeToSubmit(dialogue:string, character:string, emotion:Emotion):SpielNode {
   const replies:SpielReply[] = []; 
-  const dialogueArray:string[] = dialogue.split('/').map(s => s.trim());
+  const dialogueArray:string[] = splitText(dialogue);
   const spielEmotion:SpielEmotion = emotionToSpielEmotion(emotion);
   const line:SpielLine = new SpielLine(character, dialogueArray, spielEmotion);
   return new SpielNode(line, replies);
@@ -34,7 +35,7 @@ function EditSpielNodeDialog(props:IProps) {
   useEffect(() => {
     if (!isOpen || !originalNode) return;
     setCharacter(originalNode.line.character);
-    setDialogue(originalNode.line.dialogue.join(' / '));
+    setDialogue(joinText(originalNode.line.dialogue));
     setEmotion(spielEmotionToEmotion(originalNode.line.emotion));
   }, [isOpen, originalNode]);
 

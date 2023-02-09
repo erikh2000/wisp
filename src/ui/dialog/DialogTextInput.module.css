@@ -10,10 +10,11 @@
     cursor: text;
     right: 2rem;
     position: absolute;
-    min-width: 70%;
+    min-width: 60%;
 }
 
 .textInputLineLabel {
     position: relative;
     top: .2rem;
+    font-size: 1rem;
 }

@@ -33,3 +33,7 @@
     display: block;
     text-align: center;
 }
+
+.replyContainer {
+    margin-top: .3rem;
+}
