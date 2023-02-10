@@ -1,8 +1,10 @@
 import styles from "./SpielsScreen.module.css";
 import AddReplyDialog from "./spielDialogs/AddReplyDialog";
 import EditReplyDialog from "./spielDialogs/EditReplyDialog";
-import useEffectAfterMount from "common/useEffectAfterMount";
+import AddRootReplyDialog from "./spielDialogs/AddRootReplyDialog";
+import EditRootReplyDialog from "./spielDialogs/EditRootReplyDialog";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
+import useEffectAfterMount from "common/useEffectAfterMount";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ChangeFaceChooser from "spielsScreen/fileDialogs/ChangeFaceChooser";
 import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
@@ -13,7 +15,7 @@ import {
   editSpielNode,
   openDialogToAddReply, openDialogToEditReply,
   selectSpielNode,
-  updateNodeAfterEdit, openDialogToEditRootReply
+  updateNodeAfterEdit, openDialogToEditRootReply, editSelectedRootReply, deleteSelectedRootReply
 } from "spielsScreen/interactions/editInteractions";
 import {exportSpiel, importSpiel, onNewSpielName} from "spielsScreen/interactions/fileInteractions";
 import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
@@ -30,19 +32,17 @@ import {TextConsoleLine} from "ui/TextConsoleBuffer";
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Spiel, SpielReply} from "sl-spiel";
-import AddRootReplyDialog from "./spielDialogs/AddRootReplyDialog";
-import EditRootReplyDialog from "./spielDialogs/EditRootReplyDialog";
 
 function doNothing() {} // TODO - delete after not used
 
-function _getSelectedReply(spiel:Spiel, selectedReplyNo:number):SpielReply {
+function _getSelectedReply(spiel:Spiel, selectedReplyNo:number):SpielReply|null {
   const selectedNode = spiel.currentNode;
-  if (!selectedNode) throw Error('Unexpected');
+  if (!selectedNode) return null;
   return selectedNode.replies[selectedReplyNo];
 }
 
-function _getSelectedRootReply(spiel:Spiel, selectedRootReplyNo:number):SpielReply {
-  if (selectedRootReplyNo >= spiel.rootReplies.length) throw Error('Unexpected');
+function _getSelectedRootReply(spiel:Spiel, selectedRootReplyNo:number):SpielReply|null {
+  if (selectedRootReplyNo >= spiel.rootReplies.length) return null;
   return spiel.rootReplies[selectedRootReplyNo];
 }
 
@@ -56,7 +56,6 @@ function SpielsScreen() {
   const [selectedRootReplyNo, setSelectedRootReplyNo] = useState<number>(-1);
   const [transcriptLines, setTranscriptLines] = useState<TextConsoleLine[]>([]);
   const navigate = useNavigate();
-  console.log({modalDialog});
 
   useEffectAfterMount(() => {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
@@ -124,7 +123,7 @@ function SpielsScreen() {
       <EditReplyDialog
         isOpen={modalDialog === EditReplyDialog.name}
         originalReply={_getSelectedReply(revision.spiel, selectedReplyNo)}
-        onSubmit={(nextReply) => {editSelectedReply(revision.spiel, selectedReplyNo, nextReply, setRevision, setModalDialog)}}
+        onSubmit={(nextReply) => editSelectedReply(revision.spiel, selectedReplyNo, nextReply, setRevision, setModalDialog)}
         onCancel={() => setModalDialog(null)}
         onDelete={() => deleteSelectedReply(revision.spiel, selectedReplyNo, setRevision, setModalDialog)}
       />
@@ -142,9 +141,9 @@ function SpielsScreen() {
       />
       <EditRootReplyDialog
         isOpen={modalDialog === EditRootReplyDialog.name}
-        onSubmit={(nextReply) => {}}
+        onSubmit={(nextReply) => editSelectedRootReply(revision.spiel, selectedRootReplyNo, nextReply, setRevision, setModalDialog)}
         onCancel={() => setModalDialog(null)}
-        onDelete={() => {}}
+        onDelete={() => deleteSelectedRootReply(revision.spiel, selectedRootReplyNo, setRevision, setModalDialog)}
         originalReply={_getSelectedRootReply(revision.spiel, selectedRootReplyNo)}
       />  
     </ScreenContainer>

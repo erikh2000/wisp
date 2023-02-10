@@ -80,3 +80,15 @@ export function openDialogToEditRootReply(spiel:Spiel, replyNo:number, setRevisi
   updateRevisionForSpiel(spiel, setRevision);
   setModalDialog(EditRootReplyDialog.name);
 }
+
+export function editSelectedRootReply(spiel:Spiel, rootReplyNo:number, nextReply:SpielReply, setRevision:Function, setModalDialog:Function) {
+  spiel.updateRootReply(rootReplyNo, nextReply.matchCriteria, nextReply.line.dialogue, nextReply.line.character, nextReply.line.emotion);
+  updateRevisionForSpiel(spiel, setRevision);
+  setModalDialog(null);
+}
+
+export function deleteSelectedRootReply(spiel:Spiel, rootReplyNo:number, setRevision:Function, setModalDialog:Function) {
+  spiel.removeRootReply(rootReplyNo);
+  updateRevisionForSpiel(spiel, setRevision);
+  setModalDialog(null);
+}

@@ -4,7 +4,7 @@ import {SpielReply} from "sl-spiel";
 
 interface IProps {
   isOpen:boolean,
-  originalReply:SpielReply;
+  originalReply:SpielReply|null;
   onCancel:() => void,
   onDelete:() => void,
   onSubmit:(node:SpielReply) => void,
@@ -12,6 +12,7 @@ interface IProps {
 
 function EditRootReplyDialog(props:IProps) {
   const {originalReply} = props;
+  if (!originalReply) return null;
   return <ReplyDialogBase {...props} originalReply={originalReply} title='Edit General Reply' />;
 }
 
