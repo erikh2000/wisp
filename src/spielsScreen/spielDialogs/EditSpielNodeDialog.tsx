@@ -14,6 +14,7 @@ interface IProps {
   isOpen:boolean,
   originalNode:SpielNode|null;
   onCancel:() => void,
+  onDelete:() => void,
   onSubmit:(node:SpielNode) => void
 }
 
@@ -26,7 +27,7 @@ function _createNodeToSubmit(dialogue:string, character:string, emotion:Emotion)
 }
 
 function EditSpielNodeDialog(props:IProps) {
-  const {isOpen, originalNode, onCancel, onSubmit} = props;
+  const {isOpen, originalNode, onCancel, onDelete, onSubmit} = props;
   const [character, setCharacter] = useState<string>('');
   const [dialogue, setDialogue] = useState<string>('');
   const [emotion, setEmotion] = useState<Emotion>(Emotion.NEUTRAL);
@@ -41,7 +42,6 @@ function EditSpielNodeDialog(props:IProps) {
 
   if (!originalNode) return null;
   
-  // TODO replies 
   return (
     <ModalDialog title='Edit Line' isOpen={isOpen} onCancel={onCancel}>
       <EmotionSelector emotion={emotion} onChange={setEmotion} />
@@ -49,6 +49,7 @@ function EditSpielNodeDialog(props:IProps) {
       <DialogTextInput labelText='Dialogue' value={dialogue} onChangeText={(text:string) => setDialogue(text)} />
       <DialogFooter>
         <DialogButton text='Cancel' onClick={onCancel} />
+        <DialogButton text='Delete' onClick={onDelete} />
         <DialogButton text='Update' onClick={() => onSubmit(_createNodeToSubmit(dialogue, character, emotion))} disabled={isSubmitDisabled} isPrimary/> 
       </DialogFooter>
     </ModalDialog>

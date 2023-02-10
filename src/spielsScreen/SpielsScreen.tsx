@@ -1,4 +1,6 @@
 import styles from "./SpielsScreen.module.css";
+import AddReplyDialog from "./spielDialogs/AddReplyDialog";
+import EditReplyDialog from "./spielDialogs/EditReplyDialog";
 import useEffectAfterMount from "common/useEffectAfterMount";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";
@@ -6,11 +8,12 @@ import ChangeFaceChooser from "spielsScreen/fileDialogs/ChangeFaceChooser";
 import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
 import {getHeadIfReady} from "spielsScreen/interactions/coreUtil";
 import {
-  addReplyToSelectedNode,
+  addRootReply,
+  addReplyToSelectedNode, deleteSelectedNode, deleteSelectedReply, editSelectedReply,
   editSpielNode,
-  openDialogToAddReply,
+  openDialogToAddReply, openDialogToEditReply,
   selectSpielNode,
-  updateNodeAfterEdit
+  updateNodeAfterEdit, openDialogToEditRootReply
 } from "spielsScreen/interactions/editInteractions";
 import {exportSpiel, importSpiel, onNewSpielName} from "spielsScreen/interactions/fileInteractions";
 import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
@@ -19,7 +22,6 @@ import {getRevisionForMount, onRedo, onUndo, Revision} from "spielsScreen/intera
 import SpielPane from "spielsScreen/panes/SpielPane";
 import TestPane from "spielsScreen/panes/TestPane";
 import TranscriptPane from "spielsScreen/panes/TranscriptPane";
-import EditReplyDialog from "spielsScreen/spielDialogs/EditReplyDialog";
 import EditSpielNodeDialog from "spielsScreen/spielDialogs/EditSpielNodeDialog";
 import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
@@ -27,8 +29,22 @@ import {TextConsoleLine} from "ui/TextConsoleBuffer";
 
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import {Spiel, SpielReply} from "sl-spiel";
+import AddRootReplyDialog from "./spielDialogs/AddRootReplyDialog";
+import EditRootReplyDialog from "./spielDialogs/EditRootReplyDialog";
 
 function doNothing() {} // TODO - delete after not used
+
+function _getSelectedReply(spiel:Spiel, selectedReplyNo:number):SpielReply {
+  const selectedNode = spiel.currentNode;
+  if (!selectedNode) throw Error('Unexpected');
+  return selectedNode.replies[selectedReplyNo];
+}
+
+function _getSelectedRootReply(spiel:Spiel, selectedRootReplyNo:number):SpielReply {
+  if (selectedRootReplyNo >= spiel.rootReplies.length) throw Error('Unexpected');
+  return spiel.rootReplies[selectedRootReplyNo];
+}
 
 function SpielsScreen() {
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
@@ -36,6 +52,8 @@ function SpielsScreen() {
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [selectedReplyNo, setSelectedReplyNo] = useState<number>(-1);
+  const [selectedRootReplyNo, setSelectedRootReplyNo] = useState<number>(-1);
   const [transcriptLines, setTranscriptLines] = useState<TextConsoleLine[]>([]);
   const navigate = useNavigate();
   console.log({modalDialog});
@@ -74,8 +92,11 @@ function SpielsScreen() {
           spiel={revision.spiel} 
           disabled={disabled}
           onAddReplyToSelectedNode={() => openDialogToAddReply(setModalDialog)}
+          onAddRootReply={() => setModalDialog(AddRootReplyDialog.name)}
           onSelectNode={(nodeNo) => selectSpielNode(revision.spiel, nodeNo, setRevision)}
           onSelectNodeForEdit={(nodeNo) => editSpielNode(revision.spiel, nodeNo, setRevision, setModalDialog)}
+          onSelectNodeReplyForEdit={(nodeNo, replyNo) => openDialogToEditReply(revision.spiel, nodeNo, replyNo, setRevision, setSelectedReplyNo, setModalDialog)}
+          onSelectRootReplyForEdit={(replyNo) => openDialogToEditRootReply(revision.spiel, replyNo, setRevision, setSelectedRootReplyNo, setModalDialog)}
           selectedNodeNo={revision.spiel.currentNodeIndex}
         />
         <div className={styles.rightColumn}>
@@ -98,14 +119,34 @@ function SpielsScreen() {
         originalNode={revision.spiel.currentNode}
         onSubmit={(nextNode) => updateNodeAfterEdit(nextNode, revision.spiel, setRevision, setModalDialog)}
         onCancel={() => setModalDialog(null)}
+        onDelete={() => deleteSelectedNode(revision.spiel, setRevision, setModalDialog)}
       />
       <EditReplyDialog
         isOpen={modalDialog === EditReplyDialog.name}
+        originalReply={_getSelectedReply(revision.spiel, selectedReplyNo)}
+        onSubmit={(nextReply) => {editSelectedReply(revision.spiel, selectedReplyNo, nextReply, setRevision, setModalDialog)}}
+        onCancel={() => setModalDialog(null)}
+        onDelete={() => deleteSelectedReply(revision.spiel, selectedReplyNo, setRevision, setModalDialog)}
+      />
+      <AddReplyDialog
+        isOpen={modalDialog === AddReplyDialog.name}
         defaultCharacter={revision.spiel.defaultCharacter}
-        originalReply={null}
-        onSubmit={(nextReply) => {addReplyToSelectedNode(revision.spiel, nextReply, setRevision, setModalDialog);}}
+        onSubmit={(nextReply) => addReplyToSelectedNode(revision.spiel, nextReply, setRevision, setModalDialog)}
         onCancel={() => setModalDialog(null)}
       />
+      <AddRootReplyDialog
+        isOpen={modalDialog === AddRootReplyDialog.name}
+        defaultCharacter={revision.spiel.defaultCharacter}
+        onSubmit={(nextReply) => addRootReply(revision.spiel, nextReply, setRevision, setModalDialog)}
+        onCancel={() => setModalDialog(null)}
+      />
+      <EditRootReplyDialog
+        isOpen={modalDialog === EditRootReplyDialog.name}
+        onSubmit={(nextReply) => {}}
+        onCancel={() => setModalDialog(null)}
+        onDelete={() => {}}
+        originalReply={_getSelectedRootReply(revision.spiel, selectedRootReplyNo)}
+      />  
     </ScreenContainer>
   );
 }

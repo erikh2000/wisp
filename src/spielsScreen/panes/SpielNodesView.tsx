@@ -7,11 +7,12 @@ interface IProps {
   nodes:SpielNode[],
   onSelect:(nodeNo:number) => void,
   onSelectForEdit:(nodeNo:number) => void,
+  onSelectReplyForEdit:(nodeNo:number, replyNo:number) => void,
   selectedNodeNo:number
 }
 
 function SpielNodesView(props:IProps) {
-  const { nodes, disabled, onSelect, onSelectForEdit, selectedNodeNo } = props;
+  const { nodes, disabled, onSelect, onSelectForEdit, onSelectReplyForEdit, selectedNodeNo } = props;
   let lastCharacterName = '';
   let lastEmotion = SpielEmotion.NEUTRAL;
   return (
@@ -26,6 +27,7 @@ function SpielNodesView(props:IProps) {
           node={node} 
           onSelect={() => onSelect(nodeNo)}
           onSelectForEdit={() => onSelectForEdit(nodeNo)} 
+          onSelectReplyForEdit={(replyNo) => onSelectReplyForEdit(nodeNo, replyNo)}
         />);
         lastCharacterName = node.replies.length ? 'Player' : node.line.character;
         lastEmotion = node.line.emotion;

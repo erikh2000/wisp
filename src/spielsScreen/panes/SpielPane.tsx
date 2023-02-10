@@ -10,35 +10,41 @@ interface IProps {
   disabled?:boolean,
   onSelectNode:(nodeNo:number) => void,
   onSelectNodeForEdit:(nodeNo:number) => void,
+  onSelectNodeReplyForEdit:(nodeNo:number, replyNo:number) => void,
   onAddReplyToSelectedNode:() => void,
+  onAddRootReply:() => void,
+  onSelectRootReplyForEdit:(replyNo:number) => void,
   selectedNodeNo:number,
   spiel:Spiel|null
 }
 
-function _generateButtonDefinitions(onAddReplyToSelectedNode:Function, disabled?:boolean):ButtonDefinition[] {
+function _generateButtonDefinitions(onSelectRootReplyForEdit:Function, onAddReplyToSelectedNode:Function, disabled?:boolean):ButtonDefinition[] {
   return [
     {text:'Add Line', onClick:() => null, disabled},
     {text:'Add Reply', onClick:() => onAddReplyToSelectedNode(), disabled},
-    {text:'Add General Reply', onClick:() => null, disabled}
+    {text:'Add General Reply', onClick:() => onSelectRootReplyForEdit(), disabled}
   ];
 }
 
 function SpielPane(props:IProps) {
-  const {disabled, onAddReplyToSelectedNode, onSelectNode, onSelectNodeForEdit, selectedNodeNo, spiel} = props;
+  const {disabled, onAddRootReply, onAddReplyToSelectedNode, onSelectRootReplyForEdit, onSelectNode, onSelectNodeForEdit, onSelectNodeReplyForEdit, selectedNodeNo, spiel} = props;
   if (!spiel) return null;
   
-  const buttons:ButtonDefinition[] = _generateButtonDefinitions(onAddReplyToSelectedNode, disabled);
+  const buttons:ButtonDefinition[] = _generateButtonDefinitions(onAddRootReply, onAddReplyToSelectedNode, disabled);
   
   return (
     <InnerContentPane className={styles.spielPane} caption='Spiel' buttons={buttons}>
-      <SpielNodesView 
-        nodes={spiel.nodes} 
-        disabled={disabled}
-        onSelect={(nodeNo) => onSelectNode(nodeNo)}
-        onSelectForEdit={(nodeNo) => onSelectNodeForEdit(nodeNo)}
-        selectedNodeNo={selectedNodeNo}
-      />
-      <SpielRootRepliesView rootReplies={spiel.rootReplies} disabled={disabled}/>
+      <div className={styles.scrollingContainer}>
+        <SpielNodesView 
+          nodes={spiel.nodes} 
+          disabled={disabled}
+          onSelect={(nodeNo) => onSelectNode(nodeNo)}
+          onSelectForEdit={(nodeNo) => onSelectNodeForEdit(nodeNo)}
+          onSelectReplyForEdit={(nodeNo, replyNo) => onSelectNodeReplyForEdit(nodeNo, replyNo)}
+          selectedNodeNo={selectedNodeNo}
+        />
+        <SpielRootRepliesView rootReplies={spiel.rootReplies} disabled={disabled} onEditRootReply={onSelectRootReplyForEdit}/>
+      </div>
     </InnerContentPane>
   );
 }

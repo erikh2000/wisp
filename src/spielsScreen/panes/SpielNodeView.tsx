@@ -12,21 +12,27 @@ interface IProps {
   lastEmotion:Emotion,
   node:SpielNode,
   onSelect:() => void
-  onSelectForEdit:() => void
+  onSelectForEdit:() => void,
+  onSelectReplyForEdit:(replyNo:number) => void,
 }
 
-function _renderReplies(replies:SpielReply[]) {
+function _renderReplies(replies:SpielReply[], onSelectReplyForEdit:(replyNo:number) => void) {
   if (replies.length === 0) return null;
-  const renderedReplies = replies.map((reply, index) => <SpielReplyView key={index} reply={reply} />)
+  const renderedReplies = replies.map((reply, replyNo) => (
+    <SpielReplyView 
+      onEditReply={() => onSelectReplyForEdit(replyNo)} 
+      key={replyNo} 
+      reply={reply} />
+  ));
   return <div className={styles.replyContainer}>{renderedReplies}</div>;
 }
 
 function SpielNodeView(props:IProps) {
-  const { isSelected, lastCharacterName, lastEmotion, node, onSelect, onSelectForEdit } = props;
+  const { isSelected, lastCharacterName, lastEmotion, node, onSelect, onSelectForEdit, onSelectReplyForEdit } = props;
   const parenthetical = node.line.emotion !== lastEmotion 
     ? <span className={styles.parenthetical}>{spielEmotionToParenthetical(node.line.emotion)}</span> : null;
   const character = node.line.character === lastCharacterName ? null : <span className={styles.character}>{node.line.character}</span>;
-  const renderedReplies = _renderReplies(node.replies);
+  const renderedReplies = _renderReplies(node.replies, onSelectReplyForEdit);
   return (
     <div 
         className={isSelected ? styles.containerSelected : styles.container}

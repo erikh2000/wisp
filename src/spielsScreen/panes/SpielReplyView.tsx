@@ -5,17 +5,20 @@ import { SpielReply } from 'sl-spiel';
 
 interface IProps {
   disabled?:boolean,
+  onEditReply:() => void,
   reply:SpielReply
 }
 
-function _getReplySummaryText(reply:SpielReply) {
-  return `${summarizeTextArray(reply.matchCriteria)} = ${summarizeTextArray(reply.line.dialogue)}`;
+function _onDoubleClick(event:any, onEditReply:() => void) {
+  event.stopPropagation();
+  onEditReply();
 }
 
 function SpielReplyView(props:IProps) {
-  const {reply} = props;
+  const {reply, onEditReply} = props;
   return (
-    <div className={styles.container}>{_getReplySummaryText(reply)}</div>
+    <div className={styles.container} onDoubleClick={(event) => _onDoubleClick(event, onEditReply)}>
+      {summarizeTextArray(reply.matchCriteria)} &#8594; {summarizeTextArray(reply.line.dialogue)}</div>
   );
 }
 

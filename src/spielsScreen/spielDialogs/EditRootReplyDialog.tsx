@@ -10,9 +10,9 @@ interface IProps {
   onSubmit:(node:SpielReply) => void,
 }
 
-function EditReplyDialog(props:IProps) {
+function EditRootReplyDialog(props:IProps) {
   const {originalReply} = props;
-  return <ReplyDialogBase {...props} originalReply={originalReply} title='Edit Reply' />;
+  return <ReplyDialogBase {...props} originalReply={originalReply} title='Edit General Reply' />;
 }
 
-export default EditReplyDialog;
+export default EditRootReplyDialog;
