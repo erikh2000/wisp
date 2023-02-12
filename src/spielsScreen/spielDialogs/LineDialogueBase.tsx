@@ -13,9 +13,11 @@ import {useState, useEffect} from "react";
 interface IProps {
   isOpen:boolean,
   originalNode:SpielNode|null;
+  defaultCharacter?:string,
   onCancel:() => void,
-  onDelete:() => void,
-  onSubmit:(node:SpielNode) => void
+  onDelete?:() => void,
+  onSubmit:(node:SpielNode) => void,
+  title:string
 }
 
 function _createNodeToSubmit(dialogue:string, character:string, emotion:Emotion):SpielNode {
@@ -26,34 +28,40 @@ function _createNodeToSubmit(dialogue:string, character:string, emotion:Emotion)
   return new SpielNode(line, replies);
 }
 
-function EditSpielNodeDialog(props:IProps) {
-  const {isOpen, originalNode, onCancel, onDelete, onSubmit} = props;
+function LineDialogBase(props:IProps) {
+  const {isOpen, originalNode, defaultCharacter, onCancel, onDelete, onSubmit, title} = props;
   const [character, setCharacter] = useState<string>('');
   const [dialogue, setDialogue] = useState<string>('');
   const [emotion, setEmotion] = useState<Emotion>(Emotion.NEUTRAL);
-  const isSubmitDisabled = false; // TODO - validation
+  const isSubmitDisabled = false;
   
   useEffect(() => {
-    if (!isOpen || !originalNode) return;
-    setCharacter(originalNode.line.character);
-    setDialogue(joinText(originalNode.line.dialogue));
-    setEmotion(spielEmotionToEmotion(originalNode.line.emotion));
-  }, [isOpen, originalNode]);
-
-  if (!originalNode) return null;
+    if (!isOpen) return;
+    if (originalNode) {
+      setCharacter(originalNode.line.character);
+      setDialogue(joinText(originalNode.line.dialogue));
+      setEmotion(spielEmotionToEmotion(originalNode.line.emotion));
+    } else {
+      setCharacter(defaultCharacter ?? '');
+      setDialogue('');
+      setEmotion(Emotion.NEUTRAL);
+    }
+  }, [isOpen, originalNode, defaultCharacter]);
+  
+  const deleteButton = onDelete ? <DialogButton text='Delete' onClick={onDelete} /> : null;
   
   return (
-    <ModalDialog title='Edit Line' isOpen={isOpen} onCancel={onCancel}>
+    <ModalDialog title={title} isOpen={isOpen} onCancel={onCancel}>
       <EmotionSelector emotion={emotion} onChange={setEmotion} />
       <DialogTextInput labelText='Character' value={character} onChangeText={(text:string) => setCharacter(text)} />
       <DialogTextInput labelText='Dialogue' value={dialogue} onChangeText={(text:string) => setDialogue(text)} />
       <DialogFooter>
         <DialogButton text='Cancel' onClick={onCancel} />
-        <DialogButton text='Delete' onClick={onDelete} />
+        {deleteButton}
         <DialogButton text='Update' onClick={() => onSubmit(_createNodeToSubmit(dialogue, character, emotion))} disabled={isSubmitDisabled} isPrimary/> 
       </DialogFooter>
     </ModalDialog>
   )
 }
 
-export default EditSpielNodeDialog;
+export default LineDialogBase;

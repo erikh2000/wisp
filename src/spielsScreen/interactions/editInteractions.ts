@@ -1,16 +1,17 @@
+import AddLineDialog from "spielsScreen/spielDialogs/AddLineDialog";
 import AddReplyDialog from "spielsScreen/spielDialogs/AddReplyDialog";
-import EditSpielNodeDialog from "spielsScreen/spielDialogs/EditSpielNodeDialog";
+import EditLineDialog from "spielsScreen/spielDialogs/EditLineDialog";
 import EditReplyDialog from 'spielsScreen/spielDialogs/EditReplyDialog';
+import EditRootReplyDialog from "spielsScreen/spielDialogs/EditRootReplyDialog";
 import {updateRevisionForSpiel} from "spielsScreen/interactions/revisionUtil";
 
 import { Spiel, SpielNode, SpielReply } from 'sl-spiel';
-import EditRootReplyDialog from "../spielDialogs/EditRootReplyDialog";
 
 export function editSpielNode(spiel:Spiel, nodeNo:number, setRevision:Function, setModalDialog:Function) {
   const nextSpiel = spiel.duplicate();
   nextSpiel.moveTo(nodeNo);
   updateRevisionForSpiel(nextSpiel, setRevision);
-  setModalDialog(EditSpielNodeDialog.name);
+  setModalDialog(EditLineDialog.name);
 }
 
 export function selectSpielNode(spiel:Spiel, nodeNo:number, setRevision:Function) {
@@ -89,6 +90,16 @@ export function editSelectedRootReply(spiel:Spiel, rootReplyNo:number, nextReply
 
 export function deleteSelectedRootReply(spiel:Spiel, rootReplyNo:number, setRevision:Function, setModalDialog:Function) {
   spiel.removeRootReply(rootReplyNo);
+  updateRevisionForSpiel(spiel, setRevision);
+  setModalDialog(null);
+}
+
+export function openDialogToAddSpielNode(setModalDialog:Function) {
+  setModalDialog(AddLineDialog.name);
+}
+
+export function addSpielNode(spiel:Spiel, node:SpielNode, setRevision:Function, setModalDialog:Function) {
+  spiel.createNode(node.line.character, node.line.emotion, node.line.dialogue);
   updateRevisionForSpiel(spiel, setRevision);
   setModalDialog(null);
 }

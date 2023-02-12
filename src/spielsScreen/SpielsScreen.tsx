@@ -1,5 +1,7 @@
 import styles from "./SpielsScreen.module.css";
+import AddLineDialog from "./spielDialogs/AddLineDialog";
 import AddReplyDialog from "./spielDialogs/AddReplyDialog";
+import EditLineDialog from "./spielDialogs/EditLineDialog";
 import EditReplyDialog from "./spielDialogs/EditReplyDialog";
 import AddRootReplyDialog from "./spielDialogs/AddRootReplyDialog";
 import EditRootReplyDialog from "./spielDialogs/EditRootReplyDialog";
@@ -10,12 +12,21 @@ import ChangeFaceChooser from "spielsScreen/fileDialogs/ChangeFaceChooser";
 import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
 import {getHeadIfReady} from "spielsScreen/interactions/coreUtil";
 import {
+  addReplyToSelectedNode,
   addRootReply,
-  addReplyToSelectedNode, deleteSelectedNode, deleteSelectedReply, editSelectedReply,
+  addSpielNode,
+  deleteSelectedNode,
+  deleteSelectedReply,
+  deleteSelectedRootReply,
+  editSelectedReply,
+  editSelectedRootReply, 
   editSpielNode,
-  openDialogToAddReply, openDialogToEditReply,
+  openDialogToAddReply, 
+  openDialogToAddSpielNode, 
+  openDialogToEditReply,
+  openDialogToEditRootReply, 
   selectSpielNode,
-  updateNodeAfterEdit, openDialogToEditRootReply, editSelectedRootReply, deleteSelectedRootReply
+  updateNodeAfterEdit
 } from "spielsScreen/interactions/editInteractions";
 import {exportSpiel, importSpiel, onNewSpielName} from "spielsScreen/interactions/fileInteractions";
 import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
@@ -24,7 +35,7 @@ import {getRevisionForMount, onRedo, onUndo, Revision} from "spielsScreen/intera
 import SpielPane from "spielsScreen/panes/SpielPane";
 import TestPane from "spielsScreen/panes/TestPane";
 import TranscriptPane from "spielsScreen/panes/TranscriptPane";
-import EditSpielNodeDialog from "spielsScreen/spielDialogs/EditSpielNodeDialog";
+import EditSpielNodeDialog from "spielsScreen/spielDialogs/EditLineDialog";
 import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import {TextConsoleLine} from "ui/TextConsoleBuffer";
@@ -90,6 +101,7 @@ function SpielsScreen() {
         <SpielPane 
           spiel={revision.spiel} 
           disabled={disabled}
+          onAddLine={() => openDialogToAddSpielNode(setModalDialog)}
           onAddReplyToSelectedNode={() => openDialogToAddReply(setModalDialog)}
           onAddRootReply={() => setModalDialog(AddRootReplyDialog.name)}
           onSelectNode={(nodeNo) => selectSpielNode(revision.spiel, nodeNo, setRevision)}
@@ -113,7 +125,7 @@ function SpielsScreen() {
         isOpen={modalDialog === NewSpielDialog.name}
         onSubmit={(nextSpielName) => onNewSpielName(nextSpielName, setModalDialog, setDocumentName)}
       />
-      <EditSpielNodeDialog
+      <EditLineDialog
         isOpen={modalDialog === EditSpielNodeDialog.name}
         originalNode={revision.spiel.currentNode}
         onSubmit={(nextNode) => updateNodeAfterEdit(nextNode, revision.spiel, setRevision, setModalDialog)}
@@ -145,7 +157,13 @@ function SpielsScreen() {
         onCancel={() => setModalDialog(null)}
         onDelete={() => deleteSelectedRootReply(revision.spiel, selectedRootReplyNo, setRevision, setModalDialog)}
         originalReply={_getSelectedRootReply(revision.spiel, selectedRootReplyNo)}
-      />  
+      />
+      <AddLineDialog 
+        defaultCharacter={revision.spiel.defaultCharacter}
+        isOpen={modalDialog === AddLineDialog.name} 
+        onSubmit={(nextLine) => addSpielNode(revision.spiel, nextLine, setRevision, setModalDialog)} 
+        onCancel={() => setModalDialog(null)} 
+      />
     </ScreenContainer>
   );
 }

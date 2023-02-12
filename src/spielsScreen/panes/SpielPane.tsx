@@ -11,6 +11,7 @@ interface IProps {
   onSelectNode:(nodeNo:number) => void,
   onSelectNodeForEdit:(nodeNo:number) => void,
   onSelectNodeReplyForEdit:(nodeNo:number, replyNo:number) => void,
+  onAddLine:() => void,
   onAddReplyToSelectedNode:() => void,
   onAddRootReply:() => void,
   onSelectRootReplyForEdit:(replyNo:number) => void,
@@ -18,19 +19,19 @@ interface IProps {
   spiel:Spiel|null
 }
 
-function _generateButtonDefinitions(onSelectRootReplyForEdit:Function, onAddReplyToSelectedNode:Function, disabled?:boolean):ButtonDefinition[] {
+function _generateButtonDefinitions(onAddLine:Function, onAddRootReply:Function, onAddReplyToSelectedNode:Function, disabled?:boolean):ButtonDefinition[] {
   return [
-    {text:'Add Line', onClick:() => null, disabled},
+    {text:'Add Line', onClick:() => onAddLine(), disabled},
     {text:'Add Reply', onClick:() => onAddReplyToSelectedNode(), disabled},
-    {text:'Add General Reply', onClick:() => onSelectRootReplyForEdit(), disabled}
+    {text:'Add General Reply', onClick:() => onAddRootReply(), disabled}
   ];
 }
 
 function SpielPane(props:IProps) {
-  const {disabled, onAddRootReply, onAddReplyToSelectedNode, onSelectRootReplyForEdit, onSelectNode, onSelectNodeForEdit, onSelectNodeReplyForEdit, selectedNodeNo, spiel} = props;
+  const {disabled, onAddLine, onAddRootReply, onAddReplyToSelectedNode, onSelectRootReplyForEdit, onSelectNode, onSelectNodeForEdit, onSelectNodeReplyForEdit, selectedNodeNo, spiel} = props;
   if (!spiel) return null;
   
-  const buttons:ButtonDefinition[] = _generateButtonDefinitions(onAddRootReply, onAddReplyToSelectedNode, disabled);
+  const buttons:ButtonDefinition[] = _generateButtonDefinitions(onAddLine, onAddRootReply, onAddReplyToSelectedNode, disabled);
   
   return (
     <InnerContentPane className={styles.spielPane} caption='Spiel' buttons={buttons}>
