@@ -7,7 +7,6 @@
     border-style: solid;
     border-color: transparent;
     text-align: center;
-    display: flex;
 }
 
 .containerSelected {
@@ -37,20 +36,4 @@
 
 .replyContainer {
     margin-top: .3rem;
-}
-
-.mainCell {
-    flex-grow: 1
-}
-
-.dragHandleCell {
-    display: inline-block;
-    background-image: url('./images/draggableBackground32x16.png');
-    background-repeat: repeat-y;
-    flex-basis: 2rem;
-}
-
-.draggingHandleCell {
-    composes: dragHandleCell;
-    cursor: grabbing;
 }
