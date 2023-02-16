@@ -51,6 +51,7 @@ export function onNodeDragEnd(startingDragNodeNo:number, insertAfterNodeNo:numbe
   
   const insertBeforeNodeNo = insertAfterNodeNo > startingDragNodeNo ? insertAfterNodeNo : insertAfterNodeNo + 1;
   spiel.moveNode(startingDragNodeNo, insertBeforeNodeNo);
+  spiel.moveTo(insertBeforeNodeNo);
   updateRevisionForSpiel(spiel, setRevision);
 }
 
