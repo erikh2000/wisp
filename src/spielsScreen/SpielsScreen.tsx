@@ -1,4 +1,11 @@
 import styles from "./SpielsScreen.module.css";
+import {
+  createDragMeasurements,
+  DragMeasurements,
+  onNodeDrag,
+  onNodeDragEnd,
+  updateDragMeasurements, updateDragMeasurementsToMatchNodeCount
+} from "./interactions/dragInteractions";
 import AddLineDialog from "./spielDialogs/AddLineDialog";
 import AddReplyDialog from "./spielDialogs/AddReplyDialog";
 import EditLineDialog from "./spielDialogs/EditLineDialog";
@@ -32,6 +39,7 @@ import {exportSpiel, importSpiel, onNewSpielName} from "spielsScreen/interaction
 import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
 import {onChangeFace} from "spielsScreen/interactions/testInteractions";
 import {getRevisionForMount, onRedo, onUndo, Revision} from "spielsScreen/interactions/revisionUtil";
+import {InsertPosition} from "spielsScreen/panes/SpielNodeView";
 import SpielPane from "spielsScreen/panes/SpielPane";
 import TestPane from "spielsScreen/panes/TestPane";
 import TranscriptPane from "spielsScreen/panes/TranscriptPane";
@@ -40,7 +48,7 @@ import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import {TextConsoleLine} from "ui/TextConsoleBuffer";
 
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Spiel, SpielReply} from "sl-spiel";
 
@@ -59,6 +67,8 @@ function _getSelectedRootReply(spiel:Spiel, selectedRootReplyNo:number):SpielRep
 
 function SpielsScreen() {
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
+  const [dragMeasurements, setDragMeasurements] = useState<DragMeasurements>(createDragMeasurements());
+  const [insertAfterNodeNo, setInsertAfterNodeNo] = useState<InsertPosition|null>(null);
   const [revision, setRevision] = useState<Revision|null>(getRevisionForMount());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
@@ -81,6 +91,12 @@ function SpielsScreen() {
     });
   }, []);
   
+  useEffect(() => {
+    const nodeCount = revision?.spiel.nodes.length;
+    if (nodeCount === undefined) return;
+    updateDragMeasurementsToMatchNodeCount(nodeCount, dragMeasurements, setDragMeasurements);
+  }, [revision, dragMeasurements]);
+  
   const actionBarButtons = [
     {text:'New', onClick:doNothing, groupNo:0, disabled},
     {text:'Open', onClick:doNothing, groupNo:0, disabled},
@@ -101,9 +117,13 @@ function SpielsScreen() {
         <SpielPane 
           spiel={revision.spiel} 
           disabled={disabled}
+          insertAfterNodeNo={insertAfterNodeNo}
+          onNodeDrag={(event, nodeNo) => onNodeDrag(event, nodeNo, dragMeasurements, setInsertAfterNodeNo)}
+          onNodeDragEnd={(event, nodeNo) => onNodeDragEnd(nodeNo, insertAfterNodeNo, revision.spiel, setRevision, setInsertAfterNodeNo)}
           onAddLine={() => openDialogToAddSpielNode(setModalDialog)}
           onAddReplyToSelectedNode={() => openDialogToAddReply(setModalDialog)}
           onAddRootReply={() => setModalDialog(AddRootReplyDialog.name)}
+          onReceiveNodeHeight={(nodeNo, height) => updateDragMeasurements(nodeNo, height, dragMeasurements, setDragMeasurements)}
           onSelectNode={(nodeNo) => selectSpielNode(revision.spiel, nodeNo, setRevision)}
           onSelectNodeForEdit={(nodeNo) => editSpielNode(revision.spiel, nodeNo, setRevision, setModalDialog)}
           onSelectNodeReplyForEdit={(nodeNo, replyNo) => openDialogToEditReply(revision.spiel, nodeNo, replyNo, setRevision, setSelectedReplyNo, setModalDialog)}

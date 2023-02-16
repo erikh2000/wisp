@@ -16,7 +16,6 @@
 
 .container:hover {
     background-color: button-highlight;
-    border-color: button-highlight;
 }
 
 .character {
@@ -36,4 +35,16 @@
 
 .replyContainer {
     margin-top: .3rem;
+}
+
+.insertBefore {
+    border-top-style: solid;
+    border-top-color: black;
+    border-top-width: .2rem;
+}
+
+.insertAfter {
+    border-bottom-style: solid;
+    border-bottom-color: black;
+    border-bottom-width: .2rem;
 }
