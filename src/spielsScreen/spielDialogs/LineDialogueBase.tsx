@@ -52,9 +52,9 @@ function LineDialogBase(props:IProps) {
   
   return (
     <ModalDialog title={title} isOpen={isOpen} onCancel={onCancel}>
+      <DialogTextInput labelText='Character:' value={character} onChangeText={(text:string) => setCharacter(text)} />
+      <DialogTextInput labelText='Says:' value={dialogue} onChangeText={(text:string) => setDialogue(text)} />
       <EmotionSelector emotion={emotion} onChange={setEmotion} />
-      <DialogTextInput labelText='Character' value={character} onChangeText={(text:string) => setCharacter(text)} />
-      <DialogTextInput labelText='Dialogue' value={dialogue} onChangeText={(text:string) => setDialogue(text)} />
       <DialogFooter>
         <DialogButton text='Cancel' onClick={onCancel} />
         {deleteButton}

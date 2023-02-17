@@ -1,10 +1,12 @@
 import ReplyDialogBase from "./ReplyDialogBase";
 
-import {SpielReply} from "sl-spiel";
+import {SpielReply, SpielLine} from "sl-spiel";
 
 interface IProps {
   isOpen:boolean,
   defaultCharacter:string,
+  
+  inResponseToLine:SpielLine,
   onCancel:() => void,
   onSubmit:(node:SpielReply) => void
 }

@@ -2,6 +2,7 @@ import {splitText, joinText} from "common/textFormatUtil";
 import DialogButton from "ui/dialog/DialogButton";
 import DialogFooter from "ui/dialog/DialogFooter";
 import ModalDialog from "ui/dialog/ModalDialog";
+import DialogLabeledText from "ui/dialog/DialogLabeledText";
 import DialogTextInput from "ui/dialog/DialogTextInput";
 import {emotionToSpielEmotion, spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil";
 import EmotionSelector from "spielsScreen/spielDialogs/EmotionSelector";
@@ -14,6 +15,7 @@ interface IProps {
   isOpen:boolean,
   title:string,
   defaultCharacter?:string,
+  inResponseToLine?:SpielLine,
   originalReply:SpielReply|null;
   onDelete?:() => void,
   onCancel:() => void,
@@ -30,13 +32,12 @@ function _createReplyToSubmit(matchCriteria:string, dialogue:string, character:s
 }
 
 function ReplyDialogBase(props:IProps) {
-  const {defaultCharacter, isOpen, originalReply, onCancel, onDelete, onSubmit, title} = props;
+  const {defaultCharacter, inResponseToLine, isOpen, originalReply, onCancel, onDelete, onSubmit, title} = props;
   const [character, setCharacter] = useState<string>('');
   const [dialogue, setDialogue] = useState<string>('');
   const [emotion, setEmotion] = useState<Emotion>(Emotion.NEUTRAL);
   const [matchCriteria, setMatchCriteria] = useState<string>('');
   const isSubmitDisabled = false; // TODO - validation
-  const isNewReply = !originalReply;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -55,13 +56,15 @@ function ReplyDialogBase(props:IProps) {
   }, [defaultCharacter, isOpen, originalReply]);
   
   const deleteButton = onDelete ? <DialogButton text='Delete' onClick={onDelete} /> : null;
+  const inResponseToLineText = inResponseToLine ? <DialogLabeledText labelText='In Response To:' value={inResponseToLine.dialogue[0]} /> : null;
   
   return (
     <ModalDialog title={title} isOpen={isOpen} onCancel={onCancel}>
-      <EmotionSelector emotion={emotion} onChange={setEmotion} />
+      {inResponseToLineText}
       <DialogTextInput labelText='When Reply Matches:' value={matchCriteria} onChangeText={(text:string) => setMatchCriteria(text)} />
       <DialogTextInput labelText='Character:' value={character} onChangeText={(text:string) => setCharacter(text)} />
       <DialogTextInput labelText='Says:' value={dialogue} onChangeText={(text:string) => setDialogue(text)} />
+      <EmotionSelector emotion={emotion} onChange={setEmotion} />
       <DialogFooter>
         <DialogButton text='Cancel' onClick={onCancel} />
         {deleteButton}

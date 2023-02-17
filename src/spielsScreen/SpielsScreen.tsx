@@ -50,7 +50,7 @@ import {TextConsoleLine} from "ui/TextConsoleBuffer";
 
 import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {Spiel, SpielReply} from "sl-spiel";
+import {Spiel, SpielLine, SpielReply} from "sl-spiel";
 
 function doNothing() {} // TODO - delete after not used
 
@@ -63,6 +63,12 @@ function _getSelectedReply(spiel:Spiel, selectedReplyNo:number):SpielReply|null 
 function _getSelectedRootReply(spiel:Spiel, selectedRootReplyNo:number):SpielReply|null {
   if (selectedRootReplyNo >= spiel.rootReplies.length) return null;
   return spiel.rootReplies[selectedRootReplyNo];
+}
+
+function _getSelectedLineForReply(spiel:Spiel):SpielLine {
+  const selectedNode = spiel.currentNode;
+  if (!selectedNode) throw Error('Unexpected'); // There should always be a selected line whenever a reply is being added/edited.
+  return selectedNode.line;
 }
 
 function SpielsScreen() {
@@ -152,6 +158,7 @@ function SpielsScreen() {
         onDelete={() => deleteSelectedNode(revision.spiel, setRevision, setModalDialog)}
       />
       <EditReplyDialog
+        inResponseToLine={_getSelectedLineForReply(revision.spiel)}
         isOpen={modalDialog === EditReplyDialog.name}
         originalReply={_getSelectedReply(revision.spiel, selectedReplyNo)}
         onSubmit={(nextReply) => editSelectedReply(revision.spiel, selectedReplyNo, nextReply, setRevision, setModalDialog)}
@@ -159,6 +166,7 @@ function SpielsScreen() {
         onDelete={() => deleteSelectedReply(revision.spiel, selectedReplyNo, setRevision, setModalDialog)}
       />
       <AddReplyDialog
+        inResponseToLine={_getSelectedLineForReply(revision.spiel)}
         isOpen={modalDialog === AddReplyDialog.name}
         defaultCharacter={revision.spiel.defaultCharacter}
         onSubmit={(nextReply) => addReplyToSelectedNode(revision.spiel, nextReply, setRevision, setModalDialog)}
