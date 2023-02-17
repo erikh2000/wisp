@@ -29,7 +29,13 @@ const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(
 
 export function getRevisionManager() { return revisionManager; }
 
-export function getRevisionForMount() { return revisionManager.currentRevision; }
+export function getRevisionForMount():Revision {
+  const revision = revisionManager.currentRevision;
+  if (revision) return revision;
+  const newRevision = { spiel: new Spiel() };
+  revisionManager.add(newRevision);
+  return newRevision;
+}
 
 export function updateRevisionForSpiel(spiel:Spiel, setRevision:Function) {
   const nextSpiel = spiel.duplicate();

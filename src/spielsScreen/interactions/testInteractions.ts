@@ -1,8 +1,11 @@
 import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
-import {setHead} from "spielsScreen/interactions/coreUtil";
+import {setEmotion} from "facesCommon/interactions/faceEventUtil";
+import {setHead} from "spielsScreen/interactions/coreUtil"
+import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil";
 
 import {CanvasComponent} from "sl-web-face";
+import { Spiel } from 'sl-spiel';
 
 function _centerCanvasComponent(component:CanvasComponent, canvasWidth:number, canvasHeight:number) {
   const componentWidth = component.width, componentHeight = component.height;
@@ -27,4 +30,10 @@ export async function onChangeFace(faceName:string, setModalDialog:any) {
   } finally {
     setModalDialog(null);
   }
+}
+export function setFaceEmotionFromSpiel(spiel:Spiel) {
+  const spielEmotion = spiel.currentNode?.line.emotion;
+  if (spielEmotion === undefined) return;
+  const emotion = spielEmotionToEmotion(spielEmotion);
+  setEmotion(emotion);
 }

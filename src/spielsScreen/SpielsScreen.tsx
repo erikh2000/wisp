@@ -1,4 +1,5 @@
 import styles from "./SpielsScreen.module.css";
+import {getHeadIfReady} from "./interactions/coreUtil";
 import {
   createDragMeasurements,
   DragMeasurements,
@@ -6,6 +7,27 @@ import {
   onNodeDragEnd,
   updateDragMeasurements, updateDragMeasurementsToMatchNodeCount
 } from "./interactions/dragInteractions";
+import {
+  addReplyToSelectedNode,
+  addRootReply,
+  addSpielNode,
+  deleteSelectedNode,
+  deleteSelectedReply,
+  deleteSelectedRootReply,
+  editSelectedReply,
+  editSelectedRootReply,
+  editSpielNode,
+  openDialogToAddReply,
+  openDialogToAddSpielNode,
+  openDialogToEditReply,
+  openDialogToEditRootReply,
+  selectSpielNode,
+  updateNodeAfterEdit
+} from "./interactions/editInteractions";
+import {exportSpiel, importSpiel, onNewSpielName} from "./interactions/fileInteractions";
+import {init, InitResults} from "./interactions/generalInteractions";
+import {onChangeFace, setFaceEmotionFromSpiel} from "./interactions/testInteractions";
+import {getRevisionForMount, onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import AddLineDialog from "./spielDialogs/AddLineDialog";
 import AddReplyDialog from "./spielDialogs/AddReplyDialog";
 import EditLineDialog from "./spielDialogs/EditLineDialog";
@@ -15,35 +37,13 @@ import EditRootReplyDialog from "./spielDialogs/EditRootReplyDialog";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import useEffectAfterMount from "common/useEffectAfterMount";
 import {UNSPECIFIED_NAME} from "persistence/projects";
-import ChangeFaceChooser from "spielsScreen/fileDialogs/ChangeFaceChooser";
-import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
-import {getHeadIfReady} from "spielsScreen/interactions/coreUtil";
-import {
-  addReplyToSelectedNode,
-  addRootReply,
-  addSpielNode,
-  deleteSelectedNode,
-  deleteSelectedReply,
-  deleteSelectedRootReply,
-  editSelectedReply,
-  editSelectedRootReply, 
-  editSpielNode,
-  openDialogToAddReply, 
-  openDialogToAddSpielNode, 
-  openDialogToEditReply,
-  openDialogToEditRootReply, 
-  selectSpielNode,
-  updateNodeAfterEdit
-} from "spielsScreen/interactions/editInteractions";
-import {exportSpiel, importSpiel, onNewSpielName} from "spielsScreen/interactions/fileInteractions";
-import {init, InitResults} from "spielsScreen/interactions/generalInteractions";
-import {onChangeFace} from "spielsScreen/interactions/testInteractions";
-import {getRevisionForMount, onRedo, onUndo, Revision} from "spielsScreen/interactions/revisionUtil";
-import {InsertPosition} from "spielsScreen/panes/SpielNodeView";
-import SpielPane from "spielsScreen/panes/SpielPane";
-import TestPane from "spielsScreen/panes/TestPane";
-import TranscriptPane from "spielsScreen/panes/TranscriptPane";
-import EditSpielNodeDialog from "spielsScreen/spielDialogs/EditLineDialog";
+import ChangeFaceChooser from "./fileDialogs/ChangeFaceChooser";
+import NewSpielDialog from "./fileDialogs/NewSpielDialog";
+import {InsertPosition} from "./panes/SpielNodeView";
+import SpielPane from "./panes/SpielPane";
+import TestPane from "./panes/TestPane";
+import TranscriptPane from "./panes/TranscriptPane";
+import EditSpielNodeDialog from "./spielDialogs/EditLineDialog";
 import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import {TextConsoleLine} from "ui/TextConsoleBuffer";
@@ -69,7 +69,7 @@ function SpielsScreen() {
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [dragMeasurements, setDragMeasurements] = useState<DragMeasurements>(createDragMeasurements());
   const [insertAfterNodeNo, setInsertAfterNodeNo] = useState<InsertPosition|null>(null);
-  const [revision, setRevision] = useState<Revision|null>(getRevisionForMount());
+  const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [disabled, setDisabled] = useState<boolean>(true);
@@ -92,9 +92,10 @@ function SpielsScreen() {
   }, []);
   
   useEffect(() => {
-    const nodeCount = revision?.spiel.nodes.length;
-    if (nodeCount === undefined) return;
+    if (!revision) return;
+    const nodeCount = revision.spiel.nodes.length;
     updateDragMeasurementsToMatchNodeCount(nodeCount, dragMeasurements, setDragMeasurements);
+    setFaceEmotionFromSpiel(revision.spiel);
   }, [revision, dragMeasurements]);
   
   const actionBarButtons = [
@@ -108,8 +109,6 @@ function SpielsScreen() {
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled},
     {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled}
   ];
-  
-  if (!revision) return null;
 
   return (
     <ScreenContainer documentName={documentName} actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.SPIELS}>
