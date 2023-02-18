@@ -9,6 +9,7 @@ import {
   initCore, 
   isHeadReady
 } from "./coreUtil";
+import {centerCanvasComponent} from "common/canvasComponentUtil";
 import {initFaceEvents} from "facesCommon/interactions/faceEventUtil";
 import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {
@@ -176,17 +177,11 @@ export function deinit() {
 
 export function isInitialized() { return _isInitialized; }
 
-function _centerCanvasComponent(component:CanvasComponent, canvasWidth:number, canvasHeight:number) {
-  const componentWidth = component.width, componentHeight = component.height;
-  component.offsetX = Math.round((canvasWidth - componentWidth) / 2);
-  component.offsetY = Math.round((canvasHeight - componentHeight) / 2);
-}
-
 export function onDrawFaceCanvas(context:CanvasRenderingContext2D) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
   context.clearRect(0, 0, canvasWidth, canvasHeight);
   const head = getHead();
-  _centerCanvasComponent(head, canvasWidth, canvasHeight);
+  centerCanvasComponent(head, canvasWidth, canvasHeight);
   head.render(context);
 }
 
