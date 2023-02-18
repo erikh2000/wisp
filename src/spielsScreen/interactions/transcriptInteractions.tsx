@@ -23,10 +23,3 @@ export function clearTranscript() {
   textConsoleBuffer.clear();
   if (setTranscriptLines) setTranscriptLines(textConsoleBuffer.lines);
 }
-
-export function addJunkText() { // TODO delete
-  addText('The quick brown fox jumped over the lazy dog.');
-  addText('The lazy dog hated that.');
-  addText('Just cuz your lazy does not mean people should jump over you.');
-  addText('Let sleeping dogs lie.');
-}

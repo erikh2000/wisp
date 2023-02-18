@@ -1,3 +1,4 @@
+import {initTest} from "./testInteractions";
 import {getActiveFaceName, getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
 import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {initFaceEvents} from 'facesCommon/interactions/faceEventUtil';
@@ -44,6 +45,7 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
   initFaceEvents(headComponent);
   await initCore(headComponent, setDisabled);
   initTranscript(setTranscriptLines);
+  initTest()
   const revision = { spiel };
   setRevision(revision);
   getRevisionManager().add(revision);

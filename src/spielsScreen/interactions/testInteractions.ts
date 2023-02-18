@@ -1,3 +1,5 @@
+import {addText} from "./transcriptInteractions";
+import ConversationManager from "conversations/ConversationManager";
 import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import {setEmotion} from "facesCommon/interactions/faceEventUtil";
@@ -6,6 +8,8 @@ import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil"
 
 import {CanvasComponent} from "sl-web-face";
 import { Spiel } from 'sl-spiel';
+
+let conversationManager:ConversationManager|null = null;
 
 function _centerCanvasComponent(component:CanvasComponent, canvasWidth:number, canvasHeight:number) {
   const componentWidth = component.width, componentHeight = component.height;
@@ -36,4 +40,19 @@ export function setFaceEmotionFromSpiel(spiel:Spiel) {
   if (spielEmotion === undefined) return;
   const emotion = spielEmotionToEmotion(spielEmotion);
   setEmotion(emotion);
+}
+
+export function initTest() {
+  conversationManager = new ConversationManager();
+  conversationManager.bindOnSayLine((line) => {
+    addText(`${line.character}: ${line.dialogue}`);
+  });
+  conversationManager.bindOnSetEmotion((emotion) => {
+    setEmotion(emotion);
+  });
+}
+
+export function startTest(spiel:Spiel) {
+  if (!conversationManager) throw Error('Unexpected');
+  conversationManager.play(spiel);
 }

@@ -26,7 +26,7 @@ import {
 } from "./interactions/editInteractions";
 import {exportSpiel, importSpiel, onNewSpielName} from "./interactions/fileInteractions";
 import {init, InitResults} from "./interactions/generalInteractions";
-import {onChangeFace, setFaceEmotionFromSpiel} from "./interactions/testInteractions";
+import {onChangeFace, setFaceEmotionFromSpiel, startTest} from "./interactions/testInteractions";
 import {getRevisionForMount, onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import AddLineDialog from "./spielDialogs/AddLineDialog";
 import AddReplyDialog from "./spielDialogs/AddReplyDialog";
@@ -67,7 +67,7 @@ function _getSelectedRootReply(spiel:Spiel, selectedRootReplyNo:number):SpielRep
 
 function _getSelectedLineForReply(spiel:Spiel):SpielLine {
   const selectedNode = spiel.currentNode;
-  if (!selectedNode) throw Error('Unexpected'); // There should always be a selected line whenever a reply is being added/edited.
+  if (!selectedNode) return new SpielLine('', []);
   return selectedNode.line;
 }
 
@@ -136,7 +136,11 @@ function SpielsScreen() {
           selectedNodeNo={revision.spiel.currentNodeIndex}
         />
         <div className={styles.rightColumn}>
-          <TestPane headComponent={getHeadIfReady()} onChangeFace={() => setModalDialog(ChangeFaceChooser.name)} disabled={disabled} />
+          <TestPane 
+            headComponent={getHeadIfReady()} 
+            onChangeFace={() => setModalDialog(ChangeFaceChooser.name)}
+            onStart={() => startTest(revision.spiel)}
+            disabled={disabled} />
           <TranscriptPane lines={transcriptLines}/>
         </div>
       </div>
