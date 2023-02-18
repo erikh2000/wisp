@@ -34,9 +34,12 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
   const faceName = await getActiveFaceName();
   const spielName = await getActiveSpielName();
   const initResults:InitResults = { faceName, spielName };
+  const revisionManager = getRevisionManager();
+  revisionManager.disablePersistence();
   
   if (isInitialized) {
     _initForSubsequentMount(setTranscriptLines, setDisabled);
+    revisionManager.enablePersistence();
     return initResults; 
   }
   
@@ -46,9 +49,10 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
   await initCore(headComponent, setDisabled);
   initTranscript(setTranscriptLines);
   initTest()
+  revisionManager.enablePersistence();
   const revision = { spiel };
   setRevision(revision);
-  getRevisionManager().add(revision);
+  revisionManager.add(revision);
 
   isInitialized = true;
   return initResults;

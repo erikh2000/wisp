@@ -140,10 +140,14 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp, faceName:UNSPECIFIED_NAME };
   _addDocumentMouseUpListener(onFaceCanvasMouseUp);
   
+  const revisionManager = getRevisionManager();
+  revisionManager.disablePersistence();
+  
   initResults.faceName = await getActiveFaceName();
   
   if (_isInitialized) {
     await _initForSubsequentMount(_setDisabled, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts);
+    revisionManager.enablePersistence();
     return initResults
   }
   
@@ -157,6 +161,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   const [faceEventManager, faceId] = initFaceEvents(head);
   await initViewSettings('/speech/test-voices/test-voice-manifest.yml', faceEventManager, faceId);
 
+  revisionManager.enablePersistence();
   setUpRevisionForNewFace(head, setRevision);
   
   _isInitialized = true;

@@ -4,11 +4,13 @@ class RevisionManager<T> {
   private revisions:T[];
   private currentRevisionNo:number;
   private persister:RevisionPersister<T>;
+  private isPersisting:boolean;
   
   constructor(onPersistRevision:IPersistRevisionCallback<T>) {
     this.currentRevisionNo = -1;
     this.revisions = [];
     this.persister = new RevisionPersister<T>(onPersistRevision);
+    this.isPersisting = false;
   }
 
   clear() {
@@ -16,11 +18,19 @@ class RevisionManager<T> {
     this.revisions = [];
   }
   
+  enablePersistence() {
+    this.isPersisting = true;
+  }
+  
+  disablePersistence() {
+    this.isPersisting = false;
+  }
+  
   add(revision:T) {
     const removeFromNo = this.currentRevisionNo + 1;
     if (removeFromNo < this.revisions.length) this.revisions = this.revisions.slice(0, removeFromNo);
     this.revisions.push(revision);
-    this.persister.persist(revision);
+    if (this.isPersisting) this.persister.persist(revision);
     ++this.currentRevisionNo;
   }
   
@@ -50,14 +60,14 @@ class RevisionManager<T> {
   prev():T|null {
     if (this.currentRevisionNo <= 0) return null;
     const revision = this.revisions[--this.currentRevisionNo];
-    this.persister.persist(revision);
+    if (this.isPersisting) this.persister.persist(revision);
     return revision;
   }
   
   next():T|null {
     if (this.currentRevisionNo >= this.revisions.length - 1) return null;
     const revision = this.revisions[++this.currentRevisionNo];
-    this.persister.persist(revision);
+    if (this.isPersisting) this.persister.persist(revision);
     return revision;
   }
   
