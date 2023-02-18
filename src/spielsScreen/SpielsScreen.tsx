@@ -26,7 +26,7 @@ import {
 } from "./interactions/editInteractions";
 import {exportSpiel, importSpiel, onNewSpielName} from "./interactions/fileInteractions";
 import {init, InitResults} from "./interactions/generalInteractions";
-import {onChangeFace, setFaceEmotionFromSpiel, startTest} from "./interactions/testInteractions";
+import {onChangeFace, setFaceEmotionFromSpiel, startTest, stopTest} from "./interactions/testInteractions";
 import {getRevisionForMount, onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import AddLineDialog from "./spielDialogs/AddLineDialog";
 import AddReplyDialog from "./spielDialogs/AddReplyDialog";
@@ -72,16 +72,18 @@ function _getSelectedLineForReply(spiel:Spiel):SpielLine {
 }
 
 function SpielsScreen() {
+  const [disabled, setDisabled] = useState<boolean>(true);
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [dragMeasurements, setDragMeasurements] = useState<DragMeasurements>(createDragMeasurements());
-  const [insertAfterNodeNo, setInsertAfterNodeNo] = useState<InsertPosition|null>(null);
-  const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
+  const [insertAfterNodeNo, setInsertAfterNodeNo] = useState<InsertPosition|null>(null);
+  const [isTestRunning, setIsTestRunning] = useState<boolean>(false);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
-  const [disabled, setDisabled] = useState<boolean>(true);
+  const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [selectedReplyNo, setSelectedReplyNo] = useState<number>(-1);
   const [selectedRootReplyNo, setSelectedRootReplyNo] = useState<number>(-1);
   const [transcriptLines, setTranscriptLines] = useState<TextConsoleLine[]>([]);
+  const [testNodeNo, setTestNodeNo] = useState<number>(0);
   const navigate = useNavigate();
 
   useEffectAfterMount(() => {
@@ -115,13 +117,15 @@ function SpielsScreen() {
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled},
     {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled}
   ];
+  
+  const isSpielsPaneDisabled = disabled || isTestRunning;
 
   return (
     <ScreenContainer documentName={documentName} actionBarButtons={actionBarButtons} isControlPaneOpen={true} activeScreen={Screen.SPIELS}>
       <div className={styles.container}>
         <SpielPane 
-          spiel={revision.spiel} 
-          disabled={disabled}
+          spiel={revision.spiel}
+          disabled={isSpielsPaneDisabled}
           insertAfterNodeNo={insertAfterNodeNo}
           onNodeDrag={(event, nodeNo) => onNodeDrag(event, nodeNo, dragMeasurements, setInsertAfterNodeNo)}
           onNodeDragEnd={(event, nodeNo) => onNodeDragEnd(nodeNo, insertAfterNodeNo, revision.spiel, setRevision, setInsertAfterNodeNo)}
@@ -133,13 +137,15 @@ function SpielsScreen() {
           onSelectNodeForEdit={(nodeNo) => editSpielNode(revision.spiel, nodeNo, setRevision, setModalDialog)}
           onSelectNodeReplyForEdit={(nodeNo, replyNo) => openDialogToEditReply(revision.spiel, nodeNo, replyNo, setRevision, setSelectedReplyNo, setModalDialog)}
           onSelectRootReplyForEdit={(replyNo) => openDialogToEditRootReply(revision.spiel, replyNo, setRevision, setSelectedRootReplyNo, setModalDialog)}
-          selectedNodeNo={revision.spiel.currentNodeIndex}
+          selectedNodeNo={isTestRunning ? testNodeNo : revision.spiel.currentNodeIndex}
         />
         <div className={styles.rightColumn}>
           <TestPane 
             headComponent={getHeadIfReady()} 
             onChangeFace={() => setModalDialog(ChangeFaceChooser.name)}
-            onStart={() => startTest(revision.spiel)}
+            isTestRunning={isTestRunning}
+            onStart={() => startTest(revision.spiel, setIsTestRunning, setTestNodeNo)}
+            onStop={() => stopTest(setIsTestRunning)}
             disabled={disabled} />
           <TranscriptPane lines={transcriptLines}/>
         </div>

@@ -9,7 +9,7 @@ export enum ConversationState {
   IDLE
 }
 
-type SayLineCallback = (line: SpielLine) => void;
+type SayLineCallback = (nodeNo:number, line: SpielLine) => void;
 type SetEmotionCallback = (emotion: Emotion) => void;
 
 class ConversationManager {
@@ -41,9 +41,10 @@ class ConversationManager {
       return;
     }
     this._state = ConversationState.TALKING;
-    if (this._onSayLine) this._onSayLine(currentNode.line);
+    if (this._onSayLine) this._onSayLine(this._spiel.currentNodeIndex, currentNode.line);
     if (this._onSetEmotion) this._onSetEmotion(spielEmotionToEmotion(currentNode.line.emotion));
-    setTimeout(() => { // TODO replace with something better.
+    
+    setTimeout(() => {
       if (!this._spiel || this._state === ConversationState.STOPPED) return;
       if (!this._spiel.hasNext) { this._state = ConversationState.IDLE; return; }
       this._spiel.moveNext();
@@ -60,6 +61,9 @@ class ConversationManager {
     this._playCurrentNode();
   }
   
+  stop() {
+    this._state = ConversationState.STOPPED;
+  }
 }
 
 export default ConversationManager;

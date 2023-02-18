@@ -35,25 +35,32 @@ function _getStyleForInsertPosition(insertPosition:InsertPosition) {
   }
 }
 
-function _renderReplies(replies:SpielReply[], onSelectReplyForEdit:(replyNo:number) => void) {
+function _renderReplies(replies:SpielReply[], onSelectReplyForEdit:(replyNo:number) => void, disabled?:boolean) {
   if (replies.length === 0) return null;
   const renderedReplies = replies.map((reply, replyNo) => (
     <SpielReplyView 
       onEditReply={() => onSelectReplyForEdit(replyNo)} 
       key={replyNo} 
-      reply={reply} />
+      reply={reply} 
+      disabled={disabled}
+    />
   ));
   return <div className={styles.replyContainer}>{renderedReplies}</div>;
 }
+
+function _getContainerStyle(isSelected:boolean, insertPosition:InsertPosition, disabled?:boolean) {
+  if (disabled) return isSelected ? styles.containerDisabledSelected : styles.containerDisabled;
+  return `${isSelected ? styles.containerSelected : styles.container} ${_getStyleForInsertPosition(insertPosition)}`
+}
 function SpielNodeView(props:IProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { displayInsertPosition, isSelected, lastCharacterName, lastEmotion, node, onNodeDrag, onNodeDragEnd,
+  const { disabled, displayInsertPosition, isSelected, lastCharacterName, lastEmotion, node, onNodeDrag, onNodeDragEnd,
     onReceiveNodeHeight, onSelect, onSelectForEdit, onSelectReplyForEdit } = props;
   const parenthetical = node.line.emotion !== lastEmotion 
     ? <span className={styles.parenthetical}>{spielEmotionToParenthetical(node.line.emotion)}</span> : null;
   const character = node.line.character === lastCharacterName ? null : <span className={styles.character}>{node.line.character}</span>;
-  const renderedReplies = _renderReplies(node.replies, onSelectReplyForEdit);
-  const className = `${isSelected ? styles.containerSelected : styles.container} ${_getStyleForInsertPosition(displayInsertPosition)}`;
+  const renderedReplies = _renderReplies(node.replies, onSelectReplyForEdit, disabled);
+  const className = _getContainerStyle(isSelected, displayInsertPosition, disabled);
   
   useEffect(() => {
     if (!containerRef.current) return;
@@ -63,12 +70,12 @@ function SpielNodeView(props:IProps) {
   return (
     <div 
         className={className}
-        onClick={() => onSelect()}
-        onDoubleClick={() => onSelectForEdit()}
-        onDrag={onNodeDrag}
-        onDragEnd={onNodeDragEnd}
+        onClick={!disabled ? () => onSelect() : undefined}
+        onDoubleClick={!disabled ? () => onSelectForEdit() : undefined}
+        onDrag={!disabled ? onNodeDrag : undefined}
+        onDragEnd={!disabled ? onNodeDragEnd : undefined}
         ref={containerRef}
-        draggable
+        draggable={!disabled}
     >
       {character}
       {parenthetical}

@@ -15,11 +15,12 @@ function _onDoubleClick(event:any, onEditReply:() => void) {
 }
 
 function SpielReplyView(props:IProps) {
-  const {reply, onEditReply} = props;
+  const {disabled, reply, onEditReply} = props;
+  const onDoubleClick = disabled ? undefined : (event:any) => _onDoubleClick(event, onEditReply);
   return (
-    <div className={styles.container} onDoubleClick={(event) => _onDoubleClick(event, onEditReply)}>
+    <div className={styles.container} onDoubleClick={onDoubleClick}>
       {summarizeTextArray(reply.matchCriteria)} &#8594; {summarizeTextArray(reply.line.dialogue)}</div>
   );
-}
+} 
 
 export default SpielReplyView;

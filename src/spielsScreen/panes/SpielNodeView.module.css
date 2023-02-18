@@ -1,12 +1,27 @@
 @value colors: "ui/commonPalette.module.css";
 @value button-highlight from colors;
 
-.container {
+.containerBase {
     padding-bottom: .5rem;
-    cursor: pointer;
     border-style: solid;
     border-color: transparent;
     text-align: center;
+}
+
+.container {
+    composes: containerBase;
+    cursor: pointer;
+}
+
+.containerDisabled {
+    composes: containerBase;
+    cursor: default;
+    opacity: .5;
+}
+
+.containerDisabledSelected {
+    composes: containerDisabled;
+    border-color: button-highlight;
 }
 
 .containerSelected {

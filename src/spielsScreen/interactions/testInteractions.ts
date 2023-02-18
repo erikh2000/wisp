@@ -8,7 +8,7 @@ import {setHead} from "spielsScreen/interactions/coreUtil"
 import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil";
 
 import {CanvasComponent} from "sl-web-face";
-import { Spiel } from 'sl-spiel';
+import { Spiel, SpielLine } from 'sl-spiel';
 
 let conversationManager:ConversationManager|null = null;
 let lastCanvasWidth = 0, lastCanvasHeight = 0;
@@ -45,15 +45,28 @@ export function setFaceEmotionFromSpiel(spiel:Spiel) {
 
 export function initTest() {
   conversationManager = new ConversationManager();
-  conversationManager.bindOnSayLine((line) => {
-    addText(`${line.character}: ${line.dialogue}`);
-  });
   conversationManager.bindOnSetEmotion((emotion) => {
     setEmotion(emotion);
   });
 }
 
-export function startTest(spiel:Spiel) {
+function _onSayLine(nodeNo:number, line:SpielLine, setTestNodeNo:Function) {
+  addText(`${line.character}: ${line.nextDialogue()}`);
+  setTestNodeNo(nodeNo);
+}
+
+export function startTest(spiel:Spiel, setIsTestRunning:Function, setTestNodeNo:Function) {
   if (!conversationManager) throw Error('Unexpected');
+  addText('Started test.');
+  conversationManager.bindOnSayLine((nodeNo:number, line:SpielLine) => _onSayLine(nodeNo, line, setTestNodeNo));
   conversationManager.play(spiel);
+  setIsTestRunning(true);
+}
+
+export function stopTest(setIsTestRunning:Function) {
+  if (!conversationManager) throw Error('Unexpected');
+  addText('Stopped test.');
+  addText('---');
+  conversationManager.stop();
+  setIsTestRunning(false);
 }

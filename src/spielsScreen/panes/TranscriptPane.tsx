@@ -12,6 +12,7 @@ interface IProps {
 }
 
 function _onRenderLine(key:number, text:string):JSX.Element {
+  if (text === '---') return (<hr key={key} />);
   return (<p key={key}>{text}</p>);
 }
 
