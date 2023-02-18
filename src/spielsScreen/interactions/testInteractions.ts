@@ -1,4 +1,5 @@
 import {addText} from "./transcriptInteractions";
+import {centerCanvasComponent} from "common/canvasComponentUtil";
 import ConversationManager from "conversations/ConversationManager";
 import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
@@ -10,17 +11,17 @@ import {CanvasComponent} from "sl-web-face";
 import { Spiel } from 'sl-spiel';
 
 let conversationManager:ConversationManager|null = null;
-
-function _centerCanvasComponent(component:CanvasComponent, canvasWidth:number, canvasHeight:number) {
-  const componentWidth = component.width, componentHeight = component.height;
-  component.offsetX = Math.round((canvasWidth - componentWidth) / 2);
-  component.offsetY = Math.round((canvasHeight - componentHeight) / 2);
-}
+let lastCanvasWidth = 0, lastCanvasHeight = 0;
 
 export function onDrawFaceCanvas(context:CanvasRenderingContext2D, headComponent:CanvasComponent) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
-  context.clearRect(0, 0, canvasWidth, canvasHeight);
-  _centerCanvasComponent(headComponent, canvasWidth, canvasHeight);
+  if (canvasWidth !== lastCanvasWidth || canvasHeight !== lastCanvasHeight) {
+    console.log(canvasWidth, canvasHeight);
+    centerCanvasComponent(headComponent, canvasWidth, canvasHeight);
+    lastCanvasWidth = canvasWidth;
+    lastCanvasHeight = canvasHeight;
+  }
+  context.clearRect(0, 0, canvasWidth, canvasHeight);;
   headComponent.render(context);
 }
 
