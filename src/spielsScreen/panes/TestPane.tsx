@@ -14,7 +14,8 @@ interface IProps {
   isTestRunning:boolean,
   onChangeFace:EmptyCallback,
   onStart:EmptyCallback,
-  onStop:EmptyCallback
+  onStop:EmptyCallback,
+  subtitle:string|null
 }
 
 function _generateButtonDefinitions(isTestRunning:boolean, onChangeFace:EmptyCallback, onStart:EmptyCallback, 
@@ -27,7 +28,7 @@ function _generateButtonDefinitions(isTestRunning:boolean, onChangeFace:EmptyCal
 }
 
 function TestPane(props:IProps) {
-  const { disabled, isTestRunning, headComponent, onChangeFace, onStart, onStop } = props;
+  const { disabled, isTestRunning, headComponent, onChangeFace, onStart, onStop, subtitle } = props;
   
   const faceContent:JSX.Element = headComponent !== null 
     ? <Canvas className={styles.faceCanvas} onDraw={context => onDrawFaceCanvas(context, headComponent)} isAnimated={true} />
@@ -35,9 +36,11 @@ function TestPane(props:IProps) {
   
   const buttonDefs = _generateButtonDefinitions(isTestRunning, onChangeFace, onStart, onStop, disabled);
   
+  const caption = isTestRunning ? 'Test (running)' : 'Test';
   return (
-    <InnerContentPane className={styles.testPane} caption='Test' buttons={buttonDefs}>
+    <InnerContentPane className={styles.testPane} caption={caption} buttons={buttonDefs}>
       {faceContent}
+      <span className={styles.subtitle}>{subtitle}</span>
     </InnerContentPane>
   );
 }

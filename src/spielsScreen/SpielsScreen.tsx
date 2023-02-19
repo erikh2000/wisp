@@ -82,6 +82,7 @@ function SpielsScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [selectedReplyNo, setSelectedReplyNo] = useState<number>(-1);
   const [selectedRootReplyNo, setSelectedRootReplyNo] = useState<number>(-1);
+  const [subtitle, setSubtitle] = useState<string>('');
   const [transcriptLines, setTranscriptLines] = useState<TextConsoleLine[]>([]);
   const [testNodeNo, setTestNodeNo] = useState<number>(0);
   const navigate = useNavigate();
@@ -144,9 +145,11 @@ function SpielsScreen() {
             headComponent={getHeadIfReady()} 
             onChangeFace={() => setModalDialog(ChangeFaceChooser.name)}
             isTestRunning={isTestRunning}
-            onStart={() => startTest(revision.spiel, setIsTestRunning, setTestNodeNo)}
+            onStart={() => startTest(revision.spiel, setIsTestRunning, setTestNodeNo, setSubtitle)}
             onStop={() => stopTest(setIsTestRunning)}
-            disabled={disabled} />
+            disabled={disabled}
+            subtitle={subtitle}
+          />
           <TranscriptPane lines={transcriptLines}/>
         </div>
       </div>

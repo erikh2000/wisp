@@ -11,17 +11,11 @@ import {CanvasComponent} from "sl-web-face";
 import { Spiel, SpielLine } from 'sl-spiel';
 
 let conversationManager:ConversationManager|null = null;
-let lastCanvasWidth = 0, lastCanvasHeight = 0;
 
 export function onDrawFaceCanvas(context:CanvasRenderingContext2D, headComponent:CanvasComponent) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
-  if (canvasWidth !== lastCanvasWidth || canvasHeight !== lastCanvasHeight) {
-    console.log(canvasWidth, canvasHeight);
-    centerCanvasComponent(headComponent, canvasWidth, canvasHeight);
-    lastCanvasWidth = canvasWidth;
-    lastCanvasHeight = canvasHeight;
-  }
-  context.clearRect(0, 0, canvasWidth, canvasHeight);;
+  centerCanvasComponent(headComponent, canvasWidth, canvasHeight);
+  context.clearRect(0, 0, canvasWidth, canvasHeight);
   headComponent.render(context);
 }
 
@@ -50,15 +44,17 @@ export function initTest() {
   });
 }
 
-function _onSayLine(nodeNo:number, line:SpielLine, setTestNodeNo:Function) {
-  addText(`${line.character}: ${line.nextDialogue()}`);
+function _onSayLine(nodeNo:number, line:SpielLine, setTestNodeNo:Function, setSubtitle:Function) {
+  const dialogue = line.nextDialogue();
+  setSubtitle(dialogue);
+  addText(`${line.character}: ${dialogue}`);
   setTestNodeNo(nodeNo);
 }
 
-export function startTest(spiel:Spiel, setIsTestRunning:Function, setTestNodeNo:Function) {
+export function startTest(spiel:Spiel, setIsTestRunning:Function, setTestNodeNo:Function, setSubtitle:Function) {
   if (!conversationManager) throw Error('Unexpected');
   addText('Started test.');
-  conversationManager.bindOnSayLine((nodeNo:number, line:SpielLine) => _onSayLine(nodeNo, line, setTestNodeNo));
+  conversationManager.bindOnSayLine((nodeNo:number, line:SpielLine) => _onSayLine(nodeNo, line, setTestNodeNo, setSubtitle));
   conversationManager.play(spiel);
   setIsTestRunning(true);
 }
