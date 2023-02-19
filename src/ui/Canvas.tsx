@@ -20,7 +20,6 @@ interface IProps {
 function _updateCanvasDimensions(container:HTMLDivElement, setContainerDimensions:any) {
   const CX_PADDING = 8, CY_PADDING = 8; // I would like to figure out what is causing the need for this padding.
   const nextDimensions:[number,number] = [container.clientWidth - CX_PADDING, container.clientHeight - CY_PADDING];
-  console.log(`_updateCanvasDimensions: ${nextDimensions}`);
   setContainerDimensions(nextDimensions);
 }
 
