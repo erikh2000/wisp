@@ -107,6 +107,12 @@ function SpielsScreen() {
     setFaceEmotionFromSpiel(revision.spiel);
   }, [revision, dragMeasurements]);
   
+  useEffect(() => {
+    if (isTestRunning) return;
+    setSubtitle('');
+    setFaceEmotionFromSpiel(revision.spiel);
+  }, [isTestRunning]);
+  
   const actionBarButtons = [
     {text:'New', onClick:doNothing, groupNo:0, disabled},
     {text:'Open', onClick:doNothing, groupNo:0, disabled},
