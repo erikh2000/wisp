@@ -65,7 +65,7 @@ function SpielNodeView(props:IProps) {
   useEffect(() => {
     if (!containerRef.current) return;
     onReceiveNodeHeight(containerRef.current.clientHeight);
-  }, [containerRef.current?.clientHeight]);
+  }, [containerRef.current?.clientHeight, onReceiveNodeHeight]);
   
   return (
     <div 

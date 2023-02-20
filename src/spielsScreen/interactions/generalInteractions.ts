@@ -8,6 +8,7 @@ import {bindSetTranscriptLines, initTranscript} from "./transcriptInteractions";
 import {getRevisionManager} from "./revisionUtil";
 
 import { Spiel, importSpielFile } from 'sl-spiel';
+import { init as initWebSpeech } from 'sl-web-speech';
 
 let isInitialized = false;
 
@@ -47,6 +48,7 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
   const headComponent = await loadFaceFromName(faceName);
   initFaceEvents(headComponent);
   await initCore(headComponent, setDisabled);
+  await initWebSpeech();
   initTranscript(setTranscriptLines);
   initTest()
   revisionManager.enablePersistence();

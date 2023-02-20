@@ -7,8 +7,8 @@ import {setEmotion} from "facesCommon/interactions/faceEventUtil";
 import {setHead} from "spielsScreen/interactions/coreUtil"
 import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil";
 
-import {CanvasComponent} from "sl-web-face";
-import { Spiel, SpielLine } from 'sl-spiel';
+import {CanvasComponent, Emotion} from "sl-web-face";
+import { Spiel } from 'sl-spiel';
 
 let conversationManager:ConversationManager|null = null;
 
@@ -44,18 +44,18 @@ export function initTest() {
   });
 }
 
-function _onSayLine(nodeNo:number, line:SpielLine, setTestNodeNo:Function, setSubtitle:Function) {
-  const dialogue = line.nextDialogue();
+function _onSayLine(nodeNo:number, character:string, _emotion:Emotion, dialogue:string, setTestNodeNo:Function, setSubtitle:Function) {
   setSubtitle(dialogue);
-  addText(`${line.character}: ${dialogue}`);
+  addText(`${character}: ${dialogue}`);
   setTestNodeNo(nodeNo);
 }
 
-export function startTest(spiel:Spiel, setIsTestRunning:Function, setTestNodeNo:Function, setSubtitle:Function) {
+export function startTest(spiel:Spiel, spielName:string, setIsTestRunning:Function, setTestNodeNo:Function, setSubtitle:Function) {
   if (!conversationManager) throw Error('Unexpected');
   addText('Started test.');
-  conversationManager.bindOnSayLine((nodeNo:number, line:SpielLine) => _onSayLine(nodeNo, line, setTestNodeNo, setSubtitle));
-  conversationManager.play(spiel);
+  conversationManager.bindOnSayLine((nodeNo:number, character:string, emotion:Emotion, dialogue:string) => 
+    _onSayLine(nodeNo, character, emotion, dialogue, setTestNodeNo, setSubtitle));
+  conversationManager.play(spiel, spielName);
   setIsTestRunning(true);
 }
 

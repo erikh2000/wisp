@@ -5,7 +5,7 @@ import {
   BlinkController,
   Emotion,
   LidLevel,
-  SpeechAudio
+  ISpeechAudio
 } from "sl-web-face";
 
 let faceEventManager:FaceEventManager|null;
@@ -39,7 +39,7 @@ export function setLidLevel(lidLevel:LidLevel) {
   faceEventManager.setLidLevel(faceId, lidLevel);
 }
 
-export function setSpeechAudioSpeakingFace(speechAudio:SpeechAudio) {
+export function setSpeechAudioSpeakingFace(speechAudio:ISpeechAudio) {
   if (!faceEventManager) throw Error('Unexpected');
   speechAudio.setSpeakingFace(faceEventManager, faceId);
 }

@@ -111,7 +111,7 @@ function SpielsScreen() {
     if (isTestRunning) return;
     setSubtitle('');
     setFaceEmotionFromSpiel(revision.spiel);
-  }, [isTestRunning]);
+  }, [isTestRunning, revision.spiel]);
   
   const actionBarButtons = [
     {text:'New', onClick:doNothing, groupNo:0, disabled},
@@ -151,7 +151,7 @@ function SpielsScreen() {
             headComponent={getHeadIfReady()} 
             onChangeFace={() => setModalDialog(ChangeFaceChooser.name)}
             isTestRunning={isTestRunning}
-            onStart={() => startTest(revision.spiel, setIsTestRunning, setTestNodeNo, setSubtitle)}
+            onStart={() => startTest(revision.spiel, documentName, setIsTestRunning, setTestNodeNo, setSubtitle)}
             onStop={() => stopTest(setIsTestRunning)}
             disabled={disabled}
             subtitle={subtitle}
