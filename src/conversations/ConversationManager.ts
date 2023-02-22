@@ -5,6 +5,7 @@ import {UNSPECIFIED_NAME} from "persistence/projects";
 
 import {Emotion, FakeSpeechAudio, ISpeechAudio} from 'sl-web-face';
 import { Spiel } from 'sl-spiel';
+import {calcEndOfDialoguePause} from "sl-web-speech";
 
 export enum ConversationState {
   STOPPED,
@@ -18,8 +19,11 @@ type SetEmotionCallback = (emotion: Emotion) => void;
 function _onLineEnd(spiel:Spiel, conversationManager:ConversationManager) {
   if (conversationManager.state === ConversationState.STOPPED) return;
   if (!spiel.hasNext) { conversationManager.setIdle(); return; }
-  spiel.moveNext();
-  conversationManager._playCurrentNode();
+  
+  setTimeout(() => {
+    spiel.moveNext();
+    conversationManager._playCurrentNode();
+  }, conversationManager.pendingPauseDuration);
 }
 
 // Call init() from sl-web-speech before using this class.
@@ -31,6 +35,7 @@ class ConversationManager {
   private _onSetEmotion: SetEmotionCallback|null;
   private _speechAudioIndex: SpeechAudioIndex|null;
   private _currentSpeechAudio: ISpeechAudio|null;
+  private _pendingPauseDuration: number;
   
   constructor() {
     this._spiel = null;
@@ -40,9 +45,12 @@ class ConversationManager {
     this._onSetEmotion = null;
     this._speechAudioIndex = null;
     this._currentSpeechAudio = null;
+    this._pendingPauseDuration = 0;
   }
   
   get state() { return this._state; }
+  
+  get pendingPauseDuration() { return this._pendingPauseDuration; }
   
   bindOnSayLine(onSayLine: SayLineCallback) {
     this._onSayLine = onSayLine;
@@ -57,10 +65,12 @@ class ConversationManager {
   }
   
   _playCurrentNode() {
+    this._pendingPauseDuration = 0;
     if (!this._spiel) return;
     const currentNode = this._spiel.currentNode;
     if (!currentNode) {
       this._state = ConversationState.IDLE;
+      this._currentSpeechAudio = null;
       return;
     }
     this._state = ConversationState.TALKING;
@@ -74,14 +84,9 @@ class ConversationManager {
     this._currentSpeechAudio = this._speechAudioIndex?.findSpeechAudio(this._spielName, character, emotion, dialogue) || null;
     if (!this._currentSpeechAudio) this._currentSpeechAudio = new FakeSpeechAudio(dialogue);
     setSpeechAudioSpeakingFace(this._currentSpeechAudio);
-    this._currentSpeechAudio.play(() => _onLineEnd(this._spiel as Spiel, this));
+    this._pendingPauseDuration = calcEndOfDialoguePause(dialogue);
     
-    setTimeout(() => {
-      if (!this._spiel || this._state === ConversationState.STOPPED) return;
-      if (!this._spiel.hasNext) { this._state = ConversationState.IDLE; return; }
-      this._spiel.moveNext();
-      this._playCurrentNode();
-    }, 1000);
+    this._currentSpeechAudio.play(() => _onLineEnd(this._spiel as Spiel, this));
   }
   
   play(spiel: Spiel, spielName:string) {
@@ -89,6 +94,7 @@ class ConversationManager {
     this._spielName = spielName;
     if (!this._spiel.currentNode) {
       this._state = ConversationState.IDLE;
+      this._currentSpeechAudio = null;
       return;
     }
     this._playCurrentNode();
