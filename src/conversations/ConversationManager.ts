@@ -4,8 +4,9 @@ import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil"
 import {UNSPECIFIED_NAME} from "persistence/projects";
 
 import {Emotion, FakeSpeechAudio, ISpeechAudio} from 'sl-web-face';
-import { Spiel } from 'sl-spiel';
+import {Spiel} from 'sl-spiel';
 import {calcEndOfDialoguePause} from "sl-web-speech";
+import ConversationSpeed, {getMultiplierForConversationSpeed} from "./ConversationSpeed";
 
 export enum ConversationState {
   STOPPED,
@@ -21,6 +22,7 @@ function _onLineEnd(spiel:Spiel, conversationManager:ConversationManager) {
   if (!spiel.hasNext) { conversationManager.setIdle(); return; }
   
   setTimeout(() => {
+    if (conversationManager.state === ConversationState.STOPPED) return;
     spiel.moveNext();
     conversationManager._playCurrentNode();
   }, conversationManager.pendingPauseDuration);
@@ -36,6 +38,8 @@ class ConversationManager {
   private _speechAudioIndex: SpeechAudioIndex|null;
   private _currentSpeechAudio: ISpeechAudio|null;
   private _pendingPauseDuration: number;
+  private _speedMultiplier: number;
+  private _conversationSpeed: ConversationSpeed;
   
   constructor() {
     this._spiel = null;
@@ -46,9 +50,18 @@ class ConversationManager {
     this._speechAudioIndex = null;
     this._currentSpeechAudio = null;
     this._pendingPauseDuration = 0;
+    this._conversationSpeed = ConversationSpeed.SLOW;
+    this._speedMultiplier = getMultiplierForConversationSpeed(this._conversationSpeed);
   }
   
   get state() { return this._state; }
+  
+  get conversationSpeed() { return this._conversationSpeed; }
+  
+  set conversationSpeed(conversationSpeed: ConversationSpeed) {
+    this._conversationSpeed = conversationSpeed;
+    this._speedMultiplier = getMultiplierForConversationSpeed(this._conversationSpeed);
+  }
   
   get pendingPauseDuration() { return this._pendingPauseDuration; }
   
@@ -82,9 +95,9 @@ class ConversationManager {
     
     if (this._currentSpeechAudio) this._currentSpeechAudio.stop();
     this._currentSpeechAudio = this._speechAudioIndex?.findSpeechAudio(this._spielName, character, emotion, dialogue) || null;
-    if (!this._currentSpeechAudio) this._currentSpeechAudio = new FakeSpeechAudio(dialogue);
+    if (!this._currentSpeechAudio) this._currentSpeechAudio = new FakeSpeechAudio(dialogue, this._speedMultiplier);
     setSpeechAudioSpeakingFace(this._currentSpeechAudio);
-    this._pendingPauseDuration = calcEndOfDialoguePause(dialogue);
+    this._pendingPauseDuration = calcEndOfDialoguePause(dialogue, this._speedMultiplier);
     
     this._currentSpeechAudio.play(() => _onLineEnd(this._spiel as Spiel, this));
   }
@@ -101,6 +114,10 @@ class ConversationManager {
   }
   
   stop() {
+    if (this._currentSpeechAudio) { 
+      this._currentSpeechAudio.stop();
+      this._currentSpeechAudio = null;
+    }
     this._state = ConversationState.STOPPED;
   }
   

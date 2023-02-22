@@ -13,6 +13,11 @@ interface IProps {
 
 function _onRenderLine(key:number, text:string):JSX.Element {
   if (text === '---') return (<hr key={key} />);
+  if (text.startsWith('*')) {
+    // Get rid of asterisk at beginning and end of line.
+    text = text.trim().substring(1, text.length - 1);
+    return (<p key={key} className={styles.textItalics}>{text}</p>);
+  }
   return (<p key={key}>{text}</p>);
 }
 

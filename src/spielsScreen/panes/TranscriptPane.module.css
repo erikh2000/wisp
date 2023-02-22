@@ -5,3 +5,7 @@
 .textConsole {
     height:20rem;
 }
+
+.textItalics {
+    font-style: italic;
+}

@@ -9,6 +9,7 @@ import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil"
 
 import {CanvasComponent, Emotion} from "sl-web-face";
 import { Spiel } from 'sl-spiel';
+import ConversationSpeed from "../../conversations/ConversationSpeed";
 
 let conversationManager:ConversationManager|null = null;
 
@@ -52,7 +53,7 @@ function _onSayLine(nodeNo:number, character:string, _emotion:Emotion, dialogue:
 
 export function startTest(spiel:Spiel, spielName:string, setIsTestRunning:Function, setTestNodeNo:Function, setSubtitle:Function) {
   if (!conversationManager) throw Error('Unexpected');
-  addText('Started test.');
+  addText('*Started test.*');
   conversationManager.bindOnSayLine((nodeNo:number, character:string, emotion:Emotion, dialogue:string) => 
     _onSayLine(nodeNo, character, emotion, dialogue, setTestNodeNo, setSubtitle));
   conversationManager.play(spiel, spielName);
@@ -61,8 +62,15 @@ export function startTest(spiel:Spiel, spielName:string, setIsTestRunning:Functi
 
 export function stopTest(setIsTestRunning:Function) {
   if (!conversationManager) throw Error('Unexpected');
-  addText('Stopped test.');
+  addText('*Stopped test.*');
   addText('---');
   conversationManager.stop();
   setIsTestRunning(false);
+}
+
+export function updateTestOptions(conversationSpeed:ConversationSpeed, setConversationSpeed:Function, setModalDialog:Function) {
+  if (!conversationManager) throw Error('Unexpected');
+  conversationManager.conversationSpeed = conversationSpeed;
+  setConversationSpeed(conversationSpeed);
+  setModalDialog(null);
 }

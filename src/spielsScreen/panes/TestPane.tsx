@@ -13,28 +13,30 @@ interface IProps {
   headComponent:CanvasComponent|null,
   isTestRunning:boolean,
   onChangeFace:EmptyCallback,
+  onOptions:EmptyCallback,
   onStart:EmptyCallback,
   onStop:EmptyCallback,
   subtitle:string|null
 }
 
-function _generateButtonDefinitions(isTestRunning:boolean, onChangeFace:EmptyCallback, onStart:EmptyCallback, 
-                                    onStop:EmptyCallback, disabled?:boolean):ButtonDefinition[] {
+function _generateButtonDefinitions(isTestRunning:boolean, onChangeFace:EmptyCallback, onOptions:EmptyCallback, 
+                                    onStart:EmptyCallback, onStop:EmptyCallback, disabled?:boolean):ButtonDefinition[] {
   const toggleStartStop = isTestRunning ? {text:'Stop', onClick:onStop, disabled} : {text:'Start', onClick:onStart, disabled};
   return [
+    {text:'Options', onClick:onOptions, disabled},
     {text:'Change Face', onClick:onChangeFace, disabled},
     toggleStartStop
   ];
 }
 
 function TestPane(props:IProps) {
-  const { disabled, isTestRunning, headComponent, onChangeFace, onStart, onStop, subtitle } = props;
+  const { disabled, isTestRunning, headComponent, onChangeFace, onOptions, onStart, onStop, subtitle } = props;
   
   const faceContent:JSX.Element = headComponent !== null 
     ? <Canvas className={styles.faceCanvas} onDraw={context => onDrawFaceCanvas(context, headComponent)} isAnimated={true} />
     : <LoadingBox className={styles.faceLoadingBox} text='loading face' />;
   
-  const buttonDefs = _generateButtonDefinitions(isTestRunning, onChangeFace, onStart, onStop, disabled);
+  const buttonDefs = _generateButtonDefinitions(isTestRunning, onChangeFace, onOptions, onStart, onStop, disabled);
   
   const caption = isTestRunning ? 'Test (running)' : 'Test';
   return (

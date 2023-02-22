@@ -5,7 +5,8 @@ import {
   DragMeasurements,
   onNodeDrag,
   onNodeDragEnd,
-  updateDragMeasurements, updateDragMeasurementsToMatchNodeCount
+  updateDragMeasurements,
+  updateDragMeasurementsToMatchNodeCount
 } from "./interactions/dragInteractions";
 import {
   addReplyToSelectedNode,
@@ -26,16 +27,25 @@ import {
 } from "./interactions/editInteractions";
 import {exportSpiel, importSpiel, onNewSpielName} from "./interactions/fileInteractions";
 import {init, InitResults} from "./interactions/generalInteractions";
-import {onChangeFace, setFaceEmotionFromSpiel, startTest, stopTest} from "./interactions/testInteractions";
+import {
+  onChangeFace,
+  setFaceEmotionFromSpiel,
+  startTest,
+  stopTest,
+  updateTestOptions
+} from "./interactions/testInteractions";
 import {getRevisionForMount, onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import AddLineDialog from "./spielDialogs/AddLineDialog";
 import AddReplyDialog from "./spielDialogs/AddReplyDialog";
 import EditLineDialog from "./spielDialogs/EditLineDialog";
+import EditSpielNodeDialog from "./spielDialogs/EditLineDialog";
 import EditReplyDialog from "./spielDialogs/EditReplyDialog";
 import AddRootReplyDialog from "./spielDialogs/AddRootReplyDialog";
 import EditRootReplyDialog from "./spielDialogs/EditRootReplyDialog";
+import TestOptionsDialog from "./testDialogs/TestOptionsDialog";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import useEffectAfterMount from "common/useEffectAfterMount";
+import ConversationSpeed from "conversations/ConversationSpeed";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ChangeFaceChooser from "./fileDialogs/ChangeFaceChooser";
 import NewSpielDialog from "./fileDialogs/NewSpielDialog";
@@ -43,7 +53,6 @@ import {InsertPosition} from "./panes/SpielNodeView";
 import SpielPane from "./panes/SpielPane";
 import TestPane from "./panes/TestPane";
 import TranscriptPane from "./panes/TranscriptPane";
-import EditSpielNodeDialog from "./spielDialogs/EditLineDialog";
 import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import {TextConsoleLine} from "ui/TextConsoleBuffer";
@@ -72,6 +81,7 @@ function _getSelectedLineForReply(spiel:Spiel):SpielLine {
 }
 
 function SpielsScreen() {
+  const [conversationSpeed, setConversationSpeed] = useState<ConversationSpeed>(ConversationSpeed.NORMAL); // TODO - persist. Maybe it goes in revision?
   const [disabled, setDisabled] = useState<boolean>(true);
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [dragMeasurements, setDragMeasurements] = useState<DragMeasurements>(createDragMeasurements());
@@ -151,6 +161,7 @@ function SpielsScreen() {
             headComponent={getHeadIfReady()} 
             onChangeFace={() => setModalDialog(ChangeFaceChooser.name)}
             isTestRunning={isTestRunning}
+            onOptions={() => setModalDialog(TestOptionsDialog.name)}
             onStart={() => startTest(revision.spiel, documentName, setIsTestRunning, setTestNodeNo, setSubtitle)}
             onStop={() => stopTest(setIsTestRunning)}
             disabled={disabled}
@@ -209,6 +220,12 @@ function SpielsScreen() {
         isOpen={modalDialog === AddLineDialog.name} 
         onSubmit={(nextLine) => addSpielNode(revision.spiel, nextLine, setRevision, setModalDialog)} 
         onCancel={() => setModalDialog(null)} 
+      />
+      <TestOptionsDialog
+        defaultConversationSpeed={conversationSpeed}
+        isOpen={modalDialog === TestOptionsDialog.name}
+        onCancel={() => setModalDialog(null)}
+        onSubmit={nextConversationSpeed => updateTestOptions(nextConversationSpeed, setConversationSpeed, setModalDialog)}
       />
     </ScreenContainer>
   );
