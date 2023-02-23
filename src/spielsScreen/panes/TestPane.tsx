@@ -1,5 +1,5 @@
 import styles from "./TestPane.module.css";
-import { onDrawFaceCanvas } from "spielsScreen/interactions/testInteractions";
+import {isRecognizerReady, onDrawFaceCanvas} from "spielsScreen/interactions/testInteractions";
 import Canvas from "ui/Canvas";
 import InnerContentPane, { ButtonDefinition } from "ui/innerContentPane/InnerContentPane";
 import LoadingBox from "ui/LoadingBox";
@@ -31,12 +31,16 @@ function _generateButtonDefinitions(isTestRunning:boolean, onChangeFace:EmptyCal
 
 function TestPane(props:IProps) {
   const { disabled, isTestRunning, headComponent, onChangeFace, onOptions, onStart, onStop, subtitle } = props;
+  const isRecognizing = isRecognizerReady(); 
+  const useDisabled = disabled || headComponent === null || !isRecognizing;
   
-  const faceContent:JSX.Element = headComponent !== null 
+  const faceContent:JSX.Element = headComponent !== null && isRecognizing 
     ? <Canvas className={styles.faceCanvas} onDraw={context => onDrawFaceCanvas(context, headComponent)} isAnimated={true} />
-    : <LoadingBox className={styles.faceLoadingBox} text='loading face' />;
+    : headComponent === null 
+      ? <LoadingBox className={styles.loadingBox} text='loading face' />
+      : <LoadingBox className={styles.loadingBox} text='loading language model' />;
   
-  const buttonDefs = _generateButtonDefinitions(isTestRunning, onChangeFace, onOptions, onStart, onStop, disabled);
+  const buttonDefs = _generateButtonDefinitions(isTestRunning, onChangeFace, onOptions, onStart, onStop, useDisabled);
   
   const caption = isTestRunning ? 'Test (running)' : 'Test';
   return (

@@ -50,11 +50,13 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
   await initCore(headComponent, setDisabled);
   await initWebSpeech();
   initTranscript(setTranscriptLines);
-  initTest()
+
   revisionManager.enablePersistence();
   const revision = { spiel };
   setRevision(revision);
   revisionManager.add(revision);
+  
+  await initTest()
 
   isInitialized = true;
   return initResults;

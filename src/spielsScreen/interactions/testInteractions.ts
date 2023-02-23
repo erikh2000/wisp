@@ -1,6 +1,7 @@
 import {addText} from "./transcriptInteractions";
 import {centerCanvasComponent} from "common/canvasComponentUtil";
 import ConversationManager from "conversations/ConversationManager";
+import ConversationSpeed from "conversations/ConversationSpeed";
 import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import {setEmotion} from "facesCommon/interactions/faceEventUtil";
@@ -9,9 +10,11 @@ import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil"
 
 import {CanvasComponent, Emotion} from "sl-web-face";
 import { Spiel } from 'sl-spiel';
-import ConversationSpeed from "../../conversations/ConversationSpeed";
+import { Recognizer} from "sl-web-speech";
 
 let conversationManager:ConversationManager|null = null;
+let recognizer:Recognizer|null = null;
+let _isRecognizerReady:boolean = false;
 
 export function onDrawFaceCanvas(context:CanvasRenderingContext2D, headComponent:CanvasComponent) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
@@ -38,12 +41,37 @@ export function setFaceEmotionFromSpiel(spiel:Spiel) {
   setEmotion(emotion);
 }
 
-export function initTest() {
+function _onPartial(text:string) {
+  addText('PLAYER: ' + text);
+}
+
+function _onStartSpeaking() {
+  addText('*PLAYER started speaking.*');
+}
+
+function _onStopSpeaking() {
+  addText('*PLAYER stopped speaking.*');
+}
+
+export async function initTest():Promise<void> {
   conversationManager = new ConversationManager();
   conversationManager.bindOnSetEmotion((emotion) => {
     setEmotion(emotion);
   });
+  if (!recognizer) {
+    return new Promise((resolve) => {
+      recognizer = new Recognizer(() => {
+        _isRecognizerReady = true;
+        if (!recognizer) throw Error('Unexpected');
+        recognizer.bindCallbacks(_onPartial, _onStartSpeaking, _onStopSpeaking);
+        conversationManager?.bindRecognizer(recognizer);
+        resolve();
+      });
+    });
+  }
 }
+
+export function isRecognizerReady():boolean { return _isRecognizerReady; }
 
 function _onSayLine(nodeNo:number, character:string, _emotion:Emotion, dialogue:string, setTestNodeNo:Function, setSubtitle:Function) {
   setSubtitle(dialogue);
@@ -52,8 +80,9 @@ function _onSayLine(nodeNo:number, character:string, _emotion:Emotion, dialogue:
 }
 
 export function startTest(spiel:Spiel, spielName:string, setIsTestRunning:Function, setTestNodeNo:Function, setSubtitle:Function) {
-  if (!conversationManager) throw Error('Unexpected');
+  if (!conversationManager || !isRecognizerReady || !recognizer) throw Error('Unexpected');
   addText('*Started test.*');
+  recognizer.unmute();
   conversationManager.bindOnSayLine((nodeNo:number, character:string, emotion:Emotion, dialogue:string) => 
     _onSayLine(nodeNo, character, emotion, dialogue, setTestNodeNo, setSubtitle));
   conversationManager.play(spiel, spielName);
@@ -62,6 +91,7 @@ export function startTest(spiel:Spiel, spielName:string, setIsTestRunning:Functi
 
 export function stopTest(setIsTestRunning:Function) {
   if (!conversationManager) throw Error('Unexpected');
+  recognizer?.mute();
   addText('*Stopped test.*');
   addText('---');
   conversationManager.stop();

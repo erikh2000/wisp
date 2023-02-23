@@ -1,3 +1,4 @@
+import ConversationSpeed, {getMultiplierForConversationSpeed} from "./ConversationSpeed";
 import SpeechAudioIndex from "./SpeechAudioIndex";
 import {setSpeechAudioSpeakingFace} from "facesCommon/interactions/faceEventUtil";
 import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil";
@@ -5,8 +6,8 @@ import {UNSPECIFIED_NAME} from "persistence/projects";
 
 import {Emotion, FakeSpeechAudio, ISpeechAudio} from 'sl-web-face';
 import {Spiel} from 'sl-spiel';
-import {calcEndOfDialoguePause} from "sl-web-speech";
-import ConversationSpeed, {getMultiplierForConversationSpeed} from "./ConversationSpeed";
+import {calcEndOfDialoguePause, Recognizer} from "sl-web-speech";
+import {addText} from "../spielsScreen/interactions/transcriptInteractions";
 
 export enum ConversationState {
   STOPPED,
@@ -17,7 +18,8 @@ export enum ConversationState {
 type SayLineCallback = (nodeNo:number, character: string, emotion:Emotion, dialogue:string) => void;
 type SetEmotionCallback = (emotion: Emotion) => void;
 
-function _onLineEnd(spiel:Spiel, conversationManager:ConversationManager) {
+function _onLineEnd(spiel:Spiel, conversationManager:ConversationManager, recognizer:Recognizer|null) {
+  if (recognizer) { addText('unmute'); recognizer.unmute(); }
   if (conversationManager.state === ConversationState.STOPPED) return;
   if (!spiel.hasNext) { conversationManager.setIdle(); return; }
   
@@ -30,28 +32,30 @@ function _onLineEnd(spiel:Spiel, conversationManager:ConversationManager) {
 
 // Call init() from sl-web-speech before using this class.
 class ConversationManager {
+  private _conversationSpeed: ConversationSpeed;
+  private _currentSpeechAudio: ISpeechAudio|null;
+  private _onSayLine: SayLineCallback|null;
+  private _onSetEmotion: SetEmotionCallback|null;
+  private _pendingPauseDuration: number;
+  private _recognizer: Recognizer|null;
+  private _speechAudioIndex: SpeechAudioIndex|null;
+  private _speedMultiplier: number;
   private _spiel: Spiel|null;
   private _spielName: string;
   private _state: ConversationState;
-  private _onSayLine: SayLineCallback|null;
-  private _onSetEmotion: SetEmotionCallback|null;
-  private _speechAudioIndex: SpeechAudioIndex|null;
-  private _currentSpeechAudio: ISpeechAudio|null;
-  private _pendingPauseDuration: number;
-  private _speedMultiplier: number;
-  private _conversationSpeed: ConversationSpeed;
   
   constructor() {
+    this._conversationSpeed = ConversationSpeed.SLOW;
+    this._currentSpeechAudio = null;
+    this._onSayLine = null;
+    this._onSetEmotion = null;
+    this._pendingPauseDuration = 0;
+    this._recognizer = null;
+    this._speechAudioIndex = null;
+    this._speedMultiplier = getMultiplierForConversationSpeed(this._conversationSpeed);
     this._spiel = null;
     this._spielName = UNSPECIFIED_NAME
     this._state = ConversationState.STOPPED;
-    this._onSayLine = null;
-    this._onSetEmotion = null;
-    this._speechAudioIndex = null;
-    this._currentSpeechAudio = null;
-    this._pendingPauseDuration = 0;
-    this._conversationSpeed = ConversationSpeed.SLOW;
-    this._speedMultiplier = getMultiplierForConversationSpeed(this._conversationSpeed);
   }
   
   get state() { return this._state; }
@@ -71,6 +75,10 @@ class ConversationManager {
   
   bindOnSetEmotion(onSetEmotion: SetEmotionCallback) {
     this._onSetEmotion = onSetEmotion;
+  }
+  
+  bindRecognizer(recognizer:Recognizer) {
+    this._recognizer = recognizer;
   }
   
   bindSpeechAudioIndex(speechAudioIndex: SpeechAudioIndex) {
@@ -99,7 +107,8 @@ class ConversationManager {
     setSpeechAudioSpeakingFace(this._currentSpeechAudio);
     this._pendingPauseDuration = calcEndOfDialoguePause(dialogue, this._speedMultiplier);
     
-    this._currentSpeechAudio.play(() => _onLineEnd(this._spiel as Spiel, this));
+    if(this._recognizer) { addText('muted'); this._recognizer.mute(); }
+    this._currentSpeechAudio.play(() => _onLineEnd(this._spiel as Spiel, this, this._recognizer));
   }
   
   play(spiel: Spiel, spielName:string) {
