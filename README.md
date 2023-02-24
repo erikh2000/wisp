@@ -4,18 +4,24 @@
 
 ## Current Features
 
-* Create faces be combining reusable parts (eyes, nose, mouth).
+* Create faces by combining reusable parts (eyes, nose, mouth, accessories).
+* Selectable colors for hair, skin, and eyes.
 * Faces support a standard set of animations that always work the same. These include:
   * Displaying 11 different emotions
   * Lip sync animation with Blair visemes
   * Blinking and lid level adjustments
   * Looking at specific targets
 * Automatic lip animation based on processing of speech audio
+* Edit interactive dialogue (spiels).
+* Test conversations with characters using spiels and faces.
+* File management, saving, exporting
 
 ## Notably Missing / Broken
 
-* File management, saving, exporting
-* Many buttons that don't do anything when you click on them
+* Many buttons don't do anything when you click on them
+* Speech recognition and full interactive conversations not yet functioning.
+* Speech audio to dialogue mapping not yet functioning.
+* Scene editor/player not yet functioning.
 
 At some point, likely in 2023, I will deploy an MVP build to https://wisp.studio that has a full workflow ready to be used. At that point, the version in package.json will be updated to 1.x.x and this README will have much less caveats and apologies.
 
