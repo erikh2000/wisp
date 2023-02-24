@@ -7,7 +7,6 @@ import {UNSPECIFIED_NAME} from "persistence/projects";
 import {Emotion, FakeSpeechAudio, ISpeechAudio} from 'sl-web-face';
 import {Spiel} from 'sl-spiel';
 import {calcEndOfDialoguePause, Recognizer} from "sl-web-speech";
-import {addText} from "../spielsScreen/interactions/transcriptInteractions";
 
 export enum ConversationState {
   STOPPED,
@@ -19,7 +18,7 @@ type SayLineCallback = (nodeNo:number, character: string, emotion:Emotion, dialo
 type SetEmotionCallback = (emotion: Emotion) => void;
 
 function _onLineEnd(spiel:Spiel, conversationManager:ConversationManager, recognizer:Recognizer|null) {
-  if (recognizer) { addText('unmute'); recognizer.unmute(); }
+  if (recognizer) recognizer.unmute();
   if (conversationManager.state === ConversationState.STOPPED) return;
   if (!spiel.hasNext) { conversationManager.setIdle(); return; }
   
@@ -107,7 +106,7 @@ class ConversationManager {
     setSpeechAudioSpeakingFace(this._currentSpeechAudio);
     this._pendingPauseDuration = calcEndOfDialoguePause(dialogue, this._speedMultiplier);
     
-    if(this._recognizer) { addText('muted'); this._recognizer.mute(); }
+    if(this._recognizer) this._recognizer.mute();
     this._currentSpeechAudio.play(() => _onLineEnd(this._spiel as Spiel, this, this._recognizer));
   }
   

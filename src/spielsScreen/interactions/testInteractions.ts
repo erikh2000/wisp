@@ -15,6 +15,7 @@ import { Recognizer} from "sl-web-speech";
 let conversationManager:ConversationManager|null = null;
 let recognizer:Recognizer|null = null;
 let _isRecognizerReady:boolean = false;
+let lastPartialText = '';
 
 export function onDrawFaceCanvas(context:CanvasRenderingContext2D, headComponent:CanvasComponent) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
@@ -40,16 +41,17 @@ export function setFaceEmotionFromSpiel(spiel:Spiel) {
   const emotion = spielEmotionToEmotion(spielEmotion);
   setEmotion(emotion);
 }
-
 function _onPartial(text:string) {
-  addText('PLAYER: ' + text);
+  lastPartialText = text;
 }
 
 function _onStartSpeaking() {
   addText('*PLAYER started speaking.*');
+  lastPartialText = '';
 }
 
 function _onStopSpeaking() {
+  addText('PLAYER: ' + lastPartialText);
   addText('*PLAYER stopped speaking.*');
 }
 
