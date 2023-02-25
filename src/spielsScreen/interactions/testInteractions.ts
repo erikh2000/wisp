@@ -15,7 +15,6 @@ import { Recognizer} from "sl-web-speech";
 let conversationManager:ConversationManager|null = null;
 let recognizer:Recognizer|null = null;
 let _isRecognizerReady:boolean = false;
-let lastPartialText = '';
 
 export function onDrawFaceCanvas(context:CanvasRenderingContext2D, headComponent:CanvasComponent) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
@@ -41,19 +40,6 @@ export function setFaceEmotionFromSpiel(spiel:Spiel) {
   const emotion = spielEmotionToEmotion(spielEmotion);
   setEmotion(emotion);
 }
-function _onPartial(text:string) {
-  lastPartialText = text;
-}
-
-function _onStartSpeaking() {
-  addText('*PLAYER started speaking.*');
-  lastPartialText = '';
-}
-
-function _onStopSpeaking() {
-  addText('PLAYER: ' + lastPartialText);
-  addText('*PLAYER stopped speaking.*');
-}
 
 export async function initTest():Promise<void> {
   conversationManager = new ConversationManager();
@@ -64,9 +50,9 @@ export async function initTest():Promise<void> {
     return new Promise((resolve) => {
       recognizer = new Recognizer(() => {
         _isRecognizerReady = true;
-        if (!recognizer) throw Error('Unexpected');
-        recognizer.bindCallbacks(_onPartial, _onStartSpeaking, _onStopSpeaking);
-        conversationManager?.bindRecognizer(recognizer);
+        if (!recognizer || !conversationManager) throw Error('Unexpected');
+        conversationManager.bindRecognizer(recognizer);
+        conversationManager.bindOnTranscribe(addText);
         resolve();
       });
     });

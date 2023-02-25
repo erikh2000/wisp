@@ -11,11 +11,13 @@ import {calcEndOfDialoguePause, Recognizer} from "sl-web-speech";
 export enum ConversationState {
   STOPPED,
   TALKING,
-  IDLE
+  IDLE,
+  LISTENING
 }
 
 type SayLineCallback = (nodeNo:number, character: string, emotion:Emotion, dialogue:string) => void;
 type SetEmotionCallback = (emotion: Emotion) => void;
+type TranscribeCallback = (text:string) => void;
 
 function _onLineEnd(spiel:Spiel, conversationManager:ConversationManager, recognizer:Recognizer|null) {
   if (recognizer) recognizer.unmute();
@@ -33,8 +35,10 @@ function _onLineEnd(spiel:Spiel, conversationManager:ConversationManager, recogn
 class ConversationManager {
   private _conversationSpeed: ConversationSpeed;
   private _currentSpeechAudio: ISpeechAudio|null;
+  private _lastPartialText: string;
   private _onSayLine: SayLineCallback|null;
   private _onSetEmotion: SetEmotionCallback|null;
+  private _onTranscribe: TranscribeCallback|null;
   private _pendingPauseDuration: number;
   private _recognizer: Recognizer|null;
   private _speechAudioIndex: SpeechAudioIndex|null;
@@ -46,8 +50,10 @@ class ConversationManager {
   constructor() {
     this._conversationSpeed = ConversationSpeed.SLOW;
     this._currentSpeechAudio = null;
+    this._lastPartialText = '';
     this._onSayLine = null;
     this._onSetEmotion = null;
+    this._onTranscribe = null;
     this._pendingPauseDuration = 0;
     this._recognizer = null;
     this._speechAudioIndex = null;
@@ -55,6 +61,30 @@ class ConversationManager {
     this._spiel = null;
     this._spielName = UNSPECIFIED_NAME
     this._state = ConversationState.STOPPED;
+  }
+  
+  private _handlePartial(text:string) {
+    this._lastPartialText = text;
+  }
+  
+  private _handleStartSpeaking() {
+    this._state = ConversationState.LISTENING;
+    this._lastPartialText = '';
+    if (this._onTranscribe) this._onTranscribe('*PLAYER started speaking.*');
+  }
+  
+  private _handleStopSpeaking() {
+    if (this._spiel?.hasNext) {
+      this._state = ConversationState.TALKING;
+      this._spiel.moveNext();
+      this._playCurrentNode();
+    } else {
+      this._state = ConversationState.IDLE;
+    }
+    if (this._onTranscribe) {
+      this._onTranscribe('PLAYER: ' + this._lastPartialText);
+      this._onTranscribe('*PLAYER stopped speaking.*');
+    }
   }
   
   get state() { return this._state; }
@@ -78,6 +108,11 @@ class ConversationManager {
   
   bindRecognizer(recognizer:Recognizer) {
     this._recognizer = recognizer;
+    this._recognizer.bindCallbacks((text:string) => this._handlePartial(text), () => this._handleStartSpeaking(), () => this._handleStopSpeaking());
+  }
+  
+  bindOnTranscribe(onTranscribe:TranscribeCallback) {
+    this._onTranscribe = onTranscribe;
   }
   
   bindSpeechAudioIndex(speechAudioIndex: SpeechAudioIndex) {
