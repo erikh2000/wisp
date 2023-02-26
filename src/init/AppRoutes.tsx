@@ -1,10 +1,11 @@
-import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
-import React from 'react';
-
 import FacesScreen from "facesScreen/FacesScreen";
+import SpeechScreen from "speechScreen/SpeechScreen";
 import SpielsScreen from "spielsScreen/SpielsScreen";
 import LipzGeneratorScreen from "lipzGeneratorScreen/LipzGeneratorScreen";
 import HomeScreen from "homeScreen/HomeScreen";
+
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
+import React from 'react';
 
 function AppRoutes() {
   return (
@@ -13,6 +14,7 @@ function AppRoutes() {
         <Route path="" element={<HomeScreen />} />
         <Route path="faces" element={<FacesScreen />} />
         <Route path="lipzgen" element={<LipzGeneratorScreen />} />
+        <Route path="speech" element={<SpeechScreen />} />
         <Route path="spiels" element={<SpielsScreen />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

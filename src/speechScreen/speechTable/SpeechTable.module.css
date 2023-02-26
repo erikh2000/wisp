@@ -1,0 +1,77 @@
+.selectColumn {
+    flex-basis: 2rem;
+    border-color: darkgrey;
+    border-right-style: solid;
+}
+
+.dialogueColumn {
+    flex-basis: 20rem;
+    border-right-style: solid;
+    border-color: darkgrey;
+    padding-left: .2rem;
+    text-align: center;
+}
+
+.recordedTakesColumn {
+    flex-grow: 1;
+    border-right-style: solid;
+    border-color: darkgrey;
+    padding-left: .2rem;
+}
+
+.finalColumn {
+    flex-basis: 2rem;
+    padding-left: .2rem;
+}
+
+.finalColumnForHeader {
+    flex-basis: 3.15rem;
+    padding-left: .2rem;
+}
+
+.scrollableRows {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.row {
+    width: calc(100% - .5rem);
+}
+
+.speechTableHeader {
+    display: flex;
+    border-bottom-style: solid;
+    border-bottom-width: .15rem;
+    border-color: darkgrey;
+}
+
+.spaceRow {
+    composes: row;
+    display: flex;
+    height: 1rem;
+    border-color: darkgrey;
+    border-bottom-style: dotted;
+}
+
+.characterRow {
+    composes: row;
+    display: flex;
+}
+
+.parentheticalRow {
+    composes: row;
+    display: flex;
+}
+
+.dialogueRow {
+    composes: row;
+    display: flex;
+}
+
+.oddRow {
+    background-color: #f0f0f0;
+}
+
+.evenRow {
+    background-color: #e2e2e2;
+}

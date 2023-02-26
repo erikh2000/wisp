@@ -1,6 +1,6 @@
 import styles from './SpielNodeView.module.css';
 import SpielReplyView from "./SpielReplyView";
-import {spielEmotionToParenthetical} from "spielsScreen/interactions/spielEmotionUtil";
+import {spielEmotionToParenthetical} from "conversations/spielEmotionUtil";
 
 import { SpielNode, SpielReply } from 'sl-spiel';
 import { Emotion } from 'sl-web-face';

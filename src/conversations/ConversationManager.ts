@@ -1,7 +1,7 @@
 import ConversationSpeed, {getMultiplierForConversationSpeed} from "./ConversationSpeed";
 import SpeechAudioIndex from "./SpeechAudioIndex";
+import {spielEmotionToEmotion} from "./spielEmotionUtil";
 import {setSpeechAudioSpeakingFace} from "facesCommon/interactions/faceEventUtil";
-import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 
 import {Emotion, FakeSpeechAudio, ISpeechAudio} from 'sl-web-face';

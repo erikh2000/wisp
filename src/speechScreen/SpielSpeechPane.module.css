@@ -1,0 +1,7 @@
+@value colors: "ui/commonPalette.module.css";
+@value primary-silver from colors;
+
+.spielSpeechPane {
+    flex-grow: 1;
+    height: 100%;
+}

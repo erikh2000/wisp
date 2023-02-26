@@ -2,11 +2,11 @@ import {addText} from "./transcriptInteractions";
 import {centerCanvasComponent} from "common/canvasComponentUtil";
 import ConversationManager from "conversations/ConversationManager";
 import ConversationSpeed from "conversations/ConversationSpeed";
+import {spielEmotionToEmotion} from "conversations/spielEmotionUtil";
 import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import {setEmotion} from "facesCommon/interactions/faceEventUtil";
 import {setHead} from "spielsScreen/interactions/coreUtil"
-import {spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil";
 
 import {CanvasComponent, Emotion} from "sl-web-face";
 import { Spiel } from 'sl-spiel';

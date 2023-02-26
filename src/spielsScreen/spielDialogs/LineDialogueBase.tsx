@@ -3,7 +3,7 @@ import DialogButton from "ui/dialog/DialogButton";
 import DialogFooter from "ui/dialog/DialogFooter";
 import ModalDialog from "ui/dialog/ModalDialog";
 import DialogTextInput from "ui/dialog/DialogTextInput";
-import {emotionToSpielEmotion, spielEmotionToEmotion} from "spielsScreen/interactions/spielEmotionUtil";
+import {emotionToSpielEmotion, spielEmotionToEmotion} from "conversations/spielEmotionUtil";
 import EmotionSelector from "spielsScreen/spielDialogs/EmotionSelector";
 
 import {SpielNode, SpielLine, SpielReply, Emotion as SpielEmotion} from "sl-spiel";
