@@ -73,4 +73,13 @@ export function spielToSpeechTable(spiel:Spiel):SpeechTable {
   
   return { rows } as SpeechTable;
 }
-  
+
+export function getUniqueCharacterNames(speechTable:SpeechTable):string[] {
+  const characterNames:string[] = [];
+  speechTable.rows.forEach((row) => {
+    if (row.rowType === SpeechRowType.CHARACTER) {
+      if (!characterNames.includes(row.text)) characterNames.push(row.text);
+    }
+  });
+  return characterNames;
+}
