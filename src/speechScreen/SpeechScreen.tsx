@@ -1,3 +1,5 @@
+import SelectByDialog from "./dialogs/SelectByDialog";
+import NoSpielPane from "./NoSpielPane";
 import styles from "./SpeechScreen.module.css";
 import SpielSpeechPane from "./SpielSpeechPane";
 import {init} from './interactions/generalInteractions';
@@ -10,14 +12,13 @@ import {
 } from "./interactions/speechTableInteractions";
 import useEffectAfterMount from "common/useEffectAfterMount";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
+import {generateSpeechId} from "conversations/speechIdUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ScreenContainer from "ui/screen/ScreenContainer";
-import Screen, {screenConfigs} from "ui/screen/screens";
+import Screen from "ui/screen/screens";
 
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
-import SelectByDialog from "./dialogs/SelectByDialog";
-import NoSpielPane from "./NoSpielPane";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -37,6 +38,7 @@ function SpeechScreen() {
         setCharacterNames(nextInitResults.characterNames);
       }
       setDisabled(false);
+      generateSpeechId(documentName, 'JERRY', 2, 'I do what I want?');
     });
   }, []);
   
