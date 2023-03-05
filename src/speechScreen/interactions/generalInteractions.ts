@@ -3,7 +3,11 @@ import {getRevisionManager, Revision} from "./revisionUtil";
 import RevisionManager from "documents/RevisionManager";
 import {getSpiel} from "persistence/spiels";
 import {getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
-import {getUniqueCharacterNames, spielToSpeechTable} from "speechScreen/speechTable/speechTableUtil";
+import {
+  getUniqueCharacterNames,
+  spielToSpeechTable,
+  updateSpeechTableWithTakes
+} from "speechScreen/speechTable/speechTableUtil";
 
 import { Spiel, importSpielFile } from 'sl-spiel';
 
@@ -45,6 +49,7 @@ export async function init(setDisabled:Function, setRevision:Function):Promise<I
   await initCore(setDisabled);
   const spiel = await _loadSpielFromName(spielName)
   const speechTable = spielToSpeechTable(spiel);
+  await updateSpeechTableWithTakes(spielName, speechTable); 
   initResults.characterNames = getUniqueCharacterNames(speechTable);
   
   const revision = { speechTable };

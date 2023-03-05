@@ -1,7 +1,10 @@
-import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
 import {updateRevisionForSpeechTable} from "./revisionUtil";
-import {SelectionCriteria} from "../dialogs/SelectByDialog";
-import SpeechRow, {SpeechRowType} from "../speechTable/types/SpeechRow";
+import {SelectionCriteria} from "speechScreen/dialogs/SelectByDialog";
+import SpeechRow, {SpeechRowType} from "speechScreen/speechTable/types/SpeechRow";
+import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
+
+import { PLAYER_CHARACTER_NAME } from "sl-spiel";
+import {UNSPECIFIED_NAME} from "../../persistence/projects";
 
 export function onChangeRowSelection(rowNo:number, isSelected:boolean, speechTable:SpeechTable, setRevision:Function) {
   speechTable.rows[rowNo].isSelected = isSelected;
@@ -9,7 +12,12 @@ export function onChangeRowSelection(rowNo:number, isSelected:boolean, speechTab
 }
 
 export function onSelectAllRows(speechTable:SpeechTable, setRevision:Function) {
-  speechTable.rows.forEach((row) => row.isSelected = true);
+  let lastCharacter = UNSPECIFIED_NAME;
+  speechTable.rows.forEach((row) => {
+    if (row.rowType === SpeechRowType.CHARACTER) lastCharacter = row.text;
+    if (lastCharacter === PLAYER_CHARACTER_NAME || lastCharacter === UNSPECIFIED_NAME) return;
+    row.isSelected = row.rowType === SpeechRowType.DIALOGUE;
+  });
   updateRevisionForSpeechTable(speechTable, setRevision);
 }
 
@@ -19,7 +27,7 @@ export function onDeselectAllRows(speechTable:SpeechTable, setRevision:Function)
 }
 
 function isDialogueRecorded(row:SpeechRow):boolean {
-  return row.recordedTakes.length > 0;
+  return row.takeWavKeys.length > 0;
 }
 
 export function selectRowsByCriteria(criteria:SelectionCriteria, speechTable:SpeechTable, setRevision:Function, setModalDialog:Function) {
@@ -27,6 +35,7 @@ export function selectRowsByCriteria(criteria:SelectionCriteria, speechTable:Spe
   function _shouldSelectRow(row:SpeechRow, criteria:SelectionCriteria):boolean {
     if (row.rowType === SpeechRowType.CHARACTER) lastCharacter = row.text;
     if (criteria.characterName !== null && criteria.characterName !== lastCharacter) return false;
+    if (lastCharacter === PLAYER_CHARACTER_NAME) return false;
     
     return !(criteria.notRecorded && isDialogueRecorded(row));
   }

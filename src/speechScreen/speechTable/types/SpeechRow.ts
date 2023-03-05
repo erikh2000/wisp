@@ -1,3 +1,4 @@
+export const UNSPECIFIED_TAKE_NO = -1;
 export enum SpeechRowType {
   CHARACTER,
   PARENTHETICAL,
@@ -5,26 +6,17 @@ export enum SpeechRowType {
   SPACE
 };
 
-type RecordedTake = {
-  // TODO audio binding
-}
-
-type FinalTake = {
-  // TODO audio binding
-};
-
 type SpeechRow = {
   rowType: SpeechRowType;
   text: string;
   isSelected: boolean;
-  recordedTakes: RecordedTake[];
-  finalTake: FinalTake|null;
+  speechId:string;
+  takeWavKeys: string[];
+  finalTakeNo: number
 };
 
 export function duplicateSpeechRow(speechRow:SpeechRow):SpeechRow {
-  const recordedTakes:RecordedTake[] = [];
-  const finalTake = null;
-  return { ...speechRow, recordedTakes, finalTake };
+  return { ...speechRow };
 }
 
 export default SpeechRow;

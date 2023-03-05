@@ -12,7 +12,6 @@ import {
 } from "./interactions/speechTableInteractions";
 import useEffectAfterMount from "common/useEffectAfterMount";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
-import {generateSpeechId} from "conversations/speechIdUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
@@ -38,7 +37,6 @@ function SpeechScreen() {
         setCharacterNames(nextInitResults.characterNames);
       }
       setDisabled(false);
-      generateSpeechId(documentName, 'JERRY', 2, 'I do what I want?');
     });
   }, []);
   

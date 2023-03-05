@@ -1,11 +1,11 @@
 import styles from "./SpielSpeechPane.module.css";
+import {areAllSpeechTableRowsSelected} from "./speechTable/speechTableUtil";
 import SpeechTable from "./speechTable/types/SpeechTable";
 import SpeechTableHeader from "./speechTable/SpeechTableHeader";
 import SpeechTableRows from "./speechTable/SpeechTableRows";
 import InnerContentPane, {ButtonDefinition} from "ui/innerContentPane/InnerContentPane";
 
 import React, {useEffect, useState} from "react";
-import {SpeechRowType} from "./speechTable/types/SpeechRow";
 
 interface IProps {
   disabled?:boolean,
@@ -30,7 +30,7 @@ function SpielSpeechPane(props:IProps) {
   
   useEffect(() => {
     if (speechTable === null) return;
-    const nextAllSelected = speechTable.rows.every(row => row.isSelected || row.rowType !== SpeechRowType.DIALOGUE);
+    const nextAllSelected = areAllSpeechTableRowsSelected(speechTable);
     setAreAllSelected(nextAllSelected);
   }, [speechTable, setAreAllSelected]);
   
