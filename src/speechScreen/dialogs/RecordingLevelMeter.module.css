@@ -1,0 +1,66 @@
+.container {
+    width: 100%;
+    height: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    column-gap: .2rem;
+}
+
+.cell {
+    flex-grow: 1;
+}
+
+.cellOff {
+    composes: cell;
+    background-color: #ddd;
+}
+
+.cell0 {
+    composes: cell;
+    background-color: #9fffa0;
+}
+
+.cell1 {
+    composes: cell;
+    background-color: #a5ffa5;
+}
+
+.cell2 {
+    composes: cell;
+    background-color: #aaffa9;
+}
+
+.cell3 {
+    composes: cell;
+    background-color: #b1ffad;
+}
+
+.cell4 {
+    composes: cell;
+    background-color: #b8ffb0;
+}
+
+.cell5 {
+    composes: cell;
+    background-color: #fdffb1;
+}
+
+.cell6 {
+    composes: cell;
+    background-color: #fffeb1;
+}
+
+.cell7 {
+    composes: cell;
+    background-color: #ffda9f;
+}
+
+.cell8 {
+    composes: cell;
+    background-color: #ff4800;
+}
+
+.cell9 {
+    composes: cell;
+    background-color: #ff4800;
+}

@@ -1,5 +1,5 @@
 import styles from "./SpielSpeechPane.module.css";
-import {areAllSpeechTableRowsSelected} from "./speechTable/speechTableUtil";
+import {areAllSpeechTableRowsSelected, getSelectedRowCount} from "./speechTable/speechTableUtil";
 import SpeechTable from "./speechTable/types/SpeechTable";
 import SpeechTableHeader from "./speechTable/SpeechTableHeader";
 import SpeechTableRows from "./speechTable/SpeechTableRows";
@@ -10,22 +10,27 @@ import React, {useEffect, useState} from "react";
 interface IProps {
   disabled?:boolean,
   onChangeRowSelection: (rowNo:number, selected:boolean) => void,
-  onOpenSelectByDialog: () => void,
-  onSelectAllRows: () => void,
   onDeselectAllRows: () => void,
+  onOpenSelectByDialog: () => void,
+  onRecordSelected: () => void,
+  onSelectAllRows: () => void,
   speechTable:SpeechTable|null
 }
 
-function _generateButtonDefinitions(onOpenSelectByDialog:Function, disabled?:boolean):ButtonDefinition[] {
+function _getSelectedRowCount(speechTable:SpeechTable|null):number {
+  return speechTable ? getSelectedRowCount(speechTable) : 0;
+}
+
+function _generateButtonDefinitions(onOpenSelectByDialog:Function, onRecordSelected:Function, selectedRowCount:number, disabled?:boolean):ButtonDefinition[] {
   return [
     {text:'Select By...', onClick:() => onOpenSelectByDialog(), disabled},
-    {text:'Record Selected', onClick:() => {}, disabled}
+    {text:'Record Selected', onClick:() => onRecordSelected(), disabled:disabled || !selectedRowCount}
   ];
 }
 
 function SpielSpeechPane(props:IProps) {
-  const {disabled, onChangeRowSelection, onOpenSelectByDialog, onSelectAllRows, onDeselectAllRows, speechTable} = props;
-  const buttons = _generateButtonDefinitions(onOpenSelectByDialog, disabled);
+  const {disabled, onChangeRowSelection, onOpenSelectByDialog, onRecordSelected, onSelectAllRows, onDeselectAllRows, speechTable} = props;
+  const buttons = _generateButtonDefinitions(onOpenSelectByDialog, onRecordSelected, _getSelectedRowCount(speechTable), disabled);
   const [areAllSelected, setAreAllSelected] = useState(false);
   
   useEffect(() => {

@@ -154,3 +154,11 @@ export function areAllSpeechTableRowsSelected(speechTable:SpeechTable):boolean {
   }
   return true;
 }
+
+export function getSelectedRowCount(speechTable:SpeechTable):number {
+  let count = 0;
+  speechTable.rows.forEach(row => {
+    if (row.isSelected) ++count;
+  });
+  return count;
+}

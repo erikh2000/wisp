@@ -18,6 +18,8 @@ import Screen from "ui/screen/screens";
 
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
+import RecordStartDialog from "./dialogs/RecordStartDialog";
+import RecordingDialog from "./dialogs/RecordingDialog";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -56,6 +58,7 @@ function SpeechScreen() {
         onChangeRowSelection={(rowNo, isSelected) => onChangeRowSelection(rowNo, isSelected, revision.speechTable, setRevision) }
         onDeselectAllRows={() => onDeselectAllRows(revision.speechTable, setRevision)}
         onOpenSelectByDialog={() => setModalDialog(SelectByDialog.name)}
+        onRecordSelected={() => setModalDialog(RecordStartDialog.name)}
         onSelectAllRows={() => onSelectAllRows(revision.speechTable, setRevision)}
         speechTable={revision.speechTable}
         disabled={disabled}
@@ -70,6 +73,17 @@ function SpeechScreen() {
         onCancel={() => setModalDialog(null)}
         onSelectRowsBy={(selectBy) => selectRowsByCriteria(selectBy, revision.speechTable, setRevision, setModalDialog)}
         characterNames={characterNames}
+      />
+      <RecordStartDialog
+        speechTable={revision.speechTable}
+        isOpen={modalDialog === RecordStartDialog.name}
+        onCancel={() => setModalDialog(null)}
+        onStartRecording={() => setModalDialog(RecordingDialog.name)}
+      />
+      <RecordingDialog
+        speechTable={revision.speechTable}
+        isOpen={modalDialog === RecordingDialog.name}
+        onCancel={() => setModalDialog(null)}
       />
     </ScreenContainer>
   );
