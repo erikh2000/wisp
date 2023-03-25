@@ -1,6 +1,6 @@
 import styles from './RecordingLevelMeter.module.css';
 
-import { Microphone, calcRmsForSamples } from 'sl-web-audio';
+import { Microphone, findMaxPeakInSamples } from 'sl-web-audio';
 import { useEffect, useState } from 'react';
 
 interface IProps {
@@ -31,8 +31,8 @@ function RecordingLevelMeter(props:IProps) {
   useEffect(() => {
     _changeMicState(MicState.INITIALIZING, onMicStateChange);
     microphone = new Microphone((samples:Float32Array, sampleRate:number) => {
-      const rms = calcRmsForSamples(samples);
-      const nextLoudness = Math.min(1, rms * 2.5);
+      const peakValue = findMaxPeakInSamples(samples);
+      const nextLoudness = Math.min(1, peakValue);
       setLoudness(nextLoudness);
       _changeMicState(MicState.AVAILABLE, onMicStateChange);
     });
