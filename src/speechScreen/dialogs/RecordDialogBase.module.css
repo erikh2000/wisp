@@ -1,3 +1,19 @@
 .instructionText {
     height: 6rem;
 }
+
+.dialogueContainer {
+    min-height: 8rem;
+}
+
+.characterName {
+    text-align: center;
+}
+
+.parenthetical {
+    text-align: center;
+}
+
+.dialogueText {
+    text-align: center;
+}

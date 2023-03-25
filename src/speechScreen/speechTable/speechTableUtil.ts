@@ -7,6 +7,12 @@ import {getTakeKeys, isKeyForFinal} from "persistence/speech";
 
 import {Emotion as SpielEmotion, PLAYER_CHARACTER_NAME, Spiel} from 'sl-spiel';
 
+function _trimSeparator(dialogueText:string):string {
+  let trimmed = dialogueText.trim();
+  if (!trimmed.endsWith('/')) return trimmed; 
+  return trimmed.substring(0, trimmed.length - 1).trim();
+}
+
 function _createCharacterRow(character:string):SpeechRow {
   return {
     rowType: SpeechRowType.CHARACTER,
@@ -161,4 +167,24 @@ export function getSelectedRowCount(speechTable:SpeechTable):number {
     if (row.isSelected) ++count;
   });
   return count;
+}
+
+export function findDialogueText(speechTable:SpeechTable, dialogueTextNo:number):[characterName:string, parenthetical:string, dialogueText:string] {
+  let characterName = UNSPECIFIED_NAME;
+  let parenthetical = '(neutral)';
+  let currentDialogueTextNo = 0;
+  for(let rowI = 0; rowI < speechTable.rows.length; ++rowI) {
+    const row = speechTable.rows[rowI];
+    if (row.rowType === SpeechRowType.CHARACTER) characterName = row.text;
+    if (row.rowType === SpeechRowType.PARENTHETICAL) parenthetical = row.text;
+    if (row.rowType === SpeechRowType.DIALOGUE) {
+      if (!row.isSelected) continue;
+      if (currentDialogueTextNo === dialogueTextNo) {
+        const dialogueText = _trimSeparator(row.text);
+        return [characterName, parenthetical, dialogueText];        
+      }
+      ++currentDialogueTextNo;
+    }
+  }
+  return [UNSPECIFIED_NAME, UNSPECIFIED_NAME, UNSPECIFIED_NAME];
 }

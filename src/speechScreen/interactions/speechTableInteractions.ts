@@ -36,6 +36,7 @@ export function selectRowsByCriteria(criteria:SelectionCriteria, speechTable:Spe
     if (row.rowType === SpeechRowType.CHARACTER) lastCharacter = row.text;
     if (criteria.characterName !== null && criteria.characterName !== lastCharacter) return false;
     if (lastCharacter === PLAYER_CHARACTER_NAME) return false;
+    if (row.rowType !== SpeechRowType.DIALOGUE) return false;
     
     return !(criteria.notRecorded && isDialogueRecorded(row));
   }
