@@ -24,6 +24,9 @@ function _changeMicState(newMicState:MicState, onMicStateChange?:Function) {
   if (onMicStateChange) onMicStateChange(newMicState);
 }
 
+// It seems that meter over-reports red when there's little risk of clipping, so I adjust the peak value down a bit.
+const PEAK_ADJUST_FOR_DISPLAY = .8;
+
 function RecordingLevelMeter(props:IProps) {
   const { onMicStateChange } = props;
   const [loudness, setLoudness] = useState<number>(0);
@@ -32,7 +35,7 @@ function RecordingLevelMeter(props:IProps) {
     _changeMicState(MicState.INITIALIZING, onMicStateChange);
     microphone = new Microphone((samples:Float32Array, sampleRate:number) => {
       const peakValue = findMaxPeakInSamples(samples);
-      const nextLoudness = Math.min(1, peakValue);
+      const nextLoudness = Math.min(1, peakValue * PEAK_ADJUST_FOR_DISPLAY);
       setLoudness(nextLoudness);
       _changeMicState(MicState.AVAILABLE, onMicStateChange);
     });
