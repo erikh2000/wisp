@@ -43,7 +43,7 @@ function RecordStartDialog(props:IProps) {
   }
 
   return (
-    <ModalDialog isOpen={isOpen} title={'Select Rows'} onCancel={onCancel}>
+    <ModalDialog isOpen={isOpen} title={'Record Selected'} onCancel={onCancel}>
       <p>{dialogueTextCount} {dialogueTextCount !== 1 ? 'lines are' : 'line is'} selected to record.</p>
       <p className={styles.instructionText}>{instructionText}</p>
       <RecordingLevelMeter onMicStateChange={setMicState}/>

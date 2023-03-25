@@ -8,6 +8,8 @@
 
 .cell {
     flex-grow: 1;
+    border-style: solid;
+    border-color: darkgrey;
 }
 
 .cellOff {
