@@ -1,5 +1,5 @@
 import {fillTemplate} from "./pathUtil";
-import {SPEECH_PATH_TEMPLATE, SPEECH_TAKE_PATH_TEMPLATE} from "./keyPaths";
+import {SPEECH_TAKE_PATH_TEMPLATE, SPEECH_TAKE_KEY_TEMPLATE} from "./keyPaths";
 import {MIMETYPE_AUDIO_WAV} from "./mimeTypes";
 import {getAllKeysAtPath, getBytes, setBytes} from "./pathStore";
 import {getActiveProjectName} from "./projects";
@@ -14,7 +14,7 @@ function _getFirstThreeWords(dialogueText:string):string {
 }
 function _getTakeKey(projectName:string, spielName:string, characterName:string, speechId:string, dialogueText:string, takeNo:number):string {
   const firstThreeWords = _getFirstThreeWords(dialogueText);
-  return fillTemplate(SPEECH_TAKE_PATH_TEMPLATE, {projectName, spielName, characterName, speechId, firstThreeWords, takeNo});
+  return fillTemplate(SPEECH_TAKE_KEY_TEMPLATE, {projectName, spielName, characterName, speechId, firstThreeWords, takeNo});
 }
 
 function _isKeyForTake(key:string):boolean {
@@ -29,8 +29,9 @@ export function isKeyForFinal(key:string):boolean {
 }
 
 export async function getTakeKeys(spielName:string, characterName:string, speechId:string, dialogueText:string, projectName:string = getActiveProjectName()):Promise<string[]> {
-  const speechPath = fillTemplate(SPEECH_PATH_TEMPLATE, {projectName, spielName, characterName, speechId});
-  const keys = await getAllKeysAtPath(speechPath);
+  const firstThreeWords = _getFirstThreeWords(dialogueText);
+  const speechTakePath = fillTemplate(SPEECH_TAKE_PATH_TEMPLATE, {projectName, spielName, characterName, speechId, firstThreeWords});
+  const keys = await getAllKeysAtPath(speechTakePath);
   return keys.filter(key => _isKeyForTake(key));
 }
   
@@ -38,9 +39,8 @@ async function _getTakeCount(spielName:string, characterName:string, speechId:st
   return (await getTakeKeys(spielName, characterName, speechId, dialogueText, projectName)).length;
 }
 
-export async function addTake(spielName:string, characterName:string, speechId:string, dialogueText:string, audioBuffer:AudioBuffer, projectName:string = getActiveProjectName()):Promise<void> {
+export async function addTake(spielName:string, characterName:string, speechId:string, dialogueText:string, wavBytes:Uint8Array, projectName:string = getActiveProjectName()):Promise<void> {
   const takeCount = await _getTakeCount(spielName, characterName, speechId, dialogueText, projectName);
-  const speechTakeKey = _getTakeKey(projectName, spielName, characterName, speechId, dialogueText, takeCount);
-  const wavBytes = new Uint8Array([0,1,2,3,4,5]); // TODO - need to convert an audiobuffer to WAV format bytes.
+  const speechTakeKey = _getTakeKey(projectName, spielName, characterName, speechId, dialogueText, takeCount+1);
   return setBytes(speechTakeKey, wavBytes, MIMETYPE_AUDIO_WAV);
 }

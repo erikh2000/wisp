@@ -84,6 +84,8 @@ function SpeechScreen() {
         speechTable={revision.speechTable}
         isOpen={modalDialog === RecordingDialog.name}
         onCancel={() => setModalDialog(null)}
+        onClose={() => setModalDialog(null)}
+        spielName={documentName}
       />
     </ScreenContainer>
   );

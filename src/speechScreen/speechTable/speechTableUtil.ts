@@ -169,7 +169,7 @@ export function getSelectedRowCount(speechTable:SpeechTable):number {
   return count;
 }
 
-export function findDialogueText(speechTable:SpeechTable, dialogueTextNo:number):[characterName:string, parenthetical:string, dialogueText:string] {
+export function findDialogueText(speechTable:SpeechTable, dialogueTextNo:number):[characterName:string, parenthetical:string, dialogueText:string, speechId:string] {
   let characterName = UNSPECIFIED_NAME;
   let parenthetical = '(neutral)';
   let currentDialogueTextNo = 0;
@@ -181,10 +181,10 @@ export function findDialogueText(speechTable:SpeechTable, dialogueTextNo:number)
       if (!row.isSelected) continue;
       if (currentDialogueTextNo === dialogueTextNo) {
         const dialogueText = _trimSeparator(row.text);
-        return [characterName, parenthetical, dialogueText];        
+        return [characterName, parenthetical, dialogueText, row.speechId];        
       }
       ++currentDialogueTextNo;
     }
   }
-  return [UNSPECIFIED_NAME, UNSPECIFIED_NAME, UNSPECIFIED_NAME];
+  return [UNSPECIFIED_NAME, UNSPECIFIED_NAME, UNSPECIFIED_NAME, UNSPECIFIED_NAME];
 }

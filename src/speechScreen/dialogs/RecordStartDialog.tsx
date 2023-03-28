@@ -1,3 +1,4 @@
+import AudioRecorder, {MicState} from "./AudioRecorder";
 import styles from './RecordDialogBase.module.css';
 import {getSelectedRowCount} from "speechScreen/speechTable/speechTableUtil";
 import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
@@ -6,7 +7,6 @@ import DialogFooter from "ui/dialog/DialogFooter";
 import DialogButton from "ui/dialog/DialogButton";
 
 import { useState, useEffect } from "react";
-import RecordingLevelMeter, {MicState} from "./RecordingLevelMeter"; 
 
 interface IProps {
   isOpen: boolean;
@@ -46,7 +46,7 @@ function RecordStartDialog(props:IProps) {
     <ModalDialog isOpen={isOpen} title={'Record Selected'} onCancel={onCancel}>
       <p>{dialogueTextCount} {dialogueTextCount !== 1 ? 'lines are' : 'line is'} selected to record.</p>
       <p className={styles.instructionText}>{instructionText}</p>
-      <RecordingLevelMeter onMicStateChange={setMicState}/>
+      <AudioRecorder onMicStateChange={setMicState}/>
       <DialogFooter>
         <DialogButton text={'Cancel'} onClick={() => onCancel()}/>
         <DialogButton text={'Start'} onClick={() => onStartRecording()} isPrimary disabled={micState != MicState.AVAILABLE}/>
