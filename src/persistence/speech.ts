@@ -35,12 +35,12 @@ export async function getTakeKeys(spielName:string, characterName:string, speech
   return keys.filter(key => _isKeyForTake(key));
 }
   
-async function _getTakeCount(spielName:string, characterName:string, speechId:string, dialogueText:string, projectName:string = getActiveProjectName()):Promise<number> {
+export async function getTakeCount(spielName:string, characterName:string, speechId:string, dialogueText:string, projectName:string = getActiveProjectName()):Promise<number> {
   return (await getTakeKeys(spielName, characterName, speechId, dialogueText, projectName)).length;
 }
 
 export async function addTake(spielName:string, characterName:string, speechId:string, dialogueText:string, wavBytes:Uint8Array, projectName:string = getActiveProjectName()):Promise<void> {
-  const takeCount = await _getTakeCount(spielName, characterName, speechId, dialogueText, projectName);
+  const takeCount = await getTakeCount(spielName, characterName, speechId, dialogueText, projectName);
   const speechTakeKey = _getTakeKey(projectName, spielName, characterName, speechId, dialogueText, takeCount+1);
   return setBytes(speechTakeKey, wavBytes, MIMETYPE_AUDIO_WAV);
 }
