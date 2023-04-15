@@ -1,4 +1,5 @@
 import { samplesToWavBytes } from 'sl-web-audio';
+
 function _combineBuffers(buffers: Float32Array[]): Float32Array {
     if (!buffers.length) return new Float32Array(0);
     let totalLength = 0;
@@ -13,32 +14,33 @@ function _combineBuffers(buffers: Float32Array[]): Float32Array {
     }
     return combined;
 }
-
 class RecordingBuffer {
-    private _buffers: Float32Array[];
-    private _sampleRate: number;
+    private _buffers:Float32Array[];
+    private _sampleRate:number;
 
     constructor() {
         this._buffers = [];
         this._sampleRate = 0;
     }
-
-    public addSamples(samples: Float32Array): void {
-      this._buffers.push(samples);
+    
+    public addSamples(samples:Float32Array): void {
+        const newBuffer = new Float32Array(samples.length);
+        newBuffer.set(samples);
+        this._buffers.push(newBuffer);
     }
     
     public clear(): void {
         this._buffers = [];
     }
 
-    public getWavBytes(): Uint8Array {
+    public getWavBytes():Uint8Array {
         const combined = _combineBuffers(this._buffers);
         this._buffers = [combined];
         return samplesToWavBytes(combined, this._sampleRate);
     }
     
-    public get sampleRate(): number { return this._sampleRate; }
-    public set sampleRate(value: number) { this._sampleRate = value; }
+    public get sampleRate():number { return this._sampleRate; }
+    public set sampleRate(value:number) { this._sampleRate = value; }
 }
 
 export default RecordingBuffer;
