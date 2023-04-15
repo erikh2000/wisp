@@ -1,8 +1,11 @@
+import ConfirmDeleteAllTakesDialog from "./dialogs/ConfirmDeleteAllTakesDialog";
+import RecordingDialog from "./dialogs/RecordingDialog";
+import RecordStartDialog from "./dialogs/RecordStartDialog";
 import SelectByDialog from "./dialogs/SelectByDialog";
 import NoSpielPane from "./NoSpielPane";
 import styles from "./SpeechScreen.module.css";
 import SpielSpeechPane from "./SpielSpeechPane";
-import {init, onCancelRecording, onCompleteRecording} from './interactions/generalInteractions';
+import {deleteAllTakes, init, onCancelRecording, onCompleteRecording} from './interactions/generalInteractions';
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
 import {
   onChangeRowSelection,
@@ -18,8 +21,6 @@ import Screen from "ui/screen/screens";
 
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
-import RecordStartDialog from "./dialogs/RecordStartDialog";
-import RecordingDialog from "./dialogs/RecordingDialog";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -57,6 +58,7 @@ function SpeechScreen() {
     (<div className={styles.container}>
       <SpielSpeechPane
         onChangeRowSelection={(rowNo, isSelected) => onChangeRowSelection(rowNo, isSelected, revision.speechTable, setRevision) }
+        onDeleteAllTakes={() => setModalDialog(ConfirmDeleteAllTakesDialog.name)}
         onDeselectAllRows={() => onDeselectAllRows(revision.speechTable, setRevision)}
         onOpenSelectByDialog={() => setModalDialog(SelectByDialog.name)}
         onRecordSelected={() => setModalDialog(RecordStartDialog.name)}
@@ -69,6 +71,11 @@ function SpeechScreen() {
   return (
     <ScreenContainer documentName={documentName} isControlPaneOpen={true} activeScreen={Screen.SPEECH} actionBarButtons={actionBarButtons}>
       {content}
+      <ConfirmDeleteAllTakesDialog
+        isOpen={modalDialog === ConfirmDeleteAllTakesDialog.name}
+        onConfirm={() => deleteAllTakes(documentName, setRevision, setModalDialog)}
+        onCancel={() => setModalDialog(null)}
+      />
       <SelectByDialog
         isOpen={modalDialog === SelectByDialog.name}
         onCancel={() => setModalDialog(null)}

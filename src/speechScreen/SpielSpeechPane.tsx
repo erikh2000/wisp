@@ -11,6 +11,7 @@ interface IProps {
   disabled?:boolean,
   onChangeRowSelection: (rowNo:number, selected:boolean) => void,
   onDeselectAllRows: () => void,
+  onDeleteAllTakes: () => void,
   onOpenSelectByDialog: () => void,
   onRecordSelected: () => void,
   onSelectAllRows: () => void,
@@ -21,16 +22,18 @@ function _getSelectedRowCount(speechTable:SpeechTable|null):number {
   return speechTable ? getSelectedRowCount(speechTable) : 0;
 }
 
-function _generateButtonDefinitions(onOpenSelectByDialog:Function, onRecordSelected:Function, selectedRowCount:number, disabled?:boolean):ButtonDefinition[] {
+function _generateButtonDefinitions(onDeleteAllTakes:Function, onOpenSelectByDialog:Function, onRecordSelected:Function,  
+                                    selectedRowCount:number, disabled?:boolean):ButtonDefinition[] {
   return [
+    {text:'Delete All Takes', onClick:() => onDeleteAllTakes(), disabled},
     {text:'Select By...', onClick:() => onOpenSelectByDialog(), disabled},
     {text:'Record Selected', onClick:() => onRecordSelected(), disabled:disabled || !selectedRowCount}
   ];
 }
 
 function SpielSpeechPane(props:IProps) {
-  const {disabled, onChangeRowSelection, onOpenSelectByDialog, onRecordSelected, onSelectAllRows, onDeselectAllRows, speechTable} = props;
-  const buttons = _generateButtonDefinitions(onOpenSelectByDialog, onRecordSelected, _getSelectedRowCount(speechTable), disabled);
+  const {disabled, onChangeRowSelection, onDeleteAllTakes, onOpenSelectByDialog, onRecordSelected, onSelectAllRows, onDeselectAllRows, speechTable} = props;
+  const buttons = _generateButtonDefinitions(onDeleteAllTakes, onOpenSelectByDialog, onRecordSelected, _getSelectedRowCount(speechTable), disabled);
   const [areAllSelected, setAreAllSelected] = useState(false);
   
   useEffect(() => {

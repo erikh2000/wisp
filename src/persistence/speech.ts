@@ -1,8 +1,10 @@
 import {fillTemplate} from "./pathUtil";
-import {SPEECH_TAKE_PATH_TEMPLATE, SPEECH_TAKE_KEY_TEMPLATE} from "./keyPaths";
+import {SPEECH_TAKE_PATH_TEMPLATE, SPEECH_TAKE_KEY_TEMPLATE, SPIEL_SPEECH_PATH_TEMPLATE} from "./keyPaths";
 import {MIMETYPE_AUDIO_WAV} from "./mimeTypes";
-import {getAllKeysAtPath, getBytes, setBytes} from "./pathStore";
-import {getActiveProjectName} from "./projects";
+import {deleteAllKeys, deleteAllKeysAtPath, getAllKeysAtPath, getBytes, setBytes} from "./pathStore";
+import {getActiveProjectName, UNSPECIFIED_NAME} from "./projects";
+import SpeechTable from "../speechScreen/speechTable/types/SpeechTable";
+import {DialogTextKeyInfo} from "../speechScreen/speechTable/speechTableUtil";
 
 function _getFirstThreeWords(dialogueText:string):string {
   const words = dialogueText.split(' ').map(word => {
@@ -49,4 +51,16 @@ export async function getTake(key:string):Promise<Uint8Array> {
   const bytes = await getBytes(key);
   if (!bytes) throw new Error(`No take found for key ${key}`);
   return bytes;
+}
+
+export async function deleteAllTakesForSpiel(dialogueTextKeyInfos:DialogTextKeyInfo[], projectName:string = getActiveProjectName()):Promise<void> {
+  const paths:string[] = dialogueTextKeyInfos.map((keyInfo) => {
+    const { spielName, characterName, speechId, dialogueText } = keyInfo;
+    const firstThreeWords = _getFirstThreeWords(dialogueText);
+    const useProjectName = keyInfo.projectName === UNSPECIFIED_NAME ? projectName : keyInfo.projectName;
+    return fillTemplate(SPEECH_TAKE_PATH_TEMPLATE, {projectName:useProjectName, spielName, characterName, speechId, firstThreeWords});
+  });
+  
+  const deletePromises:Promise<void>[] = paths.map(path => deleteAllKeysAtPath(path));
+  await Promise.all(deletePromises);
 }

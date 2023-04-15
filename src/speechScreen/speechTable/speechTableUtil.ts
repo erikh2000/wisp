@@ -7,6 +7,16 @@ import {getTakeKeys, isKeyForFinal} from "persistence/speech";
 
 import {Emotion as SpielEmotion, PLAYER_CHARACTER_NAME, Spiel} from 'sl-spiel';
 
+const DEFAULT_PARENTHETICAL = '(neutral)';
+
+export type DialogTextKeyInfo = {
+  characterName:string,
+  dialogueText:string,
+  projectName:string,
+  speechId:string,
+  spielName:string
+}
+
 function _trimSeparator(dialogueText:string):string {
   let trimmed = dialogueText.trim();
   if (!trimmed.endsWith('/')) return trimmed; 
@@ -171,7 +181,7 @@ export function getSelectedRowCount(speechTable:SpeechTable):number {
 
 export function findDialogueText(speechTable:SpeechTable, dialogueTextNo:number):[characterName:string, parenthetical:string, dialogueText:string, speechId:string] {
   let characterName = UNSPECIFIED_NAME;
-  let parenthetical = '(neutral)';
+  let parenthetical = DEFAULT_PARENTHETICAL;
   let currentDialogueTextNo = 0;
   for(let rowI = 0; rowI < speechTable.rows.length; ++rowI) {
     const row = speechTable.rows[rowI];
@@ -187,6 +197,30 @@ export function findDialogueText(speechTable:SpeechTable, dialogueTextNo:number)
     }
   }
   return [UNSPECIFIED_NAME, UNSPECIFIED_NAME, UNSPECIFIED_NAME, UNSPECIFIED_NAME];
+}
+
+export function getDialogTextKeyInfoFromSpeechTable(spielName:string, speechTable:SpeechTable, projectName:string):DialogTextKeyInfo[] {
+  const dialogTextKeyInfos:DialogTextKeyInfo[] = [];
+  let characterName = UNSPECIFIED_NAME;
+  let parenthetical = DEFAULT_PARENTHETICAL;
+  for(let rowI = 0; rowI < speechTable.rows.length; ++rowI) {
+    const row = speechTable.rows[rowI];
+    if (row.rowType === SpeechRowType.CHARACTER) characterName = row.text;
+    if (row.rowType === SpeechRowType.PARENTHETICAL) parenthetical = row.text;
+    if (row.rowType === SpeechRowType.DIALOGUE) {
+      if (characterName === PLAYER_CHARACTER_NAME) continue;
+      const dialogueText = _trimSeparator(row.text);
+      dialogTextKeyInfos.push({
+        characterName,
+        dialogueText,
+        projectName,
+        speechId:row.speechId,
+        spielName
+      });
+    }
+  }
+
+  return dialogTextKeyInfos;
 }
 
 export function duplicateSpeechTable(speechTable:SpeechTable):SpeechTable {

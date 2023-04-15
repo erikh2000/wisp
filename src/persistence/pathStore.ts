@@ -198,3 +198,20 @@ export async function deleteByKey(key:string):Promise<void> {
   const db = await _open(DB_NAME, SCHEMA);
   await _delete(db, KEY_VALUE_STORE, key);
 }
+
+export async function deleteAllKeys(keys:string[]):Promise<void> {
+  const db = await _open(DB_NAME, SCHEMA);
+  const transaction = db.transaction(KEY_VALUE_STORE, 'readwrite');
+  const objectStore = transaction.objectStore(KEY_VALUE_STORE);
+  keys.forEach(key => objectStore.delete(key));
+  return new Promise((resolve, reject) => {
+    transaction.onerror = (event:any) => reject(`Failed to delete records with error code ${event.target.errorCode}.`);
+    transaction.oncomplete = () => resolve();
+  });
+}
+
+export async function deleteAllKeysAtPath(path:string):Promise<void> {
+  const keys = await getAllKeysAtPath(path);
+  if (!keys.length) return;
+  await deleteAllKeys(keys);
+}

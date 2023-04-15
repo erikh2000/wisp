@@ -4,14 +4,15 @@ import RevisionManager from "documents/RevisionManager";
 import {getSpiel} from "persistence/spiels";
 import {getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
 import {
-  duplicateSpeechTable,
+  duplicateSpeechTable, getDialogTextKeyInfoFromSpeechTable,
   getUniqueCharacterNames,
   spielToSpeechTable,
   updateSpeechTableWithTakes
 } from "speechScreen/speechTable/speechTableUtil";
+import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
 
 import { Spiel, importSpielFile } from 'sl-spiel';
-import SpeechTable from "../speechTable/types/SpeechTable";
+import {deleteAllTakesForSpiel} from "../../persistence/speech";
 
 export type InitResults = {
   spielName:string,
@@ -69,7 +70,7 @@ function _getRevisionSpeechTable(revisionManager:RevisionManager<Revision>):Spee
   return duplicateSpeechTable(revision.speechTable);
 }
 
-async function _updateRevisionWithSpeechTable(spielName:string, setRevision:Function) {
+async function _updateSpeechTableTakesAndRevision(spielName:string, setRevision:Function) {
   const revisionManager = getRevisionManager();
   const speechTable = _getRevisionSpeechTable(revisionManager);
   await updateSpeechTableWithTakes(spielName, speechTable);
@@ -78,11 +79,19 @@ async function _updateRevisionWithSpeechTable(spielName:string, setRevision:Func
 }
 
 export function onCompleteRecording(spielName:string, setRevision:Function, setModalDialog:Function) {
-  _updateRevisionWithSpeechTable(spielName, setRevision);
+  const _notWaiting = _updateSpeechTableTakesAndRevision(spielName, setRevision);
   setModalDialog(null);
 }
 
 export function onCancelRecording(spielName:string, setRevision:Function, setModalDialog:Function) {
-  _updateRevisionWithSpeechTable(spielName, setRevision);
+  const _notWaiting = _updateSpeechTableTakesAndRevision(spielName, setRevision);
+  setModalDialog(null);
+}
+
+export async function deleteAllTakes(spielName:string, setRevision:Function, setModalDialog:Function) {
+  const speechTable = _getRevisionSpeechTable(getRevisionManager());
+  const dialogueTextKeyInfos = getDialogTextKeyInfoFromSpeechTable(spielName, speechTable, UNSPECIFIED_NAME);
+  await deleteAllTakesForSpiel(dialogueTextKeyInfos);
+  const _notWaiting = _updateSpeechTableTakesAndRevision(spielName, setRevision);
   setModalDialog(null);
 }
