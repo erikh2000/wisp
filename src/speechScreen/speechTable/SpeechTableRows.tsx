@@ -21,21 +21,22 @@ function _renderSpeechTableRows(speechTable:SpeechTable|null, onChangeRowSelecti
   const speechTableRows = speechTable?.rows ?? [];
   let character = UNSPECIFIED_NAME;
   return speechTableRows.map((row, rowNo) => {
-    
+    const { isSelected, rowType, text, takeWavKeys } = row;
     const isOdd = rowNo % 2 === 1;
-    switch(row.rowType) {
+    switch(rowType) {
       case SpeechRowType.CHARACTER: 
-        character=row.text; 
-        return <CharacterRow isOdd={isOdd} key={rowNo} text={row.text} />
+        character=text; 
+        return <CharacterRow isOdd={isOdd} key={rowNo} text={text} />
       
       case SpeechRowType.PARENTHETICAL: 
-        return <ParentheticalRow isOdd={isOdd} key={rowNo} text={row.text} />
+        return <ParentheticalRow isOdd={isOdd} key={rowNo} text={text} />
       
-      case SpeechRowType.DIALOGUE: 
+      case SpeechRowType.DIALOGUE:
         return (
-          <DialogueRow isOdd={isOdd} isSelected={row.isSelected} isSelectable={character !== UNSPECIFIED_NAME && character !== PLAYER_CHARACTER_NAME}
+          <DialogueRow isOdd={isOdd} isSelected={isSelected} isSelectable={character !== UNSPECIFIED_NAME && character !== PLAYER_CHARACTER_NAME}
                        onToggleSelection={(isSelected) => onChangeRowSelection(rowNo, isSelected)} 
-                       key={rowNo} text={row.text} 
+                       takeWavKeys={takeWavKeys}
+                       key={rowNo} text={text} 
           />);
       
         default: 

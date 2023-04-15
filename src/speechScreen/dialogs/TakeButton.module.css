@@ -1,0 +1,24 @@
+@value colors: "ui/commonPalette.module.css";
+@value button, button-text, button-highlight, button-primary, button-text-highlight, button-disabled, button-text-disabled, button-border-primary from colors;
+@value commonStyles: "ui/commonStyles.module.css";
+@value disableSelect from commonStyles;
+
+.recordedTake {
+    background-color: button;
+    margin-right: 0.2rem;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+    color: button-text;
+    font-size: .8rem;
+    border-style: none;
+    cursor: pointer;
+}
+
+.recordedTake:hover {
+    background: button-highlight radial-gradient(circle, transparent 1%, button 1%) center/23000%;
+}
+.recordedTake:active {
+    background-color: button-highlight;
+    background-size: 100%;
+    transition: background 0s;
+}

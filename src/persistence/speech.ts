@@ -42,5 +42,11 @@ export async function getTakeCount(spielName:string, characterName:string, speec
 export async function addTake(spielName:string, characterName:string, speechId:string, dialogueText:string, wavBytes:Uint8Array, projectName:string = getActiveProjectName()):Promise<void> {
   const takeCount = await getTakeCount(spielName, characterName, speechId, dialogueText, projectName);
   const speechTakeKey = _getTakeKey(projectName, spielName, characterName, speechId, dialogueText, takeCount+1);
-  return setBytes(speechTakeKey, wavBytes, MIMETYPE_AUDIO_WAV);
+  await setBytes(speechTakeKey, wavBytes, MIMETYPE_AUDIO_WAV);
+}
+
+export async function getTake(key:string):Promise<Uint8Array> {
+  const bytes = await getBytes(key);
+  if (!bytes) throw new Error(`No take found for key ${key}`);
+  return bytes;
 }

@@ -4,12 +4,14 @@ import RevisionManager from "documents/RevisionManager";
 import {getSpiel} from "persistence/spiels";
 import {getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
 import {
+  duplicateSpeechTable,
   getUniqueCharacterNames,
   spielToSpeechTable,
   updateSpeechTableWithTakes
 } from "speechScreen/speechTable/speechTableUtil";
 
 import { Spiel, importSpielFile } from 'sl-spiel';
+import SpeechTable from "../speechTable/types/SpeechTable";
 
 export type InitResults = {
   spielName:string,
@@ -59,4 +61,28 @@ export async function init(setDisabled:Function, setRevision:Function):Promise<I
   
   isInitialized = true;
   return initResults;
+}
+
+function _getRevisionSpeechTable(revisionManager:RevisionManager<Revision>):SpeechTable {
+  const revision = revisionManager.currentRevision;
+  if (!revision) throw Error("No revision");
+  return duplicateSpeechTable(revision.speechTable);
+}
+
+async function _updateRevisionWithSpeechTable(spielName:string, setRevision:Function) {
+  const revisionManager = getRevisionManager();
+  const speechTable = _getRevisionSpeechTable(revisionManager);
+  await updateSpeechTableWithTakes(spielName, speechTable);
+  revisionManager.addChanges({speechTable});
+  setRevision(revisionManager.currentRevision);
+}
+
+export function onCompleteRecording(spielName:string, setRevision:Function, setModalDialog:Function) {
+  _updateRevisionWithSpeechTable(spielName, setRevision);
+  setModalDialog(null);
+}
+
+export function onCancelRecording(spielName:string, setRevision:Function, setModalDialog:Function) {
+  _updateRevisionWithSpeechTable(spielName, setRevision);
+  setModalDialog(null);
 }

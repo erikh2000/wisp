@@ -5,7 +5,6 @@ const DB_NAME = 'wisp';
 const KEY_VALUE_STORE = 'KeyValue';
 const PATH_INDEX_NAME = 'pathIndex';
 
-
 type IndexConfig = {
   name:string,
   keypath:string,
@@ -75,28 +74,29 @@ async function _get(db:IDBDatabase, storeName:string, key:string):Promise<object
   const objectStore = transaction.objectStore(storeName);
   const request = objectStore.get(key);
   return new Promise((resolve, reject) => {
-    request.onerror = (event:any) => reject(`Failed to get from "${storeName} with error code ${event.target.errorCode}.`);
-    request.onsuccess = (_event:any) => resolve(request.result)
+    transaction.onerror = (event:any) => reject(`Failed to get from "${storeName} with error code ${event.target.errorCode}.`);
+    transaction.oncomplete = (_event:any) => resolve(request.result)
   });
 }
 
 async function _put(db:IDBDatabase, storeName:string, objectToStore:object):Promise<void> {
   const transaction = db.transaction(storeName, 'readwrite');
   const objectStore = transaction.objectStore(storeName);
-  const request = objectStore.put(objectToStore);
+  objectStore.put(objectToStore);
   return new Promise((resolve, reject) => {
-    request.onerror = (event:any) => reject(`Failed to put to "${storeName} with error code ${event.target.errorCode}.`);
-    request.onsuccess = () => resolve();
+    transaction.onerror = (event:any) => reject(`Failed to put to "${storeName} with error code ${event.target.errorCode}.`);
+    transaction.oncomplete = () => resolve();
   });
+  
 }
 
 async function _delete(db:IDBDatabase, storeName:string, key:string):Promise<void> {
   const transaction = db.transaction(storeName, 'readwrite');
   const objectStore = transaction.objectStore(storeName);
-  const request = objectStore.delete(key);
+  objectStore.delete(key);
   return new Promise((resolve, reject) => {
-    request.onerror = (event:any) => reject(`Failed to delete record at "${key}" in "${storeName} with error code ${event.target.errorCode}.`);
-    request.onsuccess = () => resolve();
+    transaction.onerror = (event:any) => reject(`Failed to delete record at "${key}" in "${storeName} with error code ${event.target.errorCode}.`);
+    transaction.oncomplete = () => resolve();
   });
 }
 

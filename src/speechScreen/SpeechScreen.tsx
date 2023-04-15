@@ -2,7 +2,7 @@ import SelectByDialog from "./dialogs/SelectByDialog";
 import NoSpielPane from "./NoSpielPane";
 import styles from "./SpeechScreen.module.css";
 import SpielSpeechPane from "./SpielSpeechPane";
-import {init} from './interactions/generalInteractions';
+import {init, onCancelRecording, onCompleteRecording} from './interactions/generalInteractions';
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
 import {
   onChangeRowSelection,
@@ -52,6 +52,7 @@ function SpeechScreen() {
     {text:'Undo', onClick:emptyCallback, groupNo:1, disabled:true},
     {text:'Redo', onClick:emptyCallback, groupNo:1, disabled:true}
   ];
+
   const content = isNoSpiel ? <NoSpielPane /> :
     (<div className={styles.container}>
       <SpielSpeechPane
@@ -83,8 +84,8 @@ function SpeechScreen() {
       <RecordingDialog
         speechTable={revision.speechTable}
         isOpen={modalDialog === RecordingDialog.name}
-        onCancel={() => setModalDialog(null)}
-        onClose={() => setModalDialog(null)}
+        onCancel={() => onCancelRecording(documentName, setRevision, setModalDialog)}
+        onClose={() => onCompleteRecording(documentName, setRevision, setModalDialog)}
         spielName={documentName}
       />
     </ScreenContainer>

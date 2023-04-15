@@ -188,3 +188,9 @@ export function findDialogueText(speechTable:SpeechTable, dialogueTextNo:number)
   }
   return [UNSPECIFIED_NAME, UNSPECIFIED_NAME, UNSPECIFIED_NAME, UNSPECIFIED_NAME];
 }
+
+export function duplicateSpeechTable(speechTable:SpeechTable):SpeechTable {
+  const nextSpeechTable = { rows: [] } as SpeechTable;
+  nextSpeechTable.rows = [...speechTable.rows];
+  return nextSpeechTable;
+}
