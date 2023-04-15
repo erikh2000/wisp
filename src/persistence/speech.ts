@@ -1,18 +1,20 @@
 import {fillTemplate} from "./pathUtil";
-import {SPEECH_TAKE_PATH_TEMPLATE, SPEECH_TAKE_KEY_TEMPLATE, SPIEL_SPEECH_PATH_TEMPLATE} from "./keyPaths";
+import {SPEECH_TAKE_PATH_TEMPLATE, SPEECH_TAKE_KEY_TEMPLATE} from "./keyPaths";
 import {MIMETYPE_AUDIO_WAV} from "./mimeTypes";
-import {deleteAllKeys, deleteAllKeysAtPath, getAllKeysAtPath, getBytes, setBytes} from "./pathStore";
+import {deleteAllKeysAtPath, getAllKeysAtPath, getBytes, setBytes} from "./pathStore";
 import {getActiveProjectName, UNSPECIFIED_NAME} from "./projects";
-import SpeechTable from "../speechScreen/speechTable/types/SpeechTable";
 import {DialogTextKeyInfo} from "../speechScreen/speechTable/speechTableUtil";
 
+function _removeNonAlphaNumeric(text:string):string {
+  return text.replace(/[^a-zA-Z0-9]/g, '');
+}
 function _getFirstThreeWords(dialogueText:string):string {
   const words = dialogueText.split(' ').map(word => {
     word = word.trim();
     if (word.endsWith('/')) word = word.slice(0, word.length - 1);
-    return word.trim();
+    return _removeNonAlphaNumeric(word.toLowerCase());
   });
-  return words.slice(0, 3).join(' ');
+  return words.slice(0, 3).join(' ').trim();
 }
 function _getTakeKey(projectName:string, spielName:string, characterName:string, speechId:string, dialogueText:string, takeNo:number):string {
   const firstThreeWords = _getFirstThreeWords(dialogueText);
