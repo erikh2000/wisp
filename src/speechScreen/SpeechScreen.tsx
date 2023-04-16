@@ -5,13 +5,7 @@ import SelectByDialog from "./dialogs/SelectByDialog";
 import NoSpielPane from "./NoSpielPane";
 import styles from "./SpeechScreen.module.css";
 import SpielSpeechPane from "./SpielSpeechPane";
-import {
-  deleteAllTakes,
-  init,
-  onCancelRecording,
-  onCompleteRecording,
-  refreshTable
-} from './interactions/generalInteractions';
+import { init } from './interactions/generalInteractions';
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
 import {
   onChangeRowSelection,
@@ -19,6 +13,12 @@ import {
   onSelectAllRows,
   selectRowsByCriteria
 } from "./interactions/speechTableInteractions";
+import {
+  deleteAllTakes,
+  onCancelRecording,
+  onCompleteRecording,
+  refreshTable
+} from './interactions/takeUtil';
 import useEffectAfterMount from "common/useEffectAfterMount";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";

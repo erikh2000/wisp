@@ -36,7 +36,7 @@ async function _updateTakeNo(spielName:string, speechTable:SpeechTable, dialogue
 function _onNextClick(spielName:string, speechTable:SpeechTable, dialogueTextNo:number, setDialogueTextNo:Function, setTakeNo:Function) {
   _saveTake(spielName, speechTable, dialogueTextNo).then(() => {
     setDialogueTextNo(dialogueTextNo+1);
-    _updateTakeNo(spielName, speechTable, dialogueTextNo+1, setTakeNo);
+    _updateTakeNo(spielName, speechTable, dialogueTextNo+1, setTakeNo).then(() => {});
   });
 }
 
@@ -46,7 +46,7 @@ function _onFinishClick(spielName:string, speechTable:SpeechTable, dialogueTextN
 
 function _onRetakeClick(spielName:string, speechTable:SpeechTable, dialogueTextNo:number, setTakeNo:Function) {
   _saveTake(spielName, speechTable, dialogueTextNo).then(() => {
-    _updateTakeNo(spielName, speechTable, dialogueTextNo, setTakeNo);
+    _updateTakeNo(spielName, speechTable, dialogueTextNo, setTakeNo).then(() => {});
   });
 }
 
@@ -80,8 +80,8 @@ function RecordingDialog(props:IProps) {
     setDialogueTextNo(0);
     setDialogueTextCount(nextDialogueTextCount);
     _updateDialogueState(speechTable, 0, setCharacterName, setParenthetical, setDialogueText);
-    _updateTakeNo(spielName, speechTable, 0, setTakeNo);
-  }, [isOpen, speechTable]);
+    _updateTakeNo(spielName, speechTable, 0, setTakeNo).then(() => {});
+  }, [isOpen, speechTable, spielName]);
   
   useEffect(() => {
     _updateDialogueState(speechTable, dialogueTextNo, setCharacterName, setParenthetical, setDialogueText);

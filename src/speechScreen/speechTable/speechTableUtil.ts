@@ -202,11 +202,9 @@ export function findDialogueText(speechTable:SpeechTable, dialogueTextNo:number)
 export function getDialogTextKeyInfoFromSpeechTable(spielName:string, speechTable:SpeechTable, projectName:string):DialogTextKeyInfo[] {
   const dialogTextKeyInfos:DialogTextKeyInfo[] = [];
   let characterName = UNSPECIFIED_NAME;
-  let parenthetical = DEFAULT_PARENTHETICAL;
   for(let rowI = 0; rowI < speechTable.rows.length; ++rowI) {
     const row = speechTable.rows[rowI];
     if (row.rowType === SpeechRowType.CHARACTER) characterName = row.text;
-    if (row.rowType === SpeechRowType.PARENTHETICAL) parenthetical = row.text;
     if (row.rowType === SpeechRowType.DIALOGUE) {
       if (characterName === PLAYER_CHARACTER_NAME) continue;
       const dialogueText = _trimSeparator(row.text);
@@ -219,7 +217,6 @@ export function getDialogTextKeyInfoFromSpeechTable(spielName:string, speechTabl
       });
     }
   }
-
   return dialogTextKeyInfos;
 }
 

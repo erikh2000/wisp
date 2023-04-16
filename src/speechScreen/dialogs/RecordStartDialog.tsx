@@ -27,7 +27,7 @@ function RecordStartDialog(props:IProps) {
     setDialogueTextCount(nextDialogueTextCount);
   }, [isOpen, speechTable, setDialogueTextCount]);
   
-  let instructionText = '';
+  let instructionText:string;
   switch (micState) {
     case MicState.OFF:
     case MicState.INITIALIZING: 
@@ -49,7 +49,7 @@ function RecordStartDialog(props:IProps) {
       <AudioRecorder onMicStateChange={setMicState}/>
       <DialogFooter>
         <DialogButton text={'Cancel'} onClick={() => onCancel()}/>
-        <DialogButton text={'Start'} onClick={() => onStartRecording()} isPrimary disabled={micState != MicState.AVAILABLE}/>
+        <DialogButton text={'Start'} onClick={() => onStartRecording()} isPrimary disabled={micState !== MicState.AVAILABLE}/>
       </DialogFooter>
     </ModalDialog>
   );
