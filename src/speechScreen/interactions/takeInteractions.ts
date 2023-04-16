@@ -11,6 +11,20 @@ import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
 
 import {stopAll, playAudioBuffer, wavBytesToAudioBuffer} from 'sl-web-audio';
 
+function _getRevisionSpeechTable(revisionManager:RevisionManager<Revision>):SpeechTable {
+  const revision = revisionManager.currentRevision;
+  if (!revision) throw Error("No revision");
+  return duplicateSpeechTable(revision.speechTable);
+}
+
+async function _updateSpeechTableTakesAndRevision(spielName:string, setRevision:Function) {
+  const revisionManager = getRevisionManager();
+  const speechTable = _getRevisionSpeechTable(revisionManager);
+  await updateSpeechTableWithTakes(spielName, speechTable);
+  revisionManager.addChanges({speechTable});
+  setRevision(revisionManager.currentRevision);
+}
+
 export async function deleteAllTakes(spielName:string, setRevision:Function, setModalDialog:Function) {
   const speechTable = _getRevisionSpeechTable(getRevisionManager());
   const dialogueTextKeyInfos = getDialogTextKeyInfoFromSpeechTable(spielName, speechTable, UNSPECIFIED_NAME);
@@ -27,20 +41,6 @@ export async function playTakeWave(wavKey:string) {
   const audioBuffer = wavBytesToAudioBuffer(wavBytes);
   stopAll();
   playAudioBuffer(audioBuffer);
-}
-
-function _getRevisionSpeechTable(revisionManager:RevisionManager<Revision>):SpeechTable {
-  const revision = revisionManager.currentRevision;
-  if (!revision) throw Error("No revision");
-  return duplicateSpeechTable(revision.speechTable);
-}
-
-async function _updateSpeechTableTakesAndRevision(spielName:string, setRevision:Function) {
-  const revisionManager = getRevisionManager();
-  const speechTable = _getRevisionSpeechTable(revisionManager);
-  await updateSpeechTableWithTakes(spielName, speechTable);
-  revisionManager.addChanges({speechTable});
-  setRevision(revisionManager.currentRevision);
 }
 
 export function onCompleteRecording(spielName:string, setRevision:Function, setModalDialog:Function) {

@@ -1,7 +1,7 @@
 import styles from "./SpeechTable.module.css";
 import {deleteTake, makeTakeFinal} from "persistence/speech";
-import TakeButton from "speechScreen/dialogs/TakeButton";
-import FinalTakeButton from "speechScreen/dialogs/FinalTakeButton";
+import TakeButton from "./TakeButton";
+import FinalTakeButton from "./FinalTakeButton";
 
 import React, { useState } from "react";
 
@@ -52,7 +52,7 @@ function DialogueRow(props:IProps) {
   const checkboxElement = isSelectable ? <input type='checkbox' checked={isSelected} onChange={() => onToggleSelection(!isSelected) } /> : null;
   const recordedTakes = _generateRecordedTakes(takeWavKeys, finalTakeNo, onDragStart, onDragEnd);
   const finalTake = finalTakeNo !== UNSPECIFIED_TAKE_NO && draggingTakeNo === NOT_DRAGGING 
-    ? <FinalTakeButton takeWavKey={takeWavKeys[finalTakeNo]}/> : null;
+    ? <FinalTakeButton takeWavKey={takeWavKeys[finalTakeNo]} /> : null;
   
   return (
     <div className={rowStyle}>

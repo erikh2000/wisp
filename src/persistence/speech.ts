@@ -81,5 +81,4 @@ export async function makeTakeFinal(key:string):Promise<void> {
   const finalKey = _takeKeyToFinalKey(key);
   const bytes = await getTake(key);
   await setBytes(finalKey, bytes, MIMETYPE_AUDIO_WAV);
-  await deleteTake(key);
 }
