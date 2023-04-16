@@ -5,7 +5,13 @@ import SelectByDialog from "./dialogs/SelectByDialog";
 import NoSpielPane from "./NoSpielPane";
 import styles from "./SpeechScreen.module.css";
 import SpielSpeechPane from "./SpielSpeechPane";
-import {deleteAllTakes, init, onCancelRecording, onCompleteRecording} from './interactions/generalInteractions';
+import {
+  deleteAllTakes,
+  init,
+  onCancelRecording,
+  onCompleteRecording,
+  refreshTable
+} from './interactions/generalInteractions';
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
 import {
   onChangeRowSelection,
@@ -63,6 +69,7 @@ function SpeechScreen() {
         onOpenSelectByDialog={() => setModalDialog(SelectByDialog.name)}
         onRecordSelected={() => setModalDialog(RecordStartDialog.name)}
         onSelectAllRows={() => onSelectAllRows(revision.speechTable, setRevision)}
+        onTakesChanged={() => refreshTable(documentName, setRevision)}
         speechTable={revision.speechTable}
         disabled={disabled}
       />

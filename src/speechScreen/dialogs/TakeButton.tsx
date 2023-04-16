@@ -1,25 +1,27 @@
 import styles from "./TakeButton.module.css";
-import {getTake} from "persistence/speech";
+import {playTakeWave} from "speechScreen/interactions/takeUtil";
 
-import {stopAll, playAudioBuffer, wavBytesToAudioBuffer} from 'sl-web-audio';
 import React from "react";
 
 interface IProps {
+  onDragEnd: () => void;
+  onDragStart: () => void;
   takeNo: number;
   takeWavKey: string;
 }
 
-async function _playWave(wavKey:string) {
-  const wavBytes = await getTake(wavKey);
-  const audioBuffer = wavBytesToAudioBuffer(wavBytes);
-  stopAll();
-  playAudioBuffer(audioBuffer);
-}
-
 function TakeButton(props:IProps) {
-  const { takeNo, takeWavKey } = props;
+  const { onDragStart, onDragEnd, takeNo, takeWavKey } = props;
   
-  return <button key={takeWavKey} className={styles.recordedTake} onClick={() => _playWave(takeWavKey)}>{takeNo+1}</button>;
+  return ( 
+    <button 
+      className={styles.take} 
+      onClick={() => playTakeWave(takeWavKey)}
+      onDragEnd={onDragEnd}
+      onDragStart={onDragStart}
+      draggable>
+      {takeNo+1}
+    </button>);
 }
 
 export default TakeButton;

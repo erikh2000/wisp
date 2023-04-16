@@ -1,3 +1,6 @@
+@value colors: "ui/commonPalette.module.css";
+@value button, button-text, button-highlight, button-primary, button-text-highlight, button-disabled, button-text-disabled, button-border-primary from colors;
+
 .selectColumn {
     flex-basis: 2rem;
     border-color: darkgrey;
@@ -74,4 +77,45 @@
 
 .evenRow {
     background-color: #e2e2e2;
+}
+
+.dragTarget {
+    font-size: .4rem;
+    background-color: button-primary;
+    color: #333333;
+    border-radius: 0.2rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+}
+
+.dragTargetHover {
+    background-color: button-highlight;
+    border-style: dashed;
+}
+
+.finalizeDragTarget {
+    composes: dragTarget;
+}
+
+.finalizeDragTargetHover {
+    composes: finalizeDragTarget;
+    composes: dragTargetHover;
+}
+
+.deleteDragTarget {
+    composes: dragTarget;
+    float: right;
+    margin-top: .25rem;
+    margin-right: .25rem;
+}
+
+.deleteDragTargetHover {
+    composes: deleteDragTarget;
+    composes: dragTargetHover;
+}
+
+.hideDragTarget {
+    display: none;
 }

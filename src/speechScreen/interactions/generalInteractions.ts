@@ -95,3 +95,7 @@ export async function deleteAllTakes(spielName:string, setRevision:Function, set
   const _notWaiting = _updateSpeechTableTakesAndRevision(spielName, setRevision);
   setModalDialog(null);
 }
+
+export function refreshTable(spielName:string, setRevision:Function) {
+  return _updateSpeechTableTakesAndRevision(spielName, setRevision);
+}

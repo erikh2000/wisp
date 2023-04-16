@@ -15,6 +15,7 @@ interface IProps {
   onOpenSelectByDialog: () => void,
   onRecordSelected: () => void,
   onSelectAllRows: () => void,
+  onTakesChanged: () => void,
   speechTable:SpeechTable|null
 }
 
@@ -32,7 +33,7 @@ function _generateButtonDefinitions(onDeleteAllTakes:Function, onOpenSelectByDia
 }
 
 function SpielSpeechPane(props:IProps) {
-  const {disabled, onChangeRowSelection, onDeleteAllTakes, onOpenSelectByDialog, onRecordSelected, onSelectAllRows, onDeselectAllRows, speechTable} = props;
+  const {disabled, onChangeRowSelection, onDeleteAllTakes, onOpenSelectByDialog, onRecordSelected, onSelectAllRows, onTakesChanged, onDeselectAllRows, speechTable} = props;
   const buttons = _generateButtonDefinitions(onDeleteAllTakes, onOpenSelectByDialog, onRecordSelected, _getSelectedRowCount(speechTable), disabled);
   const [areAllSelected, setAreAllSelected] = useState(false);
   
@@ -45,7 +46,7 @@ function SpielSpeechPane(props:IProps) {
   return  (
     <InnerContentPane className={styles.spielSpeechPane} caption='Spiel Speech' buttons={buttons}>
       <SpeechTableHeader areAllRowsSelected={areAllSelected} onSelectAllRows={onSelectAllRows} onDeselectAllRows={onDeselectAllRows}/>
-      <SpeechTableRows speechTable={speechTable} onChangeRowSelection={onChangeRowSelection}/>
+      <SpeechTableRows speechTable={speechTable} onChangeRowSelection={onChangeRowSelection} onTakesChanged={onTakesChanged}/>
     </InnerContentPane>
   );
 }

@@ -14,14 +14,15 @@ type ChangeRowSelectionCallback = (rowNo:number, selected:boolean) => void;
 
 interface IProps {
   onChangeRowSelection: ChangeRowSelectionCallback;
+  onTakesChanged: () => void;
   speechTable:SpeechTable|null
 }
 
-function _renderSpeechTableRows(speechTable:SpeechTable|null, onChangeRowSelection:(rowNo:number, selected:boolean) => void) {
+function _renderSpeechTableRows(speechTable:SpeechTable|null, onChangeRowSelection:Function, onTakesChanged:Function) {
   const speechTableRows = speechTable?.rows ?? [];
   let character = UNSPECIFIED_NAME;
   return speechTableRows.map((row, rowNo) => {
-    const { isSelected, rowType, text, takeWavKeys } = row;
+    const { isSelected, rowType, text, takeWavKeys, finalTakeNo } = row;
     const isOdd = rowNo % 2 === 1;
     switch(rowType) {
       case SpeechRowType.CHARACTER: 
@@ -34,7 +35,9 @@ function _renderSpeechTableRows(speechTable:SpeechTable|null, onChangeRowSelecti
       case SpeechRowType.DIALOGUE:
         return (
           <DialogueRow isOdd={isOdd} isSelected={isSelected} isSelectable={character !== UNSPECIFIED_NAME && character !== PLAYER_CHARACTER_NAME}
-                       onToggleSelection={(isSelected) => onChangeRowSelection(rowNo, isSelected)} 
+                       onTakesChanged={() => onTakesChanged()}
+                       onToggleSelection={(isSelected) => onChangeRowSelection(rowNo, isSelected)}
+                       finalTakeNo={finalTakeNo}
                        takeWavKeys={takeWavKeys}
                        key={rowNo} text={text} 
           />);
@@ -46,8 +49,8 @@ function _renderSpeechTableRows(speechTable:SpeechTable|null, onChangeRowSelecti
 }
 
 function SpeechTableRows(props:IProps) {
-  const {speechTable, onChangeRowSelection} = props;
-  const rowElements = _renderSpeechTableRows(speechTable, onChangeRowSelection);
+  const {speechTable, onChangeRowSelection, onTakesChanged} = props;
+  const rowElements = _renderSpeechTableRows(speechTable, onChangeRowSelection, onTakesChanged);
   
   return (
     <div className={styles.scrollableRows}>

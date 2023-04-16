@@ -3,7 +3,7 @@
 @value commonStyles: "ui/commonStyles.module.css";
 @value disableSelect from commonStyles;
 
-.recordedTake {
+.take {
     background-color: button;
     margin-right: 0.2rem;
     padding-left: 0.2rem;
@@ -14,11 +14,16 @@
     cursor: pointer;
 }
 
-.recordedTake:hover {
+.take:hover {
     background: button-highlight radial-gradient(circle, transparent 1%, button 1%) center/23000%;
 }
-.recordedTake:active {
+.take:active {
     background-color: button-highlight;
     background-size: 100%;
     transition: background 0s;
+}
+
+.finalTake {
+    composes: take;
+    font-size: .6rem;
 }

@@ -1,7 +1,7 @@
 import {fillTemplate} from "./pathUtil";
 import {SPEECH_TAKE_PATH_TEMPLATE, SPEECH_TAKE_KEY_TEMPLATE} from "./keyPaths";
 import {MIMETYPE_AUDIO_WAV} from "./mimeTypes";
-import {deleteAllKeysAtPath, getAllKeysAtPath, getBytes, setBytes} from "./pathStore";
+import {deleteAllKeysAtPath, deleteByKey, getAllKeysAtPath, getBytes, setBytes} from "./pathStore";
 import {getActiveProjectName, UNSPECIFIED_NAME} from "./projects";
 import {DialogTextKeyInfo} from "../speechScreen/speechTable/speechTableUtil";
 
@@ -36,7 +36,7 @@ export async function getTakeKeys(spielName:string, characterName:string, speech
   const firstThreeWords = _getFirstThreeWords(dialogueText);
   const speechTakePath = fillTemplate(SPEECH_TAKE_PATH_TEMPLATE, {projectName, spielName, characterName, speechId, firstThreeWords});
   const keys = await getAllKeysAtPath(speechTakePath);
-  return keys.filter(key => _isKeyForTake(key));
+  return keys.filter(key => _isKeyForTake(key) || isKeyForFinal(key));
 }
   
 export async function getTakeCount(spielName:string, characterName:string, speechId:string, dialogueText:string, projectName:string = getActiveProjectName()):Promise<number> {
@@ -65,4 +65,21 @@ export async function deleteAllTakesForSpiel(dialogueTextKeyInfos:DialogTextKeyI
   
   const deletePromises:Promise<void>[] = paths.map(path => deleteAllKeysAtPath(path));
   await Promise.all(deletePromises);
+}
+
+export async function deleteTake(key:string):Promise<void> {
+  await deleteByKey(key);
+}
+
+function _takeKeyToFinalKey(key:string):string {
+  const lastSeparatorPos = key.lastIndexOf('/');
+  if (lastSeparatorPos === -1) throw new Error(`Invalid take key ${key}`);
+  return key.slice(0, lastSeparatorPos) + '/final';
+}
+
+export async function makeTakeFinal(key:string):Promise<void> {
+  const finalKey = _takeKeyToFinalKey(key);
+  const bytes = await getTake(key);
+  await setBytes(finalKey, bytes, MIMETYPE_AUDIO_WAV);
+  await deleteTake(key);
 }
