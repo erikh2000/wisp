@@ -18,7 +18,7 @@ import {
   onCancelRecording,
   onCompleteRecording,
   refreshTable
-} from './interactions/takeUtil';
+} from './interactions/takeInteractions';
 import useEffectAfterMount from "common/useEffectAfterMount";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";

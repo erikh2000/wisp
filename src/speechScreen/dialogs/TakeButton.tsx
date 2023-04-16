@@ -1,5 +1,5 @@
 import styles from "./TakeButton.module.css";
-import {playTakeWave} from "speechScreen/interactions/takeUtil";
+import {playTakeWave} from "speechScreen/interactions/takeInteractions";
 
 import React from "react";
 
