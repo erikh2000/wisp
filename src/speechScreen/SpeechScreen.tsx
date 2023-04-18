@@ -16,8 +16,7 @@ import {
 import {
   deleteAllTakes,
   onCancelRecording,
-  onCompleteRecording, onDeleteTake, onFinalizeTake,
-  refreshTable
+  onCompleteRecording, onDeleteTake, onFinalizeTake
 } from './interactions/takeInteractions';
 import useEffectAfterMount from "common/useEffectAfterMount";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
@@ -28,6 +27,7 @@ import Screen from "ui/screen/screens";
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
 import TrimSpeechDialog from "./dialogs/TrimSpeechDialog";
+import GenerateLipAnimationDialog from "./dialogs/GenerateLipAnimationDialog";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -106,6 +106,11 @@ function SpeechScreen() {
       />
       <TrimSpeechDialog
         isOpen={modalDialog === TrimSpeechDialog.name}
+        onCancel={() => setModalDialog(null)}
+        onComplete={() => setModalDialog(GenerateLipAnimationDialog.name)}
+      />
+      <GenerateLipAnimationDialog
+        isOpen={modalDialog === GenerateLipAnimationDialog.name}
         onCancel={() => setModalDialog(null)}
         onComplete={() => setModalDialog(null)}
       />
