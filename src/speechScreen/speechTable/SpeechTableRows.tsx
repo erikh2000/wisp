@@ -13,12 +13,13 @@ import { PLAYER_CHARACTER_NAME } from "sl-spiel";
 type ChangeRowSelectionCallback = (rowNo:number, selected:boolean) => void;
 
 interface IProps {
+  onDeleteTake: (takeWavKey:string) => void;
+  onFinalizeTake: (takeWavKey:string) => void;
   onChangeRowSelection: ChangeRowSelectionCallback;
-  onTakesChanged: () => void;
   speechTable:SpeechTable|null
 }
 
-function _renderSpeechTableRows(speechTable:SpeechTable|null, onChangeRowSelection:Function, onTakesChanged:Function) {
+function _renderSpeechTableRows(speechTable:SpeechTable|null, onChangeRowSelection:Function, onDeleteTake:Function, onFinalizeTake:Function) {
   const speechTableRows = speechTable?.rows ?? [];
   let character = UNSPECIFIED_NAME;
   return speechTableRows.map((row, rowNo) => {
@@ -35,7 +36,8 @@ function _renderSpeechTableRows(speechTable:SpeechTable|null, onChangeRowSelecti
       case SpeechRowType.DIALOGUE:
         return (
           <DialogueRow isOdd={isOdd} isSelected={isSelected} isSelectable={character !== UNSPECIFIED_NAME && character !== PLAYER_CHARACTER_NAME}
-                       onTakesChanged={() => onTakesChanged()}
+                       onDeleteTake={(takeWavKey) => onDeleteTake(takeWavKey)}
+                       onFinalizeTake={(takeWavKey) => onFinalizeTake(takeWavKey)}
                        onToggleSelection={(isSelected) => onChangeRowSelection(rowNo, isSelected)}
                        finalTakeNo={finalTakeNo}
                        takeWavKeys={takeWavKeys}
@@ -49,8 +51,8 @@ function _renderSpeechTableRows(speechTable:SpeechTable|null, onChangeRowSelecti
 }
 
 function SpeechTableRows(props:IProps) {
-  const {speechTable, onChangeRowSelection, onTakesChanged} = props;
-  const rowElements = _renderSpeechTableRows(speechTable, onChangeRowSelection, onTakesChanged);
+  const {speechTable, onChangeRowSelection, onDeleteTake, onFinalizeTake} = props;
+  const rowElements = _renderSpeechTableRows(speechTable, onChangeRowSelection, onDeleteTake, onFinalizeTake);
   
   return (
     <div className={styles.scrollableRows}>

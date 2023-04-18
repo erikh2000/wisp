@@ -1,5 +1,4 @@
 import styles from "./SpeechTable.module.css";
-import {deleteTake, makeTakeFinal} from "persistence/speech";
 import TakeButton from "./TakeButton";
 import FinalTakeButton from "./FinalTakeButton";
 
@@ -9,7 +8,8 @@ type ToggleSelectionCallback = (isSelected:boolean) => void;
 
 interface IProps {
   isOdd: boolean;
-  onTakesChanged: () => void;
+  onDeleteTake: (takeWavKey:string) => void;
+  onFinalizeTake: (takeWavKey:string) => void;
   onToggleSelection: ToggleSelectionCallback;
   isSelectable: boolean;
   isSelected: boolean;
@@ -35,15 +35,15 @@ const NOT_DRAGGING = -1;
 const UNSPECIFIED_TAKE_NO = -1;
 
 function DialogueRow(props:IProps) {
-  const { finalTakeNo, isOdd, isSelectable, isSelected, onTakesChanged, onToggleSelection, takeWavKeys, text } = props;
+  const { finalTakeNo, isOdd, isSelectable, isSelected, onDeleteTake, onFinalizeTake, onToggleSelection, takeWavKeys, text } = props;
   const [isHoveringFinalize, setIsHoveringFinalize] = useState(false);
   const [isHoveringDelete, setIsHoveringDelete] = useState(false);
   const [draggingTakeNo, setDraggingTakeNo] = useState(NOT_DRAGGING);
   
   const onDragStart = (takeNo:number) => setDraggingTakeNo(takeNo);
   const onDragEnd = () => setDraggingTakeNo(NOT_DRAGGING);
-  const onDeleteDrop = () => { deleteTake(takeWavKeys[draggingTakeNo]).then(() => onTakesChanged()) };
-  const onFinalizeDrop = () => { makeTakeFinal(takeWavKeys[draggingTakeNo]).then(() => onTakesChanged()) };
+  const onDeleteDrop = () => { onDeleteTake(takeWavKeys[draggingTakeNo]) };
+  const onFinalizeDrop = () => { onFinalizeTake(takeWavKeys[draggingTakeNo]) };
   
   const rowStyle = `${styles.dialogueRow} ${isOdd ? styles.oddRow : styles.evenRow}`;
   const hideDragTargetStyle = draggingTakeNo === NOT_DRAGGING ? styles.hideDragTarget : '';

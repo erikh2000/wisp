@@ -16,7 +16,7 @@ import {
 import {
   deleteAllTakes,
   onCancelRecording,
-  onCompleteRecording,
+  onCompleteRecording, onDeleteTake, onFinalizeTake,
   refreshTable
 } from './interactions/takeInteractions';
 import useEffectAfterMount from "common/useEffectAfterMount";
@@ -27,6 +27,7 @@ import Screen from "ui/screen/screens";
 
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
+import TrimSpeechDialog from "./dialogs/TrimSpeechDialog";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -64,12 +65,13 @@ function SpeechScreen() {
     (<div className={styles.container}>
       <SpielSpeechPane
         onChangeRowSelection={(rowNo, isSelected) => onChangeRowSelection(rowNo, isSelected, revision.speechTable, setRevision) }
+        onDeleteTake={(takeWavKey:string) => onDeleteTake(takeWavKey, documentName, setRevision, setModalDialog)}
         onDeleteAllTakes={() => setModalDialog(ConfirmDeleteAllTakesDialog.name)}
         onDeselectAllRows={() => onDeselectAllRows(revision.speechTable, setRevision)}
+        onFinalizeTake={(takeWavKey:string) => onFinalizeTake(takeWavKey, documentName, setRevision, setModalDialog)}
         onOpenSelectByDialog={() => setModalDialog(SelectByDialog.name)}
         onRecordSelected={() => setModalDialog(RecordStartDialog.name)}
         onSelectAllRows={() => onSelectAllRows(revision.speechTable, setRevision)}
-        onTakesChanged={() => refreshTable(documentName, setRevision)}
         speechTable={revision.speechTable}
         disabled={disabled}
       />
@@ -101,6 +103,11 @@ function SpeechScreen() {
         onCancel={() => onCancelRecording(documentName, setRevision, setModalDialog)}
         onClose={() => onCompleteRecording(documentName, setRevision, setModalDialog)}
         spielName={documentName}
+      />
+      <TrimSpeechDialog
+        isOpen={modalDialog === TrimSpeechDialog.name}
+        onCancel={() => setModalDialog(null)}
+        onComplete={() => setModalDialog(null)}
       />
     </ScreenContainer>
   );

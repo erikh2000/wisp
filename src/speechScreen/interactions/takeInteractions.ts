@@ -1,5 +1,5 @@
 import {getRevisionManager, Revision} from "./revisionUtil";
-import {deleteAllTakesForSpiel, getTake} from "persistence/speech";
+import {deleteAllTakesForSpiel, deleteTake, getTake, makeTakeFinal} from "persistence/speech";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import RevisionManager from "documents/RevisionManager";
 import {
@@ -10,6 +10,7 @@ import {
 import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
 
 import {stopAll, playAudioBuffer, wavBytesToAudioBuffer} from 'sl-web-audio';
+import TrimSpeechDialog from "../dialogs/TrimSpeechDialog";
 
 function _getRevisionSpeechTable(revisionManager:RevisionManager<Revision>):SpeechTable {
   const revision = revisionManager.currentRevision;
@@ -31,6 +32,18 @@ export async function deleteAllTakes(spielName:string, setRevision:Function, set
   await deleteAllTakesForSpiel(dialogueTextKeyInfos);
   _updateSpeechTableTakesAndRevision(spielName, setRevision).then(() => {});
   setModalDialog(null);
+}
+
+export async function onDeleteTake(takeWavKey:string, spielName:string, setRevision:Function, setModalDialog:Function) {
+  await deleteTake(takeWavKey);
+  _updateSpeechTableTakesAndRevision(spielName, setRevision).then(() => {});
+  setModalDialog(null);
+}
+
+export async function onFinalizeTake(takeWavKey:string, spielName:string, setRevision:Function, setModalDialog:Function) {
+  await makeTakeFinal(takeWavKey);
+  _updateSpeechTableTakesAndRevision(spielName, setRevision).then(() => {});
+  setModalDialog(TrimSpeechDialog.name);
 }
 
 export function refreshTable(spielName:string, setRevision:Function) {
