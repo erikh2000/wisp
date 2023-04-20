@@ -33,7 +33,7 @@ function TrimSpeechDialog(props:IProps) {
       <span className={styles.autoAdjustLabel}>Auto-Adjust</span>
       <div className={styles.autoAdjustSliderContainer}>
         <span className={styles.looserLabel}>Looser</span>
-        <Slider value={0} onChange={() => {}} />
+        <Slider value={100} onChange={() => {}} />
         <span className={styles.tighterLabel}>Tighter</span>
       </div>
     </div>

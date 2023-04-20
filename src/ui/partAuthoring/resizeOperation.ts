@@ -1,3 +1,4 @@
+import { clamp } from 'common/numberUtil';
 import ResizingType from "./ResizingTypes";
 import {resizingTypeForComponent, updateResizingButtonPositions} from "./SelectionBoxCanvasComponent";
 import {TrackedPart} from "./trackedPart";
@@ -75,15 +76,9 @@ export function onCompleteResize(part:TrackedPart, operation:ResizeOperation, on
   if (!confirmed) _revertPartResize(part, operation);
 }
 
-function _clamp(value:number, min:number, max:number) {
-  return value < min
-    ? min
-    : value > max ? max : value;
-}
-
 function _getConstrainedResizeCoordinates(operation:ResizeOperation, mouseMoveX:number, mouseMoveY:number):[x:number, y:number] {
-  const resizeButtonX = _clamp(mouseMoveX + operation.dragOffsetX, operation.dragMinX, operation.dragMaxX);
-  const resizeButtonY = _clamp(mouseMoveY + operation.dragOffsetY, operation.dragMinY, operation.dragMaxY);
+  const resizeButtonX = clamp(mouseMoveX + operation.dragOffsetX, operation.dragMinX, operation.dragMaxX);
+  const resizeButtonY = clamp(mouseMoveY + operation.dragOffsetY, operation.dragMinY, operation.dragMaxY);
   return [resizeButtonX, resizeButtonY];
 }
 
