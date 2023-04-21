@@ -11,6 +11,7 @@ interface IProps {
 }
 
 type LayoutMeasurements = {
+  clientToContainerOffsetX: number;
   containerWidth: number;
   thumbWidth: number;
   travelWidth: number;
@@ -21,7 +22,7 @@ type LayoutMeasurements = {
 }
 
 function _initLayoutMeasurements():LayoutMeasurements {
-  return { containerWidth: 0, thumbWidth: 0, travelWidth: 0, leftMinX: 0, leftMaxX: 0, rightMinX:0, rightMaxX:0 };
+  return { clientToContainerOffsetX:0, containerWidth: 0, thumbWidth: 0, travelWidth: 0, leftMinX: 0, leftMaxX: 0, rightMinX:0, rightMaxX:0 };
 }
 
 function _calcLayoutMeasurements(container:HTMLDivElement, thumb:HTMLSpanElement):LayoutMeasurements {
@@ -29,21 +30,20 @@ function _calcLayoutMeasurements(container:HTMLDivElement, thumb:HTMLSpanElement
   const containerWidth = container.clientWidth;
   const paddingWidth = Math.round(thumbWidth * .7);
   const travelWidth = containerWidth - (paddingWidth*2);
-  const layoutMeasurements = { containerWidth, thumbWidth, travelWidth, 
+  return { 
+    containerWidth, thumbWidth, travelWidth,
+    clientToContainerOffsetX: container.getBoundingClientRect().left,  
     leftMinX: paddingWidth, 
     leftMaxX: containerWidth - paddingWidth - thumbWidth,
     rightMinX: paddingWidth + thumbWidth, 
     rightMaxX: containerWidth - paddingWidth
   };
-  console.log({layoutMeasurements});
-  return layoutMeasurements;
 }
 
 function _constrainLeftThumbTravelInLayoutMeasurements(rightThumbPos:number, layoutMeasurements:LayoutMeasurements):LayoutMeasurements {
   const {thumbWidth} = layoutMeasurements;
   const nextLayoutMeasurements = {...layoutMeasurements};
   nextLayoutMeasurements.leftMaxX = rightThumbPos - thumbWidth + Math.round(thumbWidth / 2);
-  console.log({nextLayoutMeasurements});
   return nextLayoutMeasurements;
 }
 
@@ -51,7 +51,6 @@ function _constrainRightThumbTravelInLayoutMeasurements(leftThumbPos:number, lay
   const {thumbWidth} = layoutMeasurements;
   const nextLayoutMeasurements = {...layoutMeasurements};
   nextLayoutMeasurements.rightMinX = leftThumbPos + thumbWidth + Math.round(thumbWidth / 2);
-  console.log({nextLayoutMeasurements});
   return nextLayoutMeasurements;
 }
 
@@ -141,9 +140,10 @@ function TrimSlider(props:IProps) {
   return (
     <div 
       className={styles.container}
-      onMouseMove={(event) => {
-        if (isLeftDragging) { setLeftThumbPos(_calcLeftThumbPosFromDragX(event.nativeEvent.offsetX, layoutMeasurements)); }
-        if (isRightDragging) { setRightThumbPos(_calcRightThumbPosFromDragX(event.nativeEvent.offsetX, layoutMeasurements)); }
+      onMouseMoveCapture={(event) => {
+        const dragX = event.nativeEvent.clientX - layoutMeasurements.clientToContainerOffsetX;
+        if (isLeftDragging) { setLeftThumbPos(_calcLeftThumbPosFromDragX(dragX, layoutMeasurements)); }
+        if (isRightDragging) { setRightThumbPos(_calcRightThumbPosFromDragX(dragX, layoutMeasurements)); }
       }}
       ref={containerRef}
     >
@@ -151,14 +151,12 @@ function TrimSlider(props:IProps) {
       <span
         className={styles.thumb}
         onMouseDown={() => { setIsLeftDragging(true); }}
-        onMouseMove={(event) => event.stopPropagation() }
         style={{left:`${leftThumbPos}px`}}
         ref={leftThumbRef}
       />
       <span
         className={styles.thumb}
         onMouseDown={() => { setIsRightDragging(true); }}
-        onMouseMove={(event) => event.stopPropagation() }
         style={{left:`${rightThumbPos - layoutMeasurements.thumbWidth}px`}}
         ref={rightThumbRef}
       />

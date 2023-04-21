@@ -9,6 +9,7 @@ interface IProps {
 }
 
 type LayoutMeasurements = {
+  clientToContainerOffsetX: number;
   containerWidth: number;
   thumbWidth: number;
   travelWidth: number;
@@ -17,14 +18,15 @@ type LayoutMeasurements = {
 }
 
 function _initLayoutMeasurements():LayoutMeasurements {
-  return { containerWidth: 0, thumbWidth: 0, travelWidth: 0, minX: 0, maxX: 0 };
+  return { clientToContainerOffsetX:0, containerWidth: 0, thumbWidth: 0, travelWidth: 0, minX: 0, maxX: 0 };
 }
 function _calcLayoutMeasurements(container:HTMLDivElement, thumb:HTMLSpanElement):LayoutMeasurements {
   const thumbWidth = thumb.clientWidth;
   const containerWidth = container.clientWidth;
   const paddingWidth = Math.round(thumbWidth * .7);
   const travelWidth = containerWidth - (paddingWidth*2);
-  return { containerWidth, thumbWidth, travelWidth, minX: paddingWidth, maxX: paddingWidth + travelWidth };
+  const clientToContainerOffsetX = container.getBoundingClientRect().left;
+  return { clientToContainerOffsetX, containerWidth, thumbWidth, travelWidth, minX: paddingWidth, maxX: paddingWidth + travelWidth };
 }
 
 function _calcThumbPosFromValue(value:number, layoutMeasurements:LayoutMeasurements):number {
@@ -87,15 +89,15 @@ function Slider(props:IProps) {
     <div 
       className={styles.container} 
       ref={containerRef}
-      onMouseMove={(event) => {
-       if (isDragging) { setThumbPos(_calcThumbPosFromDragX(event.nativeEvent.offsetX, layoutMeasurements)); }
+      onMouseMoveCapture={(event) => {
+        const dragX = event.nativeEvent.clientX - layoutMeasurements.clientToContainerOffsetX; 
+        if (isDragging) { setThumbPos(_calcThumbPosFromDragX(dragX, layoutMeasurements)); }
       }}
     >
       <div className={styles.groove} />
       <span 
         className={styles.thumb}
         onMouseDown={() => { setIsDragging(true); }}
-        onMouseMove={(event) => event.stopPropagation() }
         style={{left: `${thumbPos}px`}} 
         ref={thumbRef}
       />
