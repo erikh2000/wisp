@@ -91,15 +91,16 @@ function Slider(props:IProps) {
        if (isDragging) { setThumbPos(_calcThumbPosFromDragX(event.nativeEvent.offsetX, layoutMeasurements)); }
       }}
     >
-    <div className={styles.groove} />
-    <span 
-      className={styles.thumb}
-      onMouseDown={() => { setIsDragging(true); }}
-      onMouseMove={(event) => event.stopPropagation() }
-      style={{left: `${thumbPos}px`}} 
-      ref={thumbRef}
-    />
-  </div>);
+      <div className={styles.groove} />
+      <span 
+        className={styles.thumb}
+        onMouseDown={() => { setIsDragging(true); }}
+        onMouseMove={(event) => event.stopPropagation() }
+        style={{left: `${thumbPos}px`}} 
+        ref={thumbRef}
+      />
+    </div>
+  );
 }
 
 export default Slider;

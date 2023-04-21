@@ -1,4 +1,34 @@
+@value colors: "ui/commonPalette.module.css";
+@value button, button-text, button-highlight, button-primary, button-text-highlight, button-disabled, button-text-disabled, button-border-primary from colors;
+
 .container {
     width: 100%;
     height: 3rem;
+}
+
+.groove {
+    position: relative;
+    width: 100%;
+    top: 50%;
+    height: .1rem;
+    background-color: #888;
+}
+
+.thumb {
+    display: inline-block;
+    position: relative;
+    height: 2rem;
+    top: 0.45rem;
+    width: 1rem;
+    border-radius: 0.3rem;
+    background-color: button;
+}
+
+.thumb:hover {
+    background: button-highlight radial-gradient(circle, transparent 1%, button 1%) center/23000%;
+}
+.thumb:active {
+    background-color: button-highlight;
+    background-size: 100%;
+    transition: background 0s;
 }
