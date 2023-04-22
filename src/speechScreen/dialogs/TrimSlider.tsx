@@ -153,13 +153,17 @@ function TrimSlider(props:IProps) {
         onMouseDown={() => { setIsLeftDragging(true); }}
         style={{left:`${leftThumbPos}px`}}
         ref={leftThumbRef}
-      />
+      >
+        <span className={styles.thumbLabel}>start</span>
+      </span>
       <span
         className={styles.thumb}
         onMouseDown={() => { setIsRightDragging(true); }}
         style={{left:`${rightThumbPos - layoutMeasurements.thumbWidth}px`}}
         ref={rightThumbRef}
-      />
+      >
+        <span className={styles.thumbLabel}>end</span>
+      </span>
     </div>
   );
 }

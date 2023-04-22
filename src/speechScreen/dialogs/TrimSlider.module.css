@@ -32,3 +32,13 @@
     background-size: 100%;
     transition: background 0s;
 }
+
+.thumbLabel {
+    position: relative;
+    font-size: .7rem;
+    top: 1.4rem;
+    text-align: center;
+    width: 4rem;
+    display: inline-block;
+    left: -1.5rem;
+}
