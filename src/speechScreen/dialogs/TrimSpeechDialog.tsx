@@ -29,14 +29,6 @@ function TrimSpeechDialog(props:IProps) {
       needleSampleNo={0} 
     />
     <TrimSlider leftValue={0} rightValue={100} onLeftChange={() => {}} onRightChange={() => {}} />
-    <div className={styles.autoAdjustContainer}>
-      <span className={styles.autoAdjustLabel}>Auto-Adjust</span>
-      <div className={styles.autoAdjustSliderContainer}>
-        <span className={styles.looserLabel}>Looser</span>
-        <Slider value={100} onChange={() => {}} />
-        <span className={styles.tighterLabel}>Tighter</span>
-      </div>
-    </div>
     <DialogFooter>
       <DialogButton text="Cancel" onClick={onCancel} />
       <DialogButton text="Test" onClick={() => {}} />
