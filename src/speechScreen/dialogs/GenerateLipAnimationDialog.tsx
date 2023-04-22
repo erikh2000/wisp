@@ -5,6 +5,7 @@ import ModalDialog from "ui/dialog/ModalDialog";
 import ProgressBar from "ui/progressBar/ProgressBar";
 
 interface IProps {
+  audioBuffer:AudioBuffer|null,
   isOpen: boolean;
   onCancel: () => void;
   onComplete: () => void;

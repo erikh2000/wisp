@@ -1,7 +1,9 @@
 import ConfirmDeleteAllTakesDialog from "./dialogs/ConfirmDeleteAllTakesDialog";
+import GenerateLipAnimationDialog from "./dialogs/GenerateLipAnimationDialog";
 import RecordingDialog from "./dialogs/RecordingDialog";
 import RecordStartDialog from "./dialogs/RecordStartDialog";
 import SelectByDialog from "./dialogs/SelectByDialog";
+import TrimSpeechDialog from "./dialogs/TrimSpeechDialog";
 import NoSpielPane from "./NoSpielPane";
 import styles from "./SpeechScreen.module.css";
 import SpielSpeechPane from "./SpielSpeechPane";
@@ -26,8 +28,6 @@ import Screen from "ui/screen/screens";
 
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
-import TrimSpeechDialog from "./dialogs/TrimSpeechDialog";
-import GenerateLipAnimationDialog from "./dialogs/GenerateLipAnimationDialog";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -37,7 +37,8 @@ function SpeechScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [characterNames, setCharacterNames] = useState<string[]>([]);
-  const [activeTakeWavKey, setActiveTakeWavKey] = useState<string|null>(null);
+  const [finalizingTakeWavKey, setFinalizingTakeWavKey] = useState<string|null>(null);
+  const [finalizingAudioBuffer, setFinalizingAudioBuffer] = useState<AudioBuffer|null>(null);
   const navigate = useNavigate();
 
   useEffectAfterMount(() => {
@@ -69,7 +70,7 @@ function SpeechScreen() {
         onDeleteTake={(takeWavKey:string) => onDeleteTake(takeWavKey, documentName, setRevision, setModalDialog)}
         onDeleteAllTakes={() => setModalDialog(ConfirmDeleteAllTakesDialog.name)}
         onDeselectAllRows={() => onDeselectAllRows(revision.speechTable, setRevision)}
-        onFinalizeTake={(takeWavKey:string) => onFinalizeTake(takeWavKey, documentName, setRevision, setModalDialog, setActiveTakeWavKey)}
+        onFinalizeTake={(takeWavKey:string) => onFinalizeTake(takeWavKey, documentName, setRevision, setModalDialog, setFinalizingTakeWavKey)}
         onOpenSelectByDialog={() => setModalDialog(SelectByDialog.name)}
         onRecordSelected={() => setModalDialog(RecordStartDialog.name)}
         onSelectAllRows={() => onSelectAllRows(revision.speechTable, setRevision)}
@@ -108,10 +109,14 @@ function SpeechScreen() {
       <TrimSpeechDialog
         isOpen={modalDialog === TrimSpeechDialog.name}
         onCancel={() => setModalDialog(null)}
-        onComplete={() => setModalDialog(GenerateLipAnimationDialog.name)}
-        takeWavKey={activeTakeWavKey}
+        onComplete={(audioBuffer) => {
+          setFinalizingAudioBuffer(audioBuffer);
+          setModalDialog(GenerateLipAnimationDialog.name)
+        }}
+        takeWavKey={finalizingTakeWavKey}
       />
       <GenerateLipAnimationDialog
+        audioBuffer={finalizingAudioBuffer}
         isOpen={modalDialog === GenerateLipAnimationDialog.name}
         onCancel={() => setModalDialog(null)}
         onComplete={() => setModalDialog(null)}

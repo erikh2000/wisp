@@ -8,13 +8,22 @@ import WaveformTimeMarker, {MarkerType} from "ui/waveformVisualizer/WaveformTime
 import WaveformVisualizer from "ui/waveformVisualizer/WaveformVisualizer";
 
 import { useEffect, useState } from "react";
-import { playAudioBufferRange, stopAll } from "sl-web-audio";
+import { createAudioBufferForRange, playAudioBufferRange, stopAll } from "sl-web-audio";
 
 interface IProps {
   isOpen: boolean;
   takeWavKey: string|null;
   onCancel: () => void;
-  onComplete: () => void;
+  onComplete: (audioBuffer:AudioBuffer) => void;
+}
+
+function _onClickNext(audioBuffer:AudioBuffer|null, startPercent:number, endPercent:number, onComplete:Function) {
+  if (!audioBuffer) throw Error('Unexpected');
+  const duration = audioBuffer.duration;
+  const startTime = (startPercent / 100) * duration;
+  const rangeDuration = (endPercent / 100) * duration - startTime;
+  const trimmedAudioBuffer = createAudioBufferForRange(audioBuffer, startTime, rangeDuration);
+  onComplete(trimmedAudioBuffer);
 }
 
 function _onPlayTrimmedWave(audioBuffer:AudioBuffer|null, startPercent:number, endPercent:number) {
@@ -41,7 +50,6 @@ function TrimSpeechDialog(props:IProps) {
     loadTakeWave(takeWavKey).then(audioBuffer => {
       setAudioBuffer(audioBuffer);
       setSamples(audioBuffer.getChannelData(0));
-      // TODO analyze for default positions of left and right markers.
     });
   }, [isOpen, takeWavKey, setAudioBuffer, setSamples, setStartValue, setEndValue]);
   
@@ -55,6 +63,8 @@ function TrimSpeechDialog(props:IProps) {
       {markerType:MarkerType.Primary, sampleNo:endSampleNo, toSampleNo:null, description:null, isBackground:false},
     ]);
   }, [audioBuffer, startValue, endValue]);
+  
+  const isNextDisabled = !audioBuffer;
   
   return (
   <ModalDialog isOpen={isOpen} title="Finalize Take - Trim Audio" onCancel={onCancel}>
@@ -78,7 +88,7 @@ function TrimSpeechDialog(props:IProps) {
     <DialogFooter>
       <DialogButton text="Cancel" onClick={onCancel} />
       <DialogButton text="Test" onClick={() => _onPlayTrimmedWave(audioBuffer, startValue, endValue)} />
-      <DialogButton text="Next" onClick={onComplete} isPrimary />
+      <DialogButton text="Next" onClick={() => _onClickNext(audioBuffer, startValue, endValue, onComplete)} isPrimary disabled={isNextDisabled}/>
     </DialogFooter>
   </ModalDialog>);
 }
