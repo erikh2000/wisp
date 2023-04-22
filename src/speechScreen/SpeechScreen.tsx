@@ -37,6 +37,7 @@ function SpeechScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [modalDialog, setModalDialog] = useState<string|null>(null);
   const [characterNames, setCharacterNames] = useState<string[]>([]);
+  const [activeTakeWavKey, setActiveTakeWavKey] = useState<string|null>(null);
   const navigate = useNavigate();
 
   useEffectAfterMount(() => {
@@ -68,7 +69,7 @@ function SpeechScreen() {
         onDeleteTake={(takeWavKey:string) => onDeleteTake(takeWavKey, documentName, setRevision, setModalDialog)}
         onDeleteAllTakes={() => setModalDialog(ConfirmDeleteAllTakesDialog.name)}
         onDeselectAllRows={() => onDeselectAllRows(revision.speechTable, setRevision)}
-        onFinalizeTake={(takeWavKey:string) => onFinalizeTake(takeWavKey, documentName, setRevision, setModalDialog)}
+        onFinalizeTake={(takeWavKey:string) => onFinalizeTake(takeWavKey, documentName, setRevision, setModalDialog, setActiveTakeWavKey)}
         onOpenSelectByDialog={() => setModalDialog(SelectByDialog.name)}
         onRecordSelected={() => setModalDialog(RecordStartDialog.name)}
         onSelectAllRows={() => onSelectAllRows(revision.speechTable, setRevision)}
@@ -108,6 +109,7 @@ function SpeechScreen() {
         isOpen={modalDialog === TrimSpeechDialog.name}
         onCancel={() => setModalDialog(null)}
         onComplete={() => setModalDialog(GenerateLipAnimationDialog.name)}
+        takeWavKey={activeTakeWavKey}
       />
       <GenerateLipAnimationDialog
         isOpen={modalDialog === GenerateLipAnimationDialog.name}

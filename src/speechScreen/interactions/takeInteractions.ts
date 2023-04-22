@@ -40,15 +40,20 @@ export async function onDeleteTake(takeWavKey:string, spielName:string, setRevis
   setModalDialog(null);
 }
 
-export async function onFinalizeTake(takeWavKey:string, spielName:string, setRevision:Function, setModalDialog:Function) {
+export async function onFinalizeTake(takeWavKey:string, spielName:string, setRevision:Function, setModalDialog:Function, setActiveTakeWavKey:Function) {
   await makeTakeFinal(takeWavKey); // TODO - move this and next line to be completed when last dialog closes.
   _updateSpeechTableTakesAndRevision(spielName, setRevision).then(() => {});
   setModalDialog(TrimSpeechDialog.name);
+  setActiveTakeWavKey(takeWavKey);
 }
 
-export async function playTakeWave(wavKey:string) {
+export async function loadTakeWave(wavKey:string):Promise<AudioBuffer> {
   const wavBytes = await getTake(wavKey);
-  const audioBuffer = wavBytesToAudioBuffer(wavBytes);
+  return wavBytesToAudioBuffer(wavBytes);
+} 
+
+export async function playTakeWave(wavKey:string) {
+  const audioBuffer = await loadTakeWave(wavKey);
   stopAll();
   playAudioBuffer(audioBuffer);
 }
