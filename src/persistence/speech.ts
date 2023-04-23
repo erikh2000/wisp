@@ -71,14 +71,18 @@ export async function deleteTake(key:string):Promise<void> {
   await deleteByKey(key);
 }
 
-function _takeKeyToFinalKey(key:string):string {
+export function takeKeyToFinalKey(key:string):string {
   const lastSeparatorPos = key.lastIndexOf('/');
   if (lastSeparatorPos === -1) throw new Error(`Invalid take key ${key}`);
   return key.slice(0, lastSeparatorPos) + '/final';
 }
 
 export async function makeTakeFinal(key:string):Promise<void> {
-  const finalKey = _takeKeyToFinalKey(key);
+  const finalKey = takeKeyToFinalKey(key);
   const bytes = await getTake(key);
   await setBytes(finalKey, bytes, MIMETYPE_AUDIO_WAV);
+}
+
+export async function saveTakeBytes(key:string, bytes:Uint8Array):Promise<void> {
+  await setBytes(key, bytes, MIMETYPE_AUDIO_WAV);
 }

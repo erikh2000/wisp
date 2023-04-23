@@ -17,7 +17,7 @@ import {
 } from "./interactions/speechTableInteractions";
 import {
   deleteAllTakes,
-  onCancelRecording,
+  onCancelRecording, onCompleteFinalization,
   onCompleteRecording, onDeleteTake, onFinalizeTake
 } from './interactions/takeInteractions';
 import useEffectAfterMount from "common/useEffectAfterMount";
@@ -70,7 +70,7 @@ function SpeechScreen() {
         onDeleteTake={(takeWavKey:string) => onDeleteTake(takeWavKey, documentName, setRevision, setModalDialog)}
         onDeleteAllTakes={() => setModalDialog(ConfirmDeleteAllTakesDialog.name)}
         onDeselectAllRows={() => onDeselectAllRows(revision.speechTable, setRevision)}
-        onFinalizeTake={(takeWavKey:string) => onFinalizeTake(takeWavKey, documentName, setRevision, setModalDialog, setFinalizingTakeWavKey)}
+        onFinalizeTake={(takeWavKey:string) => onFinalizeTake(takeWavKey, setModalDialog, setFinalizingTakeWavKey)}
         onOpenSelectByDialog={() => setModalDialog(SelectByDialog.name)}
         onRecordSelected={() => setModalDialog(RecordStartDialog.name)}
         onSelectAllRows={() => onSelectAllRows(revision.speechTable, setRevision)}
@@ -119,7 +119,7 @@ function SpeechScreen() {
         audioBuffer={finalizingAudioBuffer}
         isOpen={modalDialog === GenerateLipAnimationDialog.name}
         onCancel={() => setModalDialog(null)}
-        onComplete={() => setModalDialog(null)}
+        onComplete={(lipzEvents) => onCompleteFinalization(finalizingTakeWavKey, finalizingAudioBuffer, lipzEvents, documentName, setRevision, setModalDialog)}
       />
     </ScreenContainer>
   );

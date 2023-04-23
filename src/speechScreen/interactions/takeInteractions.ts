@@ -1,7 +1,15 @@
 import {getRevisionManager, Revision} from "./revisionUtil";
-import {deleteAllTakesForSpiel, deleteTake, getTake, makeTakeFinal} from "persistence/speech";
+import {
+  deleteAllTakesForSpiel,
+  deleteTake,
+  getTake,
+  makeTakeFinal,
+  saveTakeBytes,
+  takeKeyToFinalKey
+} from "persistence/speech";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import RevisionManager from "documents/RevisionManager";
+import TrimSpeechDialog from "speechScreen/dialogs/TrimSpeechDialog";
 import {
   duplicateSpeechTable,
   getDialogTextKeyInfoFromSpeechTable,
@@ -9,8 +17,8 @@ import {
 } from "speechScreen/speechTable/speechTableUtil";
 import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
 
-import {stopAll, playAudioBuffer, wavBytesToAudioBuffer} from 'sl-web-audio';
-import TrimSpeechDialog from "../dialogs/TrimSpeechDialog";
+import {stopAll, playAudioBuffer, wavBytesToAudioBuffer, WavCue, audioBufferToWavBytes, audioBufferAndCuesToWavBytes} from 'sl-web-audio';
+import {LipzEvent} from 'sl-web-speech';
 
 function _getRevisionSpeechTable(revisionManager:RevisionManager<Revision>):SpeechTable {
   const revision = revisionManager.currentRevision;
@@ -40,17 +48,32 @@ export async function onDeleteTake(takeWavKey:string, spielName:string, setRevis
   setModalDialog(null);
 }
 
-export async function onFinalizeTake(takeWavKey:string, spielName:string, setRevision:Function, setModalDialog:Function, setActiveTakeWavKey:Function) {
-  await makeTakeFinal(takeWavKey); // TODO - move this and next line to be completed when last dialog closes.
-  _updateSpeechTableTakesAndRevision(spielName, setRevision).then(() => {});
+export async function onFinalizeTake(takeWavKey:string, setModalDialog:Function, setActiveTakeWavKey:Function) {
   setModalDialog(TrimSpeechDialog.name);
   setActiveTakeWavKey(takeWavKey);
+}
+
+function lipzEventsToWavCues(lipzEvents:LipzEvent[]):WavCue[] {
+  return lipzEvents.map((lipzEvent:LipzEvent) => {
+    return { label:lipzEvent.phoneme, position:lipzEvent.getTime() * 1000};
+  });
+}
+
+export async function onCompleteFinalization(takeWavKey:string|null, audioBuffer:AudioBuffer|null, 
+    lipzEvents:LipzEvent[], spielName:string, setRevision:Function, setModalDialog:Function) {
+  if (!takeWavKey || !audioBuffer) return;
+  // const wavBytes = await audioBufferAndCuesToWavBytes(audioBuffer, lipzEventsToWavCues(lipzEvents));
+  const wavBytes = await audioBufferToWavBytes(audioBuffer);
+  const finalWavKey = takeKeyToFinalKey(takeWavKey);
+  await saveTakeBytes(finalWavKey, wavBytes);
+  await _updateSpeechTableTakesAndRevision(spielName, setRevision);
+  setModalDialog(null);
 }
 
 export async function loadTakeWave(wavKey:string):Promise<AudioBuffer> {
   const wavBytes = await getTake(wavKey);
   return wavBytesToAudioBuffer(wavBytes);
-} 
+}
 
 export async function playTakeWave(wavKey:string) {
   const audioBuffer = await loadTakeWave(wavKey);

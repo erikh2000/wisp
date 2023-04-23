@@ -17,6 +17,8 @@ interface IProps {
   onComplete: (audioBuffer:AudioBuffer) => void;
 }
 
+const FRAME_INTERVAL = 1000/20;
+
 function _onClickNext(audioBuffer:AudioBuffer|null, startPercent:number, endPercent:number, onComplete:Function) {
   if (!audioBuffer) throw Error('Unexpected');
   const duration = audioBuffer.duration;
@@ -26,12 +28,23 @@ function _onClickNext(audioBuffer:AudioBuffer|null, startPercent:number, endPerc
   onComplete(trimmedAudioBuffer);
 }
 
-function _onPlayTrimmedWave(audioBuffer:AudioBuffer|null, startPercent:number, endPercent:number) {
+function _onPlayTrimmedWave(audioBuffer:AudioBuffer|null, startPercent:number, endPercent:number, setStartPlayTime:Function, setIsPlaying:Function) {
   if (!audioBuffer) return;
   const startTime = audioBuffer.duration * (startPercent/100);
   const duration = audioBuffer.duration * (endPercent/100) - startTime;
   stopAll();
-  playAudioBufferRange(audioBuffer, startTime, duration);
+  playAudioBufferRange(audioBuffer, startTime, duration, () => setIsPlaying(false));
+  setStartPlayTime(Date.now());
+  setIsPlaying(true);
+}
+
+function _calcNeedSamplePos(audioBuffer:AudioBuffer|null, startPercent:number, startPlayTime:number) {
+  if (!audioBuffer) return null;
+  const elapsed = (Date.now() - startPlayTime) / 1000;
+  const trimStartTime = (startPercent / 100) * audioBuffer.duration;
+  let samplePos = Math.floor(((trimStartTime + elapsed) / audioBuffer.duration) * audioBuffer.length);
+  if (samplePos >= audioBuffer.length) samplePos = audioBuffer.length - 1;
+  return samplePos;
 }
 
 function TrimSpeechDialog(props:IProps) {
@@ -41,6 +54,9 @@ function TrimSpeechDialog(props:IProps) {
   const [startValue, setStartValue] = useState<number>(0);
   const [endValue, setEndValue] = useState<number>(100);
   const [timeMarkers, setTimeMarkers] = useState<WaveformTimeMarker[]>([]);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [startPlayTime, setStartPlayTime] = useState<number>(0);
+  const [frameNo, setFrameNo] = useState<number>(0);
   
   useEffect(() => {
     if (!isOpen || !takeWavKey) return;
@@ -63,7 +79,13 @@ function TrimSpeechDialog(props:IProps) {
       {markerType:MarkerType.Primary, sampleNo:endSampleNo, toSampleNo:null, description:null, isBackground:false},
     ]);
   }, [audioBuffer, startValue, endValue]);
+
+  useEffect(() => { // Cause re-render at regular interval.
+    const timer = setTimeout(() => setFrameNo(frameNo + 1), FRAME_INTERVAL);
+    return () => clearTimeout(timer);
+  }, [frameNo]);
   
+  const needleSamplePos = isPlaying ? _calcNeedSamplePos(audioBuffer, startValue, startPlayTime) : null;
   const isNextDisabled = !audioBuffer;
   
   return (
@@ -77,7 +99,7 @@ function TrimSpeechDialog(props:IProps) {
       beginSampleNo={0} 
       endSampleNo={audioBuffer?.length ?? 0} 
       samples={samples} 
-      needleSampleNo={null} 
+      needleSampleNo={needleSamplePos} 
     />
     <TrimSlider 
       leftValue={startValue} 
@@ -87,7 +109,7 @@ function TrimSpeechDialog(props:IProps) {
     />
     <DialogFooter>
       <DialogButton text="Cancel" onClick={onCancel} />
-      <DialogButton text="Test" onClick={() => _onPlayTrimmedWave(audioBuffer, startValue, endValue)} />
+      <DialogButton text="Test" onClick={() => _onPlayTrimmedWave(audioBuffer, startValue, endValue, setStartPlayTime, setIsPlaying)} />
       <DialogButton text="Next" onClick={() => _onClickNext(audioBuffer, startValue, endValue, onComplete)} isPrimary disabled={isNextDisabled}/>
     </DialogFooter>
   </ModalDialog>);
