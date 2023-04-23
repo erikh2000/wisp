@@ -1,9 +1,10 @@
 import IWaveformAmplitudeMarker from './WaveformAmplitudeMarker';
 import IWaveformBlockMarker from "./WaveformBlockMarker";
 import IWaveformTimeMarker, { MarkerType } from './WaveformTimeMarker';
-import Canvas from '../Canvas';
+import Canvas from 'ui/Canvas';
+import {contextToImageBitmap, createOffScreenContext} from 'common/canvasUtil';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface IProps {
   amplitudeMarkers:IWaveformAmplitudeMarker[],
@@ -11,9 +12,9 @@ interface IProps {
   blockMarkers:IWaveformBlockMarker[],
   className:string,
   endSampleNo:number,
+  needleSampleNo:number|null
   samples:Float32Array|null,
   timeMarkers:IWaveformTimeMarker[],
-  needleSampleNo:number|null
 }
 
 const BG_STYLE = 'rgb(220, 220, 220)';
@@ -60,6 +61,12 @@ function _drawSamples(context:CanvasRenderingContext2D, samples:Float32Array, be
   context.stroke();
 }
 
+async function _createSamplesBitmap(context:CanvasRenderingContext2D, samples:Float32Array, beginSampleNo:number, endSampleNo:number):Promise<ImageBitmap> {
+  const offScreenContext = createOffScreenContext(context.canvas.width, context.canvas.height);
+  _drawSamples(offScreenContext, samples, beginSampleNo, endSampleNo);
+  return await contextToImageBitmap(offScreenContext);
+}
+
 function _drawAmplitudeMarkers(context:CanvasRenderingContext2D, markers:IWaveformAmplitudeMarker[], isBackground:boolean) {
   const leftX = BORDER_WIDTH, rightX = context.canvas.width - BORDER_WIDTH;
   const middleY = context.canvas.height / 2;
@@ -84,7 +91,7 @@ function _drawAmplitudeMarkers(context:CanvasRenderingContext2D, markers:IWavefo
 function _drawTimeMarkersOfType(context:CanvasRenderingContext2D, markers:IWaveformTimeMarker[], beginSampleNo:number,
                                 endSampleNo:number, markerType:string, isBackground:boolean) {
   const RANGE_SERIF_HEIGHT = 10;
-  const SECONDARY_MARGIN_HEIGHT = 15; // context.canvas.height * .05; 
+  const SECONDARY_MARGIN_HEIGHT = 15;
   const topY = markerType === MarkerType.Primary 
     ? BORDER_HEIGHT : BORDER_HEIGHT + SECONDARY_MARGIN_HEIGHT;
   const bottomY = markerType === MarkerType.Primary
@@ -166,14 +173,27 @@ function _drawMarkers(context:CanvasRenderingContext2D, amplitudeMarkers:IWavefo
 
 function WaveformVisualizer(props:IProps) {
   const {amplitudeMarkers, blockMarkers, className, samples, beginSampleNo, endSampleNo, needleSampleNo, timeMarkers} = props;
+  const [samplesBitmap, setSamplesBitmap] = useState<ImageBitmap|null>(null);
+  
+  useEffect(() => { // Clear samples cache when samples or view range changes.
+    setSamplesBitmap(null);
+  }, [beginSampleNo, endSampleNo, samples, setSamplesBitmap]);
   
   const _onDraw = (context:CanvasRenderingContext2D) => {
+    if (!context.canvas.width && !context.canvas.height) return;
+    
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     _drawBackground(context);
     _drawMarkers(context, amplitudeMarkers, blockMarkers, timeMarkers, beginSampleNo, endSampleNo, true);
-    if (samples) _drawSamples(context, samples, beginSampleNo, endSampleNo);
+    if (samplesBitmap) context.drawImage(samplesBitmap, 0, 0, context.canvas.width, context.canvas.height);
     _drawMarkers(context, amplitudeMarkers, blockMarkers, timeMarkers, beginSampleNo, endSampleNo, false);
     _drawNeedle(context, beginSampleNo, endSampleNo, needleSampleNo);
+      
+    if (!samplesBitmap && samples) {
+      _createSamplesBitmap(context, samples, beginSampleNo, endSampleNo).then((nextSamplesBitmap) => {
+        setSamplesBitmap(nextSamplesBitmap);
+      });
+    }
   }
 
   return <Canvas className={className} isAnimated={false} onDraw={_onDraw} />;
