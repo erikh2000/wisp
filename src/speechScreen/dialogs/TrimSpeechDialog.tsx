@@ -8,7 +8,7 @@ import WaveformTimeMarker, {MarkerType} from "ui/waveformVisualizer/WaveformTime
 import WaveformVisualizer from "ui/waveformVisualizer/WaveformVisualizer";
 
 import { useEffect, useState } from "react";
-import { createAudioBufferForRange, playAudioBufferRange, stopAll } from "sl-web-audio";
+import { createAudioBufferForRange, findNoiseFloor, INoiseFloorData, playAudioBufferRange, stopAll } from "sl-web-audio";
 
 interface IProps {
   isOpen: boolean;
@@ -47,6 +47,44 @@ function _calcNeedSamplePos(audioBuffer:AudioBuffer|null, startPercent:number, s
   return samplePos;
 }
 
+function _findFirstChunkAboveNoiseFloor(chunks:number[], noiseFloorRms:number):number {
+  for (let i=0; i<chunks.length; ++i) {
+    const chunk = chunks[i];
+    if (chunk >= noiseFloorRms) return i;
+  }
+  return -1;
+}
+
+function _findLastChunkAboveNoiseFloor(chunks:number[], noiseFloorRms:number):number {
+  for (let i=chunks.length; i >= 0; --i) {
+    const chunk = chunks[i];
+    if (chunk > noiseFloorRms) return i;
+  }
+  return -1;
+}
+
+function _setStartAndEndValuesFromSampleAnalysis(samples:Float32Array, sampleRate:number,  setStartValue:Function, setEndValue:Function) {
+  const options = { chunkDuration: 1/40, rmsSegmentCount: 40};
+  const noiseFloorData:INoiseFloorData = findNoiseFloor(samples, sampleRate, options);
+  const { noiseFloorRms, chunks } = noiseFloorData;
+  
+  const startChunkNo = _findFirstChunkAboveNoiseFloor(chunks, noiseFloorRms);
+  const endChunkNo = _findLastChunkAboveNoiseFloor(chunks, noiseFloorRms);
+  const isAnalysisTrusted = (startChunkNo !== -1 && endChunkNo !== -1);
+  
+  if (!isAnalysisTrusted) {
+    setStartValue(0);
+    setEndValue(100);
+    return;
+  }
+  
+  const chunkCount = chunks.length;
+  const startPercent = (startChunkNo / chunkCount) * 100;
+  const endPercent = ((endChunkNo + 1) / chunkCount) * 100;
+  setStartValue(startPercent);
+  setEndValue(endPercent);
+}
+
 function TrimSpeechDialog(props:IProps) {
   const {isOpen, onCancel, onComplete, takeWavKey} = props;
   const [samples, setSamples] = useState<Float32Array|null>(null);
@@ -65,7 +103,9 @@ function TrimSpeechDialog(props:IProps) {
     setEndValue(100);
     loadTakeWave(takeWavKey).then(audioBuffer => {
       setAudioBuffer(audioBuffer);
-      setSamples(audioBuffer.getChannelData(0));
+      const nextSamples = audioBuffer.getChannelData(0);
+      setSamples(nextSamples);
+      _setStartAndEndValuesFromSampleAnalysis(nextSamples, audioBuffer.sampleRate, setStartValue, setEndValue);
     });
   }, [isOpen, takeWavKey, setAudioBuffer, setSamples, setStartValue, setEndValue]);
   
