@@ -3,7 +3,6 @@ import {
   deleteAllTakesForSpiel,
   deleteTake,
   getTake,
-  makeTakeFinal,
   saveTakeBytes,
   takeKeyToFinalKey
 } from "persistence/speech";
@@ -17,7 +16,7 @@ import {
 } from "speechScreen/speechTable/speechTableUtil";
 import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
 
-import {stopAll, playAudioBuffer, wavBytesToAudioBuffer, WavCue, audioBufferToWavBytes, audioBufferAndCuesToWavBytes} from 'sl-web-audio';
+import { audioBufferAndCuesToWavBytes, stopAll, playAudioBuffer, WavCue, wavBytesToAudioBuffer } from 'sl-web-audio';
 import {LipzEvent} from 'sl-web-speech';
 
 function _getRevisionSpeechTable(revisionManager:RevisionManager<Revision>):SpeechTable {
@@ -62,8 +61,7 @@ function lipzEventsToWavCues(lipzEvents:LipzEvent[]):WavCue[] {
 export async function onCompleteFinalization(takeWavKey:string|null, audioBuffer:AudioBuffer|null, 
     lipzEvents:LipzEvent[], spielName:string, setRevision:Function, setModalDialog:Function) {
   if (!takeWavKey || !audioBuffer) return;
-  // const wavBytes = await audioBufferAndCuesToWavBytes(audioBuffer, lipzEventsToWavCues(lipzEvents));
-  const wavBytes = await audioBufferToWavBytes(audioBuffer);
+  const wavBytes = await audioBufferAndCuesToWavBytes(audioBuffer, lipzEventsToWavCues(lipzEvents));
   const finalWavKey = takeKeyToFinalKey(takeWavKey);
   await saveTakeBytes(finalWavKey, wavBytes);
   await _updateSpeechTableTakesAndRevision(spielName, setRevision);
@@ -72,7 +70,7 @@ export async function onCompleteFinalization(takeWavKey:string|null, audioBuffer
 
 export async function loadTakeWave(wavKey:string):Promise<AudioBuffer> {
   const wavBytes = await getTake(wavKey);
-  return wavBytesToAudioBuffer(wavBytes);
+  return await wavBytesToAudioBuffer(wavBytes);
 }
 
 export async function playTakeWave(wavKey:string) {
