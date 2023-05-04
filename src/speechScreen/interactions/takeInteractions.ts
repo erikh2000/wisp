@@ -17,7 +17,7 @@ import {
 import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
 
 import { audioBufferAndCuesToWavBytes, stopAll, playAudioBuffer, WavCue, wavBytesToAudioBuffer } from 'sl-web-audio';
-import {LipzEvent} from 'sl-web-speech';
+import {LipzEvent, phonemeToVisemeText} from 'sl-web-speech';
 
 function _getRevisionSpeechTable(revisionManager:RevisionManager<Revision>):SpeechTable {
   const revision = revisionManager.currentRevision;
@@ -54,7 +54,8 @@ export async function onFinalizeTake(takeWavKey:string, setModalDialog:Function,
 
 function lipzEventsToWavCues(lipzEvents:LipzEvent[]):WavCue[] {
   return lipzEvents.map((lipzEvent:LipzEvent) => {
-    return { label:lipzEvent.phoneme, position:lipzEvent.getTime() * 1000};
+    const label = phonemeToVisemeText(lipzEvent.phoneme);
+    return { label, position:lipzEvent.getTime()};
   });
 }
 
@@ -66,6 +67,17 @@ export async function onCompleteFinalization(takeWavKey:string|null, audioBuffer
   await saveTakeBytes(finalWavKey, wavBytes);
   await _updateSpeechTableTakesAndRevision(spielName, setRevision);
   setModalDialog(null);
+}
+
+
+// TODO delete after done using.
+function _downloadWavBytes(wavBytes:Uint8Array, filename:string) {
+  const blob = new Blob([wavBytes], { type: 'audio/wav' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
 }
 
 export async function loadTakeWave(wavKey:string):Promise<AudioBuffer> {
