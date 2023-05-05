@@ -120,7 +120,7 @@ export async function getText(key:string):Promise<string|null> {
 
 export async function getBytes(key:string):Promise<Uint8Array|null> {
   const record = await _getRecordByKey(key);
-  return record.bytes;
+  return record?.bytes ?? null;
 }
 
 async function _setFieldValue(key:string, fieldName:string, fieldValue:any, mimeType:string) {

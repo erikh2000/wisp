@@ -56,7 +56,7 @@ class ConversationManager {
     this._onTranscribe = null;
     this._pendingPauseDuration = 0;
     this._recognizer = null;
-    this._speechAudioIndex = null;
+    this._speechAudioIndex = new SpeechAudioIndex();
     this._speedMultiplier = getMultiplierForConversationSpeed(this._conversationSpeed);
     this._spiel = null;
     this._spielName = UNSPECIFIED_NAME
@@ -119,7 +119,7 @@ class ConversationManager {
     this._speechAudioIndex = speechAudioIndex;
   }
   
-  _playCurrentNode() {
+  async _playCurrentNode() {
     this._pendingPauseDuration = 0;
     if (!this._spiel) return;
     const currentNode = this._spiel.currentNode;
@@ -131,12 +131,13 @@ class ConversationManager {
     this._state = ConversationState.TALKING;
     const dialogue = currentNode.line.nextDialogue();
     const character = currentNode.line.character;
+    const speechId = currentNode.line.speechIds[currentNode.line.lastDialogueNo];
     const emotion = spielEmotionToEmotion(currentNode.line.emotion);
     if (this._onSayLine) this._onSayLine(this._spiel.currentNodeIndex, character, emotion, dialogue);
     if (this._onSetEmotion) this._onSetEmotion(spielEmotionToEmotion(currentNode.line.emotion));
     
     if (this._currentSpeechAudio) this._currentSpeechAudio.stop();
-    this._currentSpeechAudio = this._speechAudioIndex?.findSpeechAudio(this._spielName, character, emotion, dialogue) || null;
+    this._currentSpeechAudio = await this._speechAudioIndex?.findSpeechAudio(this._spielName, character, speechId, dialogue) ?? null;
     if (!this._currentSpeechAudio) this._currentSpeechAudio = new FakeSpeechAudio(dialogue, this._speedMultiplier);
     setSpeechAudioSpeakingFace(this._currentSpeechAudio);
     this._pendingPauseDuration = calcEndOfDialoguePause(dialogue, this._speedMultiplier);

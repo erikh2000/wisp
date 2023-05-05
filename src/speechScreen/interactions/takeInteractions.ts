@@ -82,6 +82,7 @@ function _downloadWavBytes(wavBytes:Uint8Array, filename:string) {
 
 export async function loadTakeWave(wavKey:string):Promise<AudioBuffer> {
   const wavBytes = await getTake(wavKey);
+  if (!wavBytes) throw Error("No wav bytes");
   return await wavBytesToAudioBuffer(wavBytes);
 }
 

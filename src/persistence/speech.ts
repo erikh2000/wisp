@@ -1,5 +1,5 @@
 import {fillTemplate} from "./pathUtil";
-import {SPEECH_TAKE_PATH_TEMPLATE, SPEECH_TAKE_KEY_TEMPLATE} from "./keyPaths";
+import {SPEECH_TAKE_PATH_TEMPLATE, SPEECH_TAKE_KEY_TEMPLATE, SPEECH_FINAL_KEY_TEMPLATE} from "./keyPaths";
 import {MIMETYPE_AUDIO_WAV} from "./mimeTypes";
 import {deleteAllKeysAtPath, deleteByKey, getAllKeysAtPath, getBytes, setBytes} from "./pathStore";
 import {getActiveProjectName, UNSPECIFIED_NAME} from "./projects";
@@ -19,6 +19,11 @@ function _getFirstThreeWords(dialogueText:string):string {
 function _getTakeKey(projectName:string, spielName:string, characterName:string, speechId:string, dialogueText:string, takeNo:number):string {
   const firstThreeWords = _getFirstThreeWords(dialogueText);
   return fillTemplate(SPEECH_TAKE_KEY_TEMPLATE, {projectName, spielName, characterName, speechId, firstThreeWords, takeNo});
+}
+
+function _getFinalKey(projectName:string, spielName:string, characterName:string, speechId:string, dialogueText:string):string {
+  const firstThreeWords = _getFirstThreeWords(dialogueText);
+  return fillTemplate(SPEECH_FINAL_KEY_TEMPLATE, {projectName, spielName, characterName, speechId, firstThreeWords});
 }
 
 function _isKeyForTake(key:string):boolean {
@@ -49,10 +54,8 @@ export async function addTake(spielName:string, characterName:string, speechId:s
   await setBytes(speechTakeKey, wavBytes, MIMETYPE_AUDIO_WAV);
 }
 
-export async function getTake(key:string):Promise<Uint8Array> {
-  const bytes = await getBytes(key);
-  if (!bytes) throw new Error(`No take found for key ${key}`);
-  return bytes;
+export async function getTake(key:string):Promise<Uint8Array|null> {
+  return await getBytes(key);
 }
 
 export async function deleteAllTakesForSpiel(dialogueTextKeyInfos:DialogTextKeyInfo[], projectName:string = getActiveProjectName()):Promise<void> {
@@ -85,4 +88,10 @@ export async function makeTakeFinal(key:string):Promise<void> {
 
 export async function saveTakeBytes(key:string, bytes:Uint8Array):Promise<void> {
   await setBytes(key, bytes, MIMETYPE_AUDIO_WAV);
+}
+
+export async function getFinalTake(spielName:string, characterName:string, speechId:string, dialogueText:string, 
+    projectName = getActiveProjectName()):Promise<Uint8Array|null> {
+  const key = _getFinalKey(projectName, spielName, characterName, speechId, dialogueText);
+  return await getTake(key);
 }
