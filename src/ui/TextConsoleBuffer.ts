@@ -18,6 +18,12 @@ class TextConsoleBuffer {
     if (this._lines.length >= this._maxLineCount) this._lines.shift();
   }
   
+  replaceLastLine(text:string) {
+    if (this._lines.length === 0) return;
+    this._lines.pop();
+    this.addLine(text);
+  }
+  
   clear() {
     this._lines = [];
   }

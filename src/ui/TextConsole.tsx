@@ -19,16 +19,29 @@ interface IProps {
 }
 
 function _updateRenderedLines(lines:TextConsoleLine[], onRenderLine:RenderLineCallback, renderedLines:RenderedLines) {
+  // If the buffer is empty, clear the rendered lines.
   if (lines.length === 0) {
     renderedLines.elements = [];
     renderedLines.keys = [];
     return;
   }
+  
+  // Remove any rendered lines from beginning of buffer that are no longer needed for rendering.
   const deleteBeforeKey = lines[0].key;
   while(renderedLines.keys.length && renderedLines.keys[0] < deleteBeforeKey) { 
     renderedLines.keys.shift();
     renderedLines.elements.shift();
   }
+  
+  // If the last line in the buffer is a continuation of the last line rendered, remove the last line rendered so it
+  // can be replaced with the new last line.
+  const lastRenderedLineKey = renderedLines.keys[renderedLines.keys.length-1];
+  if (lines.length >= 2 ?? lastRenderedLineKey !== lines[lines.length-2].key) {
+    renderedLines.keys.pop();
+    renderedLines.elements.pop();
+  }
+  
+  // Add any lines from the buffer that are not already rendered.
   const addAfterKey = renderedLines.keys.length ? renderedLines.keys[renderedLines.keys.length-1] : -1;
   lines.forEach(line => {
     if (line.key > addAfterKey) {

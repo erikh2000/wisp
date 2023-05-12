@@ -21,7 +21,7 @@ export enum ConversationState {
 
 type SayLineCallback = (nodeNo:number, character: string, emotion:Emotion, dialogue:string) => void;
 type SetEmotionCallback = (emotion: Emotion) => void;
-type TranscribeCallback = (text:string) => void;
+type TranscribeCallback = (text:string, replaceIfAddsToLine?:boolean) => void;
 
 
 // Call init() from sl-web-speech before using this class.
@@ -76,10 +76,7 @@ class ConversationManager {
   private _handleStopSpeaking() {
     if (!this._spiel) throw Error('Unexpected');
     try {
-      if (this._onTranscribe) {
-        this._onTranscribe('PLAYER: ' + this._lastPartialText);
-        this._onTranscribe('*PLAYER stopped speaking.*');
-      }
+      if (this._onTranscribe) this._onTranscribe('*PLAYER stopped speaking.*');
       if (this._state !== ConversationState.LISTENING) return;
       this._pendingReply = this._spiel.checkForMatchAfterSpeaking(this._lastPartialText);
       if (this._pendingReply) return this._goToSpeakingReply();
@@ -97,6 +94,7 @@ class ConversationManager {
     try {
       this._lastPartialText = text;
       if (this._state !== ConversationState.LISTENING) return;
+      if (this._onTranscribe) this._onTranscribe('PLAYER: ' + text, true);
       this._pendingReply = this._spiel.checkForMatch(text);
       if (this._pendingReply) return this._goToSpeakingReply();
     } catch(e) {
