@@ -96,14 +96,26 @@ class ConversationManager {
     if (!this._spiel) throw Error('Unexpected');
     try {
       this._lastPartialText = text;
-      if (this._state === ConversationState.LISTENING) {
-        this._pendingReply = this._spiel.checkForMatch(text);
-        if (this._pendingReply) return this._goToSpeakingReply();
-      }
+      if (this._state !== ConversationState.LISTENING) return;
+      this._pendingReply = this._spiel.checkForMatch(text);
+      if (this._pendingReply) return this._goToSpeakingReply();
     } catch(e) {
       console.error(e);
       this._goToStopped();
     }
+  }
+
+
+  private _handleLineSpeechEnd() {
+    if (!this._spiel) throw Error('Unexpected');
+    if (this._state !== ConversationState.SPEAKING_LINE) return;
+    this._goToPauseAfterLine();
+  }
+
+  private _handleReplySpeechEnd() {
+    if (!this._spiel) throw Error('Unexpected');
+    if (this._state !== ConversationState.SPEAKING_REPLY) return;
+    this._goToPauseAfterReply();
   }
 
   private _stopAnySpeaking() {
@@ -207,7 +219,7 @@ class ConversationManager {
     try {
       this._recognizer.mute();
       this._state = ConversationState.SPEAKING_LINE;
-      await this._speak(currentNode.line, this._goToPauseAfterLine);
+      await this._speak(currentNode.line, this._handleLineSpeechEnd);
     } catch(e) {
       console.error(e);
       this._goToStopped();
@@ -221,7 +233,7 @@ class ConversationManager {
       this._state = ConversationState.SPEAKING_REPLY;
       const { line } = this._pendingReply;
       this._pendingReply = null;
-      await this._speak(line, this._goToPauseAfterReply);
+      await this._speak(line, this._handleReplySpeechEnd);
     } catch(e) {
       console.error(e);
       this._goToStopped();
