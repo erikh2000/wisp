@@ -81,6 +81,8 @@ class ConversationManager {
         this._onTranscribe('*PLAYER stopped speaking.*');
       }
       if (this._state !== ConversationState.LISTENING) return;
+      this._pendingReply = this._spiel.checkForMatchAfterSpeaking(this._lastPartialText);
+      if (this._pendingReply) return this._goToSpeakingReply();
       if (!this._spiel.hasNext) return this._goToIdle();
       this._spiel.moveNext();
       this._goToSpeakingLine().then(() => {});
