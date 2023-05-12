@@ -3,7 +3,10 @@
 }
 
 .textConsole {
-    height:20rem;
+    /* It seems like this needs to be set to some constant value for the layout to work. The height will expand beyond 
+       the value to fill the remaining space. The value effectively specifies a minimum height. I don't quite get it,
+        if I'm honest. */
+    height:3rem; 
 }
 
 .textItalics {
