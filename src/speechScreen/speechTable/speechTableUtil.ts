@@ -94,9 +94,9 @@ export function spielToSpeechTable(spiel:Spiel):SpeechTable {
     
     const replies = node.replies;
     if (replies.length) {
-      rows.push(_createSpaceRow());
-      rows.push(_createCharacterRow(PLAYER_CHARACTER_NAME));
       replies.forEach(reply => {
+        rows.push(_createSpaceRow());
+        rows.push(_createCharacterRow(PLAYER_CHARACTER_NAME));
         rows.push(_createDialogueRow(summarizeTextArray(reply.matchCriteria), UNSPECIFIED_NAME, true));
         rows.push(_createSpaceRow());
         rows.push(_createCharacterRow(reply.line.character));
