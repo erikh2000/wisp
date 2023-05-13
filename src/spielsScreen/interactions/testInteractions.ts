@@ -1,20 +1,21 @@
 import {addText} from "./transcriptInteractions";
 import {centerCanvasComponent} from "common/canvasComponentUtil";
-import ConversationManager from "conversations/ConversationManager";
+import ConversationManager, {ConversationState} from "conversations/ConversationManager";
 import ConversationSpeed from "conversations/ConversationSpeed";
 import {spielEmotionToEmotion} from "conversations/spielEmotionUtil";
 import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
-import {setEmotion} from "facesCommon/interactions/faceEventUtil";
+import {setEmotion, startListening, stopListening} from "facesCommon/interactions/faceEventUtil";
 import {setHead} from "spielsScreen/interactions/coreUtil"
 
 import {CanvasComponent, Emotion} from "sl-web-face";
-import { Spiel } from 'sl-spiel';
-import { Recognizer} from "sl-web-speech";
+import {Spiel} from 'sl-spiel';
+import {Recognizer} from "sl-web-speech";
 
 let conversationManager:ConversationManager|null = null;
 let recognizer:Recognizer|null = null;
 let _isRecognizerReady:boolean = false;
+let lastState = ConversationState.STOPPED;
 
 export function onDrawFaceCanvas(context:CanvasRenderingContext2D, headComponent:CanvasComponent) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
@@ -67,12 +68,25 @@ function _onSayLine(nodeNo:number, character:string, _emotion:Emotion, dialogue:
   setTestNodeNo(nodeNo);
 }
 
+function _onConversationStateChange(state:ConversationState) {
+  switch (state) {
+    case ConversationState.LISTENING:
+      startListening();
+      break;
+      
+    default:
+      if (lastState === ConversationState.LISTENING) stopListening();
+  }
+  lastState = state;
+}
+
 export function startTest(spiel:Spiel, spielName:string, setIsTestRunning:Function, setTestNodeNo:Function, setSubtitle:Function) {
   if (!conversationManager || !isRecognizerReady || !recognizer) throw Error('Unexpected');
   addText('*Started test.*');
   recognizer.unmute();
   conversationManager.bindOnSayLine((nodeNo:number, character:string, emotion:Emotion, dialogue:string) => 
     _onSayLine(nodeNo, character, emotion, dialogue, setTestNodeNo, setSubtitle));
+  conversationManager.bindOnStateChange(_onConversationStateChange);
   conversationManager.play(spiel, spielName);
   setIsTestRunning(true);
 }

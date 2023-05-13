@@ -43,3 +43,14 @@ export function setSpeechAudioSpeakingFace(speechAudio:ISpeechAudio) {
   if (!faceEventManager) throw Error('Unexpected');
   speechAudio.setSpeakingFace(faceEventManager, faceId);
 }
+
+export function startListening() {
+  if (!attentionController) return;
+  attentionController.lookAt(0, 0);
+  attentionController.stop();
+}
+
+export function stopListening() {
+  if (!attentionController) return;
+  attentionController.start();
+}

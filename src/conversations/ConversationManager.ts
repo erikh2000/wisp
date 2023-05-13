@@ -22,6 +22,7 @@ export enum ConversationState {
 type SayLineCallback = (nodeNo:number, character: string, emotion:Emotion, dialogue:string) => void;
 type SetEmotionCallback = (emotion: Emotion) => void;
 type TranscribeCallback = (text:string, replaceIfAddsToLine?:boolean) => void;
+type StateChangeCallback = (newState:ConversationState) => void;
 
 
 // Call init() from sl-web-speech before using this class.
@@ -31,6 +32,7 @@ class ConversationManager {
   private _lastPartialText: string;
   private _onSayLine: SayLineCallback|null;
   private _onSetEmotion: SetEmotionCallback|null;
+  private _onStateChange: StateChangeCallback|null;
   private _onTranscribe: TranscribeCallback|null;
   private _pendingPauseDuration: number;
   private _pendingReply: SpielReply|null;
@@ -39,7 +41,7 @@ class ConversationManager {
   private _spiel: Spiel|null;
   private _spielName: string;
   private _state: ConversationState;
-  private _speechAudioIndex: SpeechAudioIndex;
+  private readonly _speechAudioIndex: SpeechAudioIndex;
   
   constructor() {
     this._conversationSpeed = ConversationSpeed.SLOW;
@@ -47,6 +49,7 @@ class ConversationManager {
     this._lastPartialText = '';
     this._onSayLine = null;
     this._onSetEmotion = null;
+    this._onStateChange = null;
     this._onTranscribe = null;
     this._pendingPauseDuration = 0;
     this._pendingReply = null;
@@ -56,6 +59,11 @@ class ConversationManager {
     this._spielName = UNSPECIFIED_NAME;
     this._state = ConversationState.STOPPED;
     this._speechAudioIndex = new SpeechAudioIndex();
+  }
+
+  private _changeState(state:ConversationState) {
+    this._state = state;
+    if (this._onStateChange) this._onStateChange(state);
   }
   
   private _canStartListening(state:ConversationState) {
@@ -103,7 +111,6 @@ class ConversationManager {
     }
   }
 
-
   private _handleLineSpeechEnd() {
     if (!this._spiel) throw Error('Unexpected');
     if (this._state !== ConversationState.SPEAKING_LINE) return;
@@ -122,7 +129,7 @@ class ConversationManager {
   }
 
   private _goToStopped() {
-    this._state = ConversationState.STOPPED;
+    this._changeState(ConversationState.STOPPED);
     try {
       this._stopAnySpeaking();
       if (this._recognizer) this._recognizer.mute();
@@ -147,7 +154,7 @@ class ConversationManager {
     try {
       this._stopAnySpeaking();
       this._recognizer.unmute();
-      this._state = ConversationState.PAUSE_AFTER_LINE;
+      this._changeState(ConversationState.PAUSE_AFTER_LINE);
       this._startNextLineTimer();
     } catch(e) {
       console.error(e);
@@ -160,7 +167,7 @@ class ConversationManager {
     try {
       this._stopAnySpeaking();
       this._recognizer.mute();
-      this._state = ConversationState.PAUSE_AFTER_REPLY;
+      this._changeState(ConversationState.PAUSE_AFTER_REPLY);
       this._startNextLineTimer();
     } catch(e) {
       console.error(e);
@@ -173,7 +180,7 @@ class ConversationManager {
     try {
       this._stopAnySpeaking();
       this._recognizer.unmute();
-      this._state = ConversationState.LISTENING;
+      this._changeState(ConversationState.LISTENING);
     } catch(e) {
       console.error(e);
       this._goToStopped();
@@ -185,7 +192,7 @@ class ConversationManager {
     try {
       this._stopAnySpeaking();
       this._recognizer.unmute();
-      this._state = ConversationState.IDLE;
+      this._changeState(ConversationState.IDLE);
     } catch(e) {
       console.error(e);
       this._goToStopped();
@@ -216,7 +223,7 @@ class ConversationManager {
     if (!this._spiel || !this._speechAudioIndex || !this._recognizer || !currentNode) throw Error('Unexpected');
     try {
       this._recognizer.mute();
-      this._state = ConversationState.SPEAKING_LINE;
+      this._changeState(ConversationState.SPEAKING_LINE);
       await this._speak(currentNode.line, this._handleLineSpeechEnd);
     } catch(e) {
       console.error(e);
@@ -228,7 +235,7 @@ class ConversationManager {
     if (!this._spiel || !this._recognizer || !this._pendingReply) throw Error('Unexpected');
     try {
       this._recognizer.mute();
-      this._state = ConversationState.SPEAKING_REPLY;
+      this._changeState(ConversationState.SPEAKING_REPLY);
       const { line } = this._pendingReply;
       this._pendingReply = null;
       await this._speak(line, this._handleReplySpeechEnd);
@@ -248,6 +255,10 @@ class ConversationManager {
 
   bindOnTranscribe(onTranscribe:TranscribeCallback) {
     this._onTranscribe = onTranscribe;
+  }
+
+  bindOnStateChange(onStateChange:StateChangeCallback) {
+    this._onStateChange = onStateChange;
   }
 
   bindRecognizer(recognizer:Recognizer) {
@@ -271,7 +282,7 @@ class ConversationManager {
     if (!this._recognizer) throw Error('Bind recognizer before playing');
     this._spiel = spiel.duplicate();
     this._spielName = spielName;
-    this._goToSpeakingLine();
+    this._goToSpeakingLine().then(() => {});
   }
 
   stop() { this._goToStopped(); }
