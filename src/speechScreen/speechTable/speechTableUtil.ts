@@ -100,6 +100,7 @@ export function spielToSpeechTable(spiel:Spiel):SpeechTable {
         rows.push(_createDialogueRow(summarizeTextArray(reply.matchCriteria), UNSPECIFIED_NAME, true));
         rows.push(_createSpaceRow());
         rows.push(_createCharacterRow(reply.line.character));
+        rows.push(_createParentheticalRow(reply.line.emotion));
         const dialogues = reply.line.dialogue;
         dialogues.forEach((dialogue:string, dialogueNo:number) => {
           const speechId = reply.line.speechIds[dialogueNo];
