@@ -166,7 +166,7 @@ class ConversationManager {
     if (!this._recognizer) throw Error('Unexpected');
     try {
       this._stopAnySpeaking();
-      this._recognizer.mute();
+      this._recognizer.unmute();
       this._changeState(ConversationState.PAUSE_AFTER_REPLY);
       this._startNextLineTimer();
     } catch(e) {
