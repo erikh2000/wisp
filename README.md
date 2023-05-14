@@ -13,14 +13,13 @@
   * Looking at specific targets
 * Automatic lip animation based on processing of speech audio
 * Edit interactive dialogue (spiels).
-* Test conversations with characters using spiels and faces.
+* Record speech audio for spiels.
+* Test conversations with characters using spiels, faces, audio, and speech recognition.
 * File management, saving, exporting
 
 ## Notably Missing / Broken
 
 * Many buttons don't do anything when you click on them
-* Speech recognition and full interactive conversations not yet functioning.
-* Speech audio to dialogue mapping not yet functioning.
 * Scene editor/player not yet functioning.
 
 At some point, likely in 2023, I will deploy an MVP build to https://wisp.studio that has a full workflow ready to be used. At that point, the version in package.json will be updated to 1.x.x and this README will have much less caveats and apologies.
@@ -38,6 +37,8 @@ See the repositories of these supporting libraries for more information.
 * [sl-spiel](https://github.com/erikh2000/sl-spiel) - A library for importing, accessing, and exporting data structures used for interactive dialogue.
 
 Libraries with "web" in their name expect access to standard browser APIs that won't be available in a command-line NodeJS app.
+
+Currently to build WISP, libraries must be imported via "npm link" with the full source of the libraries available from the local filesystem. As soon as development on the libraries is more stable, I'll publish them to NPM.
 
 ## Licensing
 
