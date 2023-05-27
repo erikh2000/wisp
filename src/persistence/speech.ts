@@ -18,7 +18,7 @@ import {getActiveProjectName, UNSPECIFIED_NAME} from "./projects";
 import {DialogTextKeyInfo} from "../speechScreen/speechTable/speechTableUtil";
 import {getAllSpielKeys, getSpielByKey, spielKeyToName} from "./spiels";
 
-import {Spiel, SpielNode, SpielLine, SpielReply, importSpielFile} from 'sl-spiel';
+import {Spiel, SpielLine, importSpielFile} from 'sl-spiel';
 
 function _removeNonAlphaNumeric(text:string):string {
   return text.replace(/[^a-zA-Z0-9]/g, '');
@@ -136,7 +136,7 @@ function _getAllSpeechPathsForSpiel(spiel:Spiel, spielName:string, projectName:s
 }
 
 function _getAllSpeechKeys():Promise<string[]> {
-  return getAllKeysMatchingRegex(new RegExp(SPEECH_ID_REGEX));
+  return getAllKeysMatchingRegex(SPEECH_ID_REGEX);
 }
 
 function _doesSpeechKeyMatchPaths(speechKey:string, speechPaths:string[]):boolean {
