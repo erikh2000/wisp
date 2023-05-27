@@ -1,9 +1,24 @@
 import {fillTemplate} from "./pathUtil";
-import {SPEECH_TAKE_PATH_TEMPLATE, SPEECH_TAKE_KEY_TEMPLATE, SPEECH_FINAL_KEY_TEMPLATE} from "./keyPaths";
+import {
+  SPEECH_TAKE_PATH_TEMPLATE,
+  SPEECH_TAKE_KEY_TEMPLATE,
+  SPEECH_FINAL_KEY_TEMPLATE,
+  SPEECH_ID_REGEX
+} from "./keyPaths";
 import {MIMETYPE_AUDIO_WAV} from "./mimeTypes";
-import {deleteAllKeysAtPath, deleteByKey, getAllKeysAtPath, getBytes, setBytes} from "./pathStore";
+import {
+  deleteAllKeysAtPath,
+  deleteByKey,
+  getAllKeysAtPath,
+  getAllKeysMatchingRegex,
+  getBytes,
+  setBytes
+} from "./pathStore";
 import {getActiveProjectName, UNSPECIFIED_NAME} from "./projects";
 import {DialogTextKeyInfo} from "../speechScreen/speechTable/speechTableUtil";
+import {getAllSpielKeys, getSpielByKey, spielKeyToName} from "./spiels";
+
+import {Spiel, SpielNode, SpielLine, SpielReply, importSpielFile} from 'sl-spiel';
 
 function _removeNonAlphaNumeric(text:string):string {
   return text.replace(/[^a-zA-Z0-9]/g, '');
@@ -80,12 +95,6 @@ export function takeKeyToFinalKey(key:string):string {
   return key.slice(0, lastSeparatorPos) + '/final';
 }
 
-export async function makeTakeFinal(key:string):Promise<void> {
-  const finalKey = takeKeyToFinalKey(key);
-  const bytes = await getTake(key);
-  await setBytes(finalKey, bytes, MIMETYPE_AUDIO_WAV);
-}
-
 export async function saveTakeBytes(key:string, bytes:Uint8Array):Promise<void> {
   await setBytes(key, bytes, MIMETYPE_AUDIO_WAV);
 }
@@ -94,4 +103,67 @@ export async function getFinalTake(spielName:string, characterName:string, speec
     projectName = getActiveProjectName()):Promise<Uint8Array|null> {
   const key = _getFinalKey(projectName, spielName, characterName, speechId, dialogueText);
   return await getTake(key);
+}
+
+function _spielLineToSpeechPaths(line:SpielLine, spielName:string, projectName:string):string[] {
+  const { character, dialogue } = line;
+  const speechPaths:string[] = [];
+  for(let dialogueI = 0; dialogueI < dialogue.length; ++dialogueI) {
+    const dialogueText = dialogue[dialogueI];
+    const speechId = line.speechIds[dialogueI];
+    const firstThreeWords = _getFirstThreeWords(dialogueText);
+    const speechPath = fillTemplate(SPEECH_TAKE_PATH_TEMPLATE, {projectName, spielName, characterName:character, speechId, firstThreeWords});
+    speechPaths.push(speechPath);
+  }
+  return speechPaths;
+}
+
+function _getAllSpeechPathsForSpiel(spiel:Spiel, spielName:string, projectName:string):string[] {
+  let speechPaths:string[] = [];
+  for(let nodeI = 0; nodeI < spiel.nodes.length; ++nodeI) {
+    const node = spiel.nodes[nodeI];
+    speechPaths = speechPaths.concat(_spielLineToSpeechPaths(node.line, spielName, projectName));
+    for(let replyI = 0; replyI < node.replies.length; ++replyI) {
+      const reply = node.replies[replyI];
+      speechPaths = speechPaths.concat(_spielLineToSpeechPaths(reply.line, spielName, projectName));
+    }
+  }
+  for(let rootReplyI = 0; rootReplyI < spiel.rootReplies.length; ++rootReplyI) {
+    const rootReply = spiel.rootReplies[rootReplyI];
+    speechPaths = speechPaths.concat(_spielLineToSpeechPaths(rootReply.line, spielName, projectName));
+  }
+  return speechPaths;
+}
+
+function _getAllSpeechKeys():Promise<string[]> {
+  return getAllKeysMatchingRegex(new RegExp(SPEECH_ID_REGEX));
+}
+
+function _doesSpeechKeyMatchPaths(speechKey:string, speechPaths:string[]):boolean {
+  for(const speechPath of speechPaths) {
+    if (speechKey.startsWith(speechPath)) return true;
+  }
+  return false;
+}
+
+export async function deleteUnusedSpeech(projectName:string = getActiveProjectName()):Promise<void> {
+  const allSpeechPaths:string[] = [];
+  const spielKeys:string[] = await getAllSpielKeys();
+  for(let spielKeyI = 0; spielKeyI < spielKeys.length; ++spielKeyI) {
+    const spielKey = spielKeys[spielKeyI];
+    const spielName = spielKeyToName(spielKey);
+    const spielYaml = await getSpielByKey(spielKey);
+    const spiel:Spiel = importSpielFile(spielYaml);
+    const spielSpeechPaths:string[] = _getAllSpeechPathsForSpiel(spiel, spielName, projectName);
+    allSpeechPaths.push(...spielSpeechPaths);
+  }
+  const speechKeys:string[] = await _getAllSpeechKeys();
+  let deletedKeyCount = 0;
+  speechKeys.forEach(speechKey => {
+    if (!_doesSpeechKeyMatchPaths(speechKey, allSpeechPaths)) {
+      ++deletedKeyCount;
+      deleteTake(speechKey);
+    }
+  });
+  console.log(`Deleted ${deletedKeyCount} speech keys`);
 }

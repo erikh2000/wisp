@@ -79,4 +79,8 @@ export async function renameActiveFaceName(nextFaceName:string) {
 
 export function getActiveProjectName():string { return activeProjectName; }
 
+export function getAllProjectKeys():Promise<string[]> {
+  return getAllKeysAtPath(PROJECTS_PATH);
+}
+
 // TODO - add code for creating multiple projects and selecting between them.

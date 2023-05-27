@@ -171,6 +171,21 @@ export async function getAllKeysAtPath(path:string):Promise<string[]> {
   });
 }
 
+export async function getAllKeysMatchingRegex(regex:RegExp):Promise<string[]> {
+  const db = await _open(DB_NAME, SCHEMA);
+  const transaction = db.transaction(KEY_VALUE_STORE);
+  const objectStore = transaction.objectStore(KEY_VALUE_STORE);
+  const request = objectStore.getAllKeys();
+  return new Promise((resolve, reject) => {
+    request.onerror = (event:any) => reject(`Failed to get all keys with error code ${event.target.errorCode}.`);
+    request.onsuccess = () => {
+      const keys:string[] = request.result as string[];
+      const filteredKeys = keys.filter(key => regex.test(key));
+      resolve(filteredKeys);
+    }
+  });
+}
+
 export async function getAllValuesAtPath(path:string):Promise<KeyValueRecord[]> {
   const db = await _open(DB_NAME, SCHEMA);
   const transaction = db.transaction(KEY_VALUE_STORE);
