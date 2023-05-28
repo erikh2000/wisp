@@ -1,4 +1,5 @@
-import { init } from './interactions/generalInteractions';
+import {init} from './interactions/generalInteractions';
+import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText} from "./interactions/projectInteractions";
 import GeneralSettingsPane from "./panes/GeneralSettingsPane";
 import styles from "./ProjectsScreen.module.css";
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
@@ -16,6 +17,7 @@ function ProjectsScreen() {
   const [disabled, setDisabled] = useState<boolean>(true);
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
+  const [spielNames, setSpielNames] = useState<string[]>([]);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
 
   useEffectAfterMount(() => {
@@ -23,6 +25,7 @@ function ProjectsScreen() {
     init(setDisabled, setRevision).then(nextInitResults => {
       if (nextInitResults.projectName !== UNSPECIFIED_NAME) {
         setDocumentName(nextInitResults.projectName);
+        setSpielNames(nextInitResults.spielNames);
       }
       setDisabled(false);
     });
@@ -42,7 +45,16 @@ function ProjectsScreen() {
   return (
     <ScreenContainer documentName={documentName} isControlPaneOpen={true} activeScreen={Screen.PROJECTS} actionBarButtons={actionBarButtons}>
       <div className={styles.container}>
-        <GeneralSettingsPane />
+        <GeneralSettingsPane
+          aboutText={revision.aboutText}
+          creditsText={revision.creditsText}
+          spielNames={spielNames}
+          entrySpielName={revision.entrySpiel}
+          onChangeAboutText={nextAboutText => onChangeAboutText(nextAboutText, setRevision)}
+          onChangeCreditsText={nextCreditsText => onChangeCreditsText(nextCreditsText, setRevision)}
+          onChangeEntrySpielName={nextEntrySpielName => onChangeEntrySpielName(nextEntrySpielName, setRevision)}
+          disabled={disabled}  
+        />
       </div>
       <ExportProjectDialog
         isOpen={modalDialog === ExportProjectDialog.name}

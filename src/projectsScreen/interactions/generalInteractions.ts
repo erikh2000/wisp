@@ -1,10 +1,12 @@
-import {getRevisionManager, Revision} from "./revisionUtil";
+import {createDefaultRevision, getRevisionManager, Revision} from "./revisionUtil";
 import {bindSetDisabled, initCore} from "./coreUtil";
 import RevisionManager from "documents/RevisionManager";
-import {getActiveProjectName} from "persistence/projects";
+import {getActiveProject, getActiveProjectName, UNSPECIFIED_NAME} from "persistence/projects";
+import {getSpielNames} from "persistence/spiels";
 
 type InitResults = {
-  projectName:string
+  projectName:string,
+  spielNames:string[]
 }
 
 let isInitialized = false;
@@ -20,7 +22,8 @@ function _initForSubsequentMount(revisionManager:RevisionManager<Revision>, setD
 
 export async function init(setDisabled:Function, setRevision:Function):Promise<InitResults> {
   const projectName = await getActiveProjectName();
-  const initResults:InitResults = { projectName };
+  const spielNames = await getSpielNames(projectName);
+  const initResults:InitResults = { projectName, spielNames };
 
   const revisionManager = getRevisionManager();
   revisionManager.disablePersistence();
@@ -32,7 +35,12 @@ export async function init(setDisabled:Function, setRevision:Function):Promise<I
 
   await initCore(setDisabled);
   
-  const revision = {  };
+  const project = await getActiveProject();
+  const revision = createDefaultRevision();
+  revision.entrySpiel = project.entrySpiel 
+    ?? spielNames.length ? spielNames[0] : UNSPECIFIED_NAME; 
+  revision.aboutText = project.aboutText;
+  revision.creditsText = project.creditsText;
   revisionManager.add(revision);
   revisionManager.enablePersistence();
   setRevision(revisionManager.currentRevision);
