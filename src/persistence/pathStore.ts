@@ -1,5 +1,6 @@
-import {keyToPath} from "./pathUtil";
-import {MIMETYPE_OCTET_STREAM, MIMETYPE_PLAIN_TEXT} from "./mimeTypes";
+import {keyToName, keyToPath} from "./pathUtil";
+import {MIMETYPE_OCTET_STREAM, MIMETYPE_PLAIN_TEXT, mimeTypeToExtension} from "./mimeTypes";
+import {PROJECTS_PATH} from "./keyPaths";
 
 const DB_NAME = 'wisp';
 const KEY_VALUE_STORE = 'KeyValue';
@@ -121,6 +122,26 @@ export async function getText(key:string):Promise<string|null> {
 export async function getBytes(key:string):Promise<Uint8Array|null> {
   const record = await _getRecordByKey(key);
   return record?.bytes ?? null;
+}
+
+export type FileStorageData = {
+  fileName:string,
+  path:string,
+  mimeType:string,
+  lastModified:number,
+  blob:Blob
+}
+export async function getDataForFileStorage(key:string):Promise<FileStorageData> {
+  const record = await _getRecordByKey(key);
+  if (!record) throw Error(`No record found for key "${key}"`);
+  const text:Uint8Array = record.text ? new TextEncoder().encode(record.text) : new Uint8Array(); 
+  const bytes:Uint8Array = record.bytes ?? text;
+  const mimeType = record.mimeType;
+  const fileName = `${keyToName(key)}.${mimeTypeToExtension(mimeType)}`;
+  const { lastModified } = record;
+  const path = record.path.slice(PROJECTS_PATH.length);
+  const blob = new Blob([bytes], { type: mimeType });
+  return { fileName, path, mimeType, blob, lastModified };
 }
 
 async function _setFieldValue(key:string, fieldName:string, fieldValue:any, mimeType:string) {

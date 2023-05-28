@@ -69,17 +69,6 @@ export async function onCompleteFinalization(takeWavKey:string|null, audioBuffer
   setModalDialog(null);
 }
 
-
-// TODO delete after done using.
-function _downloadWavBytes(wavBytes:Uint8Array, filename:string) {
-  const blob = new Blob([wavBytes], { type: 'audio/wav' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-}
-
 export async function loadTakeWave(wavKey:string):Promise<AudioBuffer> {
   const wavBytes = await getTake(wavKey);
   if (!wavBytes) throw Error("No wav bytes");
