@@ -165,5 +165,4 @@ export async function deleteUnusedSpeech(projectName:string = getActiveProjectNa
       deleteTake(speechKey);
     }
   });
-  console.log(`Deleted ${deletedKeyCount} speech keys`);
 }
