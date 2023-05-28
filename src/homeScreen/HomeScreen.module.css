@@ -37,4 +37,5 @@
     background-color: background-content;
     width: 80%;
     padding: 1rem;
+    overflow-y: auto;
 }

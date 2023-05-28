@@ -2,7 +2,7 @@
 @value accent-orange, primary-off-white, accent-dark-grey from colors; 
     
 .menuTile {
-    flex-basis: 30rem;
+    flex-basis: 20rem;
     background-color: primary-off-white;
     border-style: solid;
     border-color: accent-dark-grey;

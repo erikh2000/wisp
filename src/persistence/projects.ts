@@ -1,7 +1,7 @@
 import {renameFace} from "./faces";
-import {PROJECT_PATH_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
+import {PROJECT_PATH_TEMPLATE, PROJECT_REGEX_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
 import {MIMETYPE_WISP_PROJECT} from "./mimeTypes";
-import {getAllKeysAtPath, getText, setText} from "./pathStore";
+import {getAllKeysAtPath, getAllKeysMatchingRegex, getText, setText} from "./pathStore";
 import {fillTemplate, isValidName, keyToName} from "./pathUtil";
 import Project from "./Project";
 
@@ -81,6 +81,11 @@ export function getActiveProjectName():string { return activeProjectName; }
 
 export function getAllProjectKeys():Promise<string[]> {
   return getAllKeysAtPath(PROJECTS_PATH);
+}
+
+export function getAllKeysForProject(projectName:string = getActiveProjectName()):Promise<string[]> {
+  const regex = new RegExp(fillTemplate(PROJECT_REGEX_TEMPLATE, {projectName}));
+  return getAllKeysMatchingRegex(regex);
 }
 
 // TODO - add code for creating multiple projects and selecting between them.

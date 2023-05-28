@@ -1,4 +1,5 @@
 import FacesScreen from "facesScreen/FacesScreen";
+import ProjectsScreen from "projectsScreen/ProjectsScreen";
 import SpeechScreen from "speechScreen/SpeechScreen";
 import SpielsScreen from "spielsScreen/SpielsScreen";
 import HomeScreen from "homeScreen/HomeScreen";
@@ -12,6 +13,7 @@ function AppRoutes() {
       <Routes>
         <Route path="" element={<HomeScreen />} />
         <Route path="faces" element={<FacesScreen />} />
+        <Route path="projects" element={<ProjectsScreen />} />
         <Route path="speech" element={<SpeechScreen />} />
         <Route path="spiels" element={<SpielsScreen />} />
         <Route path="*" element={<Navigate to="/" />} />

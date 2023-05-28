@@ -1,4 +1,4 @@
-let setDisabled:Function|null = null; 
+let setDisabled:Function|null = null;
 export function bindSetDisabled(_setDisabled:Function) {
   setDisabled = _setDisabled;
 }
