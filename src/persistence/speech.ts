@@ -158,11 +158,7 @@ export async function deleteUnusedSpeech(projectName:string = getActiveProjectNa
     allSpeechPaths.push(...spielSpeechPaths);
   }
   const speechKeys:string[] = await _getAllSpeechKeys();
-  let deletedKeyCount = 0;
   speechKeys.forEach(speechKey => {
-    if (!_doesSpeechKeyMatchPaths(speechKey, allSpeechPaths)) {
-      ++deletedKeyCount;
-      deleteTake(speechKey);
-    }
+    if (!_doesSpeechKeyMatchPaths(speechKey, allSpeechPaths)) deleteTake(speechKey);
   });
 }

@@ -180,6 +180,16 @@ export async function getAllKeys():Promise<string[]> {
   });
 }
 
+export async function getAllPathsAtPath(path:string):Promise<string[]> {
+  const uniquePaths:string[] = [];
+  const keys = await getAllKeysAtPath(path);
+  keys.forEach(key => {
+    const path = keyToPath(key);
+    if (!uniquePaths.includes(path)) uniquePaths.push(path);
+  });
+  return uniquePaths;
+}
+
 export async function getAllKeysAtPath(path:string):Promise<string[]> {
   const db = await _open(DB_NAME, SCHEMA);
   const transaction = db.transaction(KEY_VALUE_STORE);
@@ -250,4 +260,17 @@ export async function deleteAllKeysAtPath(path:string):Promise<void> {
   const keys = await getAllKeysAtPath(path);
   if (!keys.length) return;
   await deleteAllKeys(keys);
+}
+
+export async function doesKeyExist(key:string):Promise<boolean> {
+  const db = await _open(DB_NAME, SCHEMA);
+  const transaction = db.transaction(KEY_VALUE_STORE, 'readonly');
+  transaction.objectStore(KEY_VALUE_STORE).openCursor(key);
+  return new Promise((resolve, reject) => {
+    transaction.onerror = (event:any) => reject(`Failed to check if key "${key}" exists with error code ${event.target.errorCode}.`);
+    transaction.oncomplete = (event:any) => {
+      const cursor = event.target.result;
+      resolve(cursor !== undefined);
+    }
+  });
 }

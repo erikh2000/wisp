@@ -1,7 +1,7 @@
 import {renameFace} from "./faces";
-import {PROJECT_PATH_TEMPLATE, PROJECT_REGEX_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
+import {PROJECT_KEY_TEMPLATE, PROJECT_KEYS_REGEX, PROJECT_PATH_REGEX_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
 import {MIMETYPE_WISP_PROJECT} from "./mimeTypes";
-import {getAllKeysAtPath, getAllKeysMatchingRegex, getText, setText} from "./pathStore";
+import {doesKeyExist, getAllKeysAtPath, getAllKeysMatchingRegex, getText, setText} from "./pathStore";
 import {fillTemplate, isValidName, keyToName} from "./pathUtil";
 import Project from "./Project";
 
@@ -13,13 +13,13 @@ export const UNSPECIFIED_NAME = '';
 let activeProjectName:string = DEFAULT_PROJECT_NAME;
 
 export async function getProjectNames():Promise<string[]> {
-  const keys = await getAllKeysAtPath(PROJECTS_PATH);
+  const keys = await getAllKeysMatchingRegex(PROJECT_KEYS_REGEX);
   return keys.map(key => keyToName(key));
 }
 
 export async function createProject(projectName:string) {
   if (!isValidName(projectName)) throw Error('Invalid project name');
-  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName});
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName});
   const project:Project = { created:Date.now(), activeFace:UNSPECIFIED_NAME, activeSpiel:UNSPECIFIED_NAME, entrySpiel:UNSPECIFIED_NAME, aboutText:'', creditsText:'' };
   const projectYaml = stringify(project);
   await setText(key, projectYaml, MIMETYPE_WISP_PROJECT);
@@ -28,19 +28,18 @@ export async function createProject(projectName:string) {
 }
 
 export async function createDefaultProjectIfMissing() {
-  const keys = await getAllKeysAtPath(PROJECTS_PATH);
-  if (keys.length) return;
-  await createProject(DEFAULT_PROJECT_NAME);
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:DEFAULT_PROJECT_NAME});
+  if (!await doesKeyExist(key)) await createProject(DEFAULT_PROJECT_NAME);
 }
 
-async function _getProjectByKey(key:string) {
+async function _getProjectByKey(key:string):Promise<Project> {
   const projectYaml = await getText(key);
   if (!projectYaml) throw Error('Unexpected');
   return parse(projectYaml);
 }
 
 export async function getActiveProject():Promise<Project> {
-  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:activeProjectName});
   return _getProjectByKey(key);
 } 
 
@@ -50,7 +49,7 @@ export async function getActiveFaceName():Promise<string> {
 }
 
 export async function setActiveFaceName(faceName:string) {
-  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:activeProjectName});
   const project:Project = await _getProjectByKey(key);
   project.activeFace = faceName;
   await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
@@ -62,14 +61,14 @@ export async function getActiveSpielName():Promise<string> {
 }
 
 export async function setActiveSpielName(spielName:string) {
-  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:activeProjectName});
   const project:Project = await _getProjectByKey(key);
   project.activeSpiel = spielName;
   await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
 }
 
 export async function renameActiveFaceName(nextFaceName:string) {
-  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:activeProjectName});
   const project:Project = await _getProjectByKey(key);
   const currentFaceName = project.activeFace;
   await renameFace(currentFaceName, nextFaceName);
@@ -78,19 +77,12 @@ export async function renameActiveFaceName(nextFaceName:string) {
 }
 
 export async function updateActiveProject(changes:Partial<Project>) {
-  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:activeProjectName});
   const currentProject:Project = await _getProjectByKey(key);
   currentProject.entrySpiel = changes.entrySpiel ?? currentProject.entrySpiel ?? UNSPECIFIED_NAME;
   currentProject.aboutText = changes.aboutText ?? currentProject.aboutText ?? '';
   currentProject.creditsText = changes.creditsText ?? currentProject.creditsText ?? '';
   await setText(key, stringify(currentProject), MIMETYPE_WISP_PROJECT);
-}
-
-export async function setEntrySpiel(spielName:string) {
-  const key = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:activeProjectName});
-  const project:Project = await _getProjectByKey(key);
-  project.entrySpiel = spielName;
-  await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
 }
 
 export function getActiveProjectName():string { return activeProjectName; }
@@ -100,7 +92,7 @@ export function getAllProjectKeys():Promise<string[]> {
 }
 
 export function getAllKeysForProject(projectName:string = getActiveProjectName()):Promise<string[]> {
-  const regex = new RegExp(fillTemplate(PROJECT_REGEX_TEMPLATE, {projectName}));
+  const regex = new RegExp(fillTemplate(PROJECT_PATH_REGEX_TEMPLATE, {projectName}));
   return getAllKeysMatchingRegex(regex);
 }
 

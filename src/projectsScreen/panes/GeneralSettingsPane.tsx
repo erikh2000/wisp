@@ -1,7 +1,7 @@
 import styles from "./GeneralSettingsPane.module.css";
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 interface IProps {
   aboutText:string,

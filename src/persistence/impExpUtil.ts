@@ -1,14 +1,14 @@
+import {downloadBlob} from "./downloadUtil";
+import {PROJECT_PATH_REGEX_TEMPLATE} from "./keyPaths";
 import {getAllKeysMatchingRegex, getDataForFileStorage} from "./pathStore";
+import {fillTemplate} from "./pathUtil";
 import {getActiveProjectName} from "./projects";
 
 import JSZip from 'jszip';
-import {PROJECT_REGEX_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
-import {fillTemplate} from "./pathUtil";
-import {downloadBlob} from "./downloadUtil";
 
 export async function downloadProjectZip(projectName:string = getActiveProjectName()):Promise<void> {
   const zip = new JSZip();
-  const projectRegex = new RegExp(fillTemplate(PROJECT_REGEX_TEMPLATE, {projectName}));
+  const projectRegex = new RegExp(fillTemplate(PROJECT_PATH_REGEX_TEMPLATE, {projectName}));
   const keys = await getAllKeysMatchingRegex(projectRegex);
   for(let keyI = 0; keyI < keys.length; ++keyI) {
     const key = keys[keyI];
