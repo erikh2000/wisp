@@ -10,9 +10,13 @@ import Screen, {screenConfigs} from "ui/screen/screens";
 import {CanvasComponent, createFaceDocument, loadFaceFromDefinition, loadFaceFromUrl} from "sl-web-face";
 import {NavigateFunction} from "react-router";
 import {stringify} from 'yaml';
+import revisionManager from "../../documents/RevisionManager";
 
 export function onNewFaceName(faceName:string, setModalDialog:any, setDocumentName:any) {
   setActiveFaceName(faceName).then(() => {
+    const revisionManager = getRevisionManager();
+    return revisionManager.persistCurrent();
+  }).then(() => {
     setDocumentName(faceName);
     setModalDialog(null);
   });

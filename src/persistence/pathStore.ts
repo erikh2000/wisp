@@ -265,12 +265,12 @@ export async function deleteAllKeysAtPath(path:string):Promise<void> {
 export async function doesKeyExist(key:string):Promise<boolean> {
   const db = await _open(DB_NAME, SCHEMA);
   const transaction = db.transaction(KEY_VALUE_STORE, 'readonly');
-  transaction.objectStore(KEY_VALUE_STORE).openCursor(key);
+  const cursorRequest = transaction.objectStore(KEY_VALUE_STORE).openCursor(key);
   return new Promise((resolve, reject) => {
-    transaction.onerror = (event:any) => reject(`Failed to check if key "${key}" exists with error code ${event.target.errorCode}.`);
-    transaction.oncomplete = (event:any) => {
+    cursorRequest.onerror = (event:any) => reject(`Failed to check if key "${key}" exists with error code ${event.target.errorCode}.`);
+    cursorRequest.onsuccess = (event:any) => {
       const cursor = event.target.result;
-      resolve(cursor !== undefined);
+      resolve(cursor !== null);
     }
   });
 }

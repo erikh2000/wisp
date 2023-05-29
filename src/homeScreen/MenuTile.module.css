@@ -14,10 +14,12 @@
     padding: 1rem;
     cursor: pointer;
     max-height: 650px;
+    opacity: .8;
 }
 
 .menuTile:hover {
     background-size: 210%;
+    opacity: 1;
 }
 
 .menuTile h1 {

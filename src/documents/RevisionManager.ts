@@ -38,6 +38,12 @@ class RevisionManager<T> {
     return this.persister.waitForCompletion();
   }
   
+  // Forces persistence of current revision, rather than waiting for next revision to be added.
+  async persistCurrent():Promise<void> {
+    if (!this.currentRevision) throw Error('Cannot persist when no revision is stored.');
+    return this.persister.persist(this.currentRevision);
+  }
+  
   addChanges(changes:any) {
     if (!this.revisions.length) throw Error('Can only add changes after one revision is stored.');
     const nextRevision = {...this.currentRevision} as T;

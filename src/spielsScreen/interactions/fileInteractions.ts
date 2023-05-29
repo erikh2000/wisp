@@ -8,6 +8,9 @@ import {importFountain, exportSpielFile, Spiel} from 'sl-spiel';
 
 export function onNewSpielName(spielName:string, setModalDialog:Function, setDocumentName:Function) {
   setActiveSpielName(spielName).then(() => {
+    const revisionManager = getRevisionManager();
+    return revisionManager.persistCurrent();
+  }).then(() => {
     setDocumentName(spielName);
     setModalDialog(null);
   });
