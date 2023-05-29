@@ -4,6 +4,7 @@
 .menuTile {
     flex-basis: 20rem;
     background-color: primary-off-white;
+    background-size: 200%;
     border-style: solid;
     border-color: accent-dark-grey;
     border-width: 0.5rem;
@@ -11,21 +12,24 @@
     margin-bottom: 1rem;
     margin-right: 1rem;
     padding: 1rem;
+    cursor: pointer;
+    max-height: 650px;
+}
+
+.menuTile:hover {
+    background-size: 210%;
 }
 
 .menuTile h1 {
     font-family: 'simply_olive', serif;
-    font-size: 2rem;
+    font-size: 3rem;
     letter-spacing: .3rem;
+    text-shadow: -.3rem -.3rem 0 #000, 0 -.3rem 0 #000, 0 .3rem 0 #000, .3rem -.3rem 0 #000, .3rem 0 0 #000, -.3rem 0 0 #000, -.3rem .3rem 0 #000, .3rem .3rem 0 #000;
     color: #b9773d;
 }
 
 .menuTile p {
     font-family: 'simply_olive', serif;
-    font-size: 1rem;
+    font-size: 2rem;
 }
 
-.image {
-    position: relative;
-    transform: scale(.5, .5);
-}

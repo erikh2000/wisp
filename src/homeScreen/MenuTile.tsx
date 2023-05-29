@@ -13,7 +13,6 @@ function MenuTile(props:IProps) {
   const { summary, description, url} = props;
   const divStyle = {
     backgroundImage: `url(${props.imageUri})`,
-    backgroundSize: 'cover'
   };
   return (
     <div className={styles.menuTile} style={divStyle} onClick={() => navigate(url)}>

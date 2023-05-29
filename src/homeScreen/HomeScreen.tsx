@@ -32,7 +32,7 @@ function HomeScreen() {
     <div className={styles.screen}>
       <div className={styles.logoPanel}>
         <img className={styles.wispLogo} src={wispLogoImage} alt='Web Interactive Storytelling Framework (W.I.S.P.)' />
-        <img className={styles.seespaceLabsLogo} src={seespaceLabsLogoImage} alt='Seespace Labs Logo' />
+        <a href="https://seespacelabs.com"><img className={styles.seespaceLabsLogo} src={seespaceLabsLogoImage} alt='Seespace Labs Logo' /></a>
       </div>
       <div className={styles.tilesPanel}>
         {_renderMenuTiles(homeScreenConfigs)}
