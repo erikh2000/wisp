@@ -24,3 +24,8 @@
     font-family: 'simply_olive', serif;
     font-size: 1rem;
 }
+
+.image {
+    position: relative;
+    transform: scale(.5, .5);
+}

@@ -2,9 +2,16 @@ import MenuTile from './MenuTile';
 import styles from './HomeScreen.module.css';
 import wispLogoImage from './images/wispLogo.png';
 import seespaceLabsLogoImage from './images/seespaceLabsLogo.png';
+import projectsImage from './images/projects.png';
+import spielsImage from './images/spiels.png';
+import facesImage from './images/faces.png';
+import scenesImage from './images/scenes.png';
+import speechImage from './images/speech.png';
 import Screen, { ScreenConfig, screenConfigs } from "ui/screen/screens";
 
 import { useState } from 'react';
+
+const screenImages = [facesImage, spielsImage, speechImage, scenesImage, projectsImage];
 
 function _initHomeScreenConfigs() {
   return screenConfigs.filter((_screenConfig, screenNo) => screenNo !== Screen.HOME);
@@ -13,7 +20,8 @@ function _initHomeScreenConfigs() {
 function _renderMenuTiles(homeScreenConfigs:ScreenConfig[]):JSX.Element[] {
   return homeScreenConfigs.map((screenConfig, screenNo) => {
     const { summary, description, url } = screenConfig;
-    return <MenuTile summary={summary} description={description} url={url} key={screenNo} />
+    const image = screenImages[screenNo];
+    return <MenuTile summary={summary} description={description} url={url} key={screenNo} imageUri={image}/>
   });
 }
 
