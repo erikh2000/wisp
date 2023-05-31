@@ -158,7 +158,13 @@ export async function deleteUnusedSpeech(projectName:string = getActiveProjectNa
     allSpeechPaths.push(...spielSpeechPaths);
   }
   const speechKeys:string[] = await _getAllSpeechKeys();
+  const speechKeysToDelete:string[] = [];
   speechKeys.forEach(speechKey => {
-    if (!_doesSpeechKeyMatchPaths(speechKey, allSpeechPaths)) deleteTake(speechKey);
+    if (!_doesSpeechKeyMatchPaths(speechKey, allSpeechPaths)) speechKeysToDelete.push(speechKey);
   });
+  
+  if (speechKeysToDelete.length === 0) return;
+  
+  const deletePromises:Promise<void>[] = speechKeysToDelete.map(key => deleteByKey(key));
+  await Promise.all(deletePromises);
 }

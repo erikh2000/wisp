@@ -10,7 +10,7 @@ import {
 import {FACE_PATH_TEMPLATE, FACES_PATH_TEMPLATE} from "./keyPaths";
 import {fillTemplate, isValidName, keyToName} from "./pathUtil";
 import {MIMETYPE_WISP_FACE} from "./mimeTypes";
-import {getActiveProjectName} from "./projects";
+import {getActiveProjectName, renameFaceReferencesInProject} from "./projects";
 import {fetchText} from "common/fetchUtil";
 
 export async function getFaceNames(projectName:string = getActiveProjectName()):Promise<string[]> {
@@ -42,6 +42,7 @@ export async function renameFace(currentFaceName:string, nextFaceName:string, pr
   const currentKey = fillTemplate(FACE_PATH_TEMPLATE, {projectName, faceName:currentFaceName});
   const nextKey = fillTemplate(FACE_PATH_TEMPLATE, {projectName, faceName:nextFaceName});
   await renameKey(currentKey, nextKey);
+  await renameFaceReferencesInProject(currentFaceName, nextFaceName, projectName);
 }
 
 export async function getAllFaceRecords(projectName:string = getActiveProjectName()):Promise<KeyValueRecord[]> {

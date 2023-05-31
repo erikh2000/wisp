@@ -1,4 +1,4 @@
-import {getActiveProjectName, getAllProjectKeys} from "./projects";
+import {getActiveProjectName, getAllProjectKeys, projectKeyToName, renameSpielReferencesInProject} from "./projects";
 import {fillTemplate, keyToName} from "./pathUtil";
 import {SPIELS_PATH_TEMPLATE, SPIEL_PATH_TEMPLATE} from "./keyPaths";
 import {deleteByKey, getAllKeysAtPath, getText, renameKey, setText} from "./pathStore";
@@ -24,6 +24,7 @@ export async function renameSpiel(currentSpielName:string, nextSpielName:string,
   const currentKey = fillTemplate(SPIEL_PATH_TEMPLATE, {projectName, spielName:currentSpielName});
   const nextKey = fillTemplate(SPIEL_PATH_TEMPLATE, {projectName, faceName:nextSpielName});
   await renameKey(currentKey, nextKey);
+  await renameSpielReferencesInProject(currentSpielName, nextSpielName, projectName);
 }
 
 export async function deleteSpiel(spielName:string, projectName:string = getActiveProjectName()):Promise<void> {
@@ -42,7 +43,8 @@ export async function getAllSpielKeys():Promise<string[]> {
   const projectKeys = await getAllProjectKeys();
   for(let projectKeyI = 0; projectKeyI < projectKeys.length; ++projectKeyI) {
     const projectKey = projectKeys[projectKeyI];
-    const spielPath = fillTemplate(SPIELS_PATH_TEMPLATE, {projectName:keyToName(projectKey)});
+    const projectName = projectKeyToName(projectKey);
+    const spielPath = fillTemplate(SPIELS_PATH_TEMPLATE, {projectName});
     const spielKeysAtPath = await getAllKeysAtPath(spielPath);
     spielKeys.push(...spielKeysAtPath);
   }

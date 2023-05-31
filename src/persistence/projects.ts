@@ -88,12 +88,35 @@ export async function updateActiveProject(changes:Partial<Project>) {
 export function getActiveProjectName():string { return activeProjectName; }
 
 export function getAllProjectKeys():Promise<string[]> {
-  return getAllKeysAtPath(PROJECTS_PATH);
+  return getAllKeysMatchingRegex(PROJECT_KEYS_REGEX);
 }
 
 export function getAllKeysForProject(projectName:string = getActiveProjectName()):Promise<string[]> {
   const regex = new RegExp(fillTemplate(PROJECT_PATH_REGEX_TEMPLATE, {projectName}));
   return getAllKeysMatchingRegex(regex);
+}
+
+export async function renameFaceReferencesInProject(currentFaceName:string, nextFaceName:string, projectName:string = getActiveProjectName()) {
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName});
+  const currentProject:Project = await _getProjectByKey(key);
+  if (currentProject.activeFace === currentFaceName) currentProject.activeFace = nextFaceName;
+  await setText(key, stringify(currentProject), MIMETYPE_WISP_PROJECT);
+}
+
+export async function renameSpielReferencesInProject(currentSpielName:string, nextSpielName:string, projectName:string = getActiveProjectName()) {
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName});
+  const currentProject:Project = await _getProjectByKey(key);
+  if (currentProject.activeSpiel === currentSpielName) currentProject.activeSpiel = nextSpielName;
+  if (currentProject.entrySpiel === currentSpielName) currentProject.entrySpiel = nextSpielName;
+  await setText(key, stringify(currentProject), MIMETYPE_WISP_PROJECT);
+}
+
+export function projectKeyToName(key:string):string {
+  // Parsing PROJECTNAME from /projects/PROJECTNAME/project
+  if (!key.startsWith(PROJECTS_PATH)) throw Error('Unexpected');
+  const endNamePos = key.indexOf('/', PROJECTS_PATH.length);
+  if (endNamePos === -1) throw Error('Unexpected');
+  return key.substring(PROJECTS_PATH.length, endNamePos);
 }
 
 // TODO - add code for creating multiple projects and selecting between them.

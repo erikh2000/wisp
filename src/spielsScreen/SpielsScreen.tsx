@@ -25,7 +25,7 @@ import {
   selectSpielNode,
   updateNodeAfterEdit
 } from "./interactions/editInteractions";
-import {exportSpiel, importSpiel, onNewSpielName} from "./interactions/fileInteractions";
+import {exportSpiel, importSpiel, onNewSpielName, onRenameSpiel} from "./interactions/fileInteractions";
 import {init, InitResults} from "./interactions/generalInteractions";
 import {
   onChangeFace,
@@ -60,6 +60,7 @@ import {TextConsoleLine} from "ui/TextConsoleBuffer";
 import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Spiel, SpielLine, SpielReply} from "sl-spiel";
+import RenameSpielDialog from "./fileDialogs/RenameSpielDialog";
 
 function doNothing() {} // TODO - delete after not used
 
@@ -126,7 +127,7 @@ function SpielsScreen() {
   const actionBarButtons = [
     {text:'New', onClick:doNothing, groupNo:0, disabled},
     {text:'Open', onClick:doNothing, groupNo:0, disabled},
-    {text:'Rename', onClick:doNothing, groupNo:0, disabled},
+    {text:'Rename', onClick:() => setModalDialog(RenameSpielDialog.name), groupNo:0, disabled},
     {text:'Delete', onClick:doNothing, groupNo:0, disabled},
     {text:'Import', onClick:() => importSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Export', onClick:() => exportSpiel(documentName), groupNo:0, disabled},
@@ -226,6 +227,11 @@ function SpielsScreen() {
         isOpen={modalDialog === TestOptionsDialog.name}
         onCancel={() => setModalDialog(null)}
         onSubmit={nextConversationSpeed => updateTestOptions(nextConversationSpeed, setConversationSpeed, setModalDialog)}
+      />
+      <RenameSpielDialog
+        isOpen={modalDialog === RenameSpielDialog.name}
+        onCancel={() => setModalDialog(null)}
+        onSubmit={(nextSpielName) => onRenameSpiel(documentName, nextSpielName, setModalDialog, setDocumentName)}
       />
     </ScreenContainer>
   );

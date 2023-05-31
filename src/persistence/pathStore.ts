@@ -180,16 +180,6 @@ export async function getAllKeys():Promise<string[]> {
   });
 }
 
-export async function getAllPathsAtPath(path:string):Promise<string[]> {
-  const uniquePaths:string[] = [];
-  const keys = await getAllKeysAtPath(path);
-  keys.forEach(key => {
-    const path = keyToPath(key);
-    if (!uniquePaths.includes(path)) uniquePaths.push(path);
-  });
-  return uniquePaths;
-}
-
 export async function getAllKeysAtPath(path:string):Promise<string[]> {
   const db = await _open(DB_NAME, SCHEMA);
   const transaction = db.transaction(KEY_VALUE_STORE);

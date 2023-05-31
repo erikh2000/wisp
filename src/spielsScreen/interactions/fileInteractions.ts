@@ -5,12 +5,20 @@ import {performDisablingOperation} from "spielsScreen/interactions/coreUtil";
 import {setUpRevisionForNewSpiel, getRevisionManager} from "spielsScreen/interactions/revisionUtil";
 
 import {importFountain, exportSpielFile, Spiel} from 'sl-spiel';
+import {renameSpiel} from "../../persistence/spiels";
 
 export function onNewSpielName(spielName:string, setModalDialog:Function, setDocumentName:Function) {
   setActiveSpielName(spielName).then(() => {
     const revisionManager = getRevisionManager();
     return revisionManager.persistCurrent();
   }).then(() => {
+    setDocumentName(spielName);
+    setModalDialog(null);
+  });
+}
+
+export function onRenameSpiel(documentName:string, spielName:string, setModalDialog:Function, setDocumentName:Function) {
+  renameSpiel(documentName, spielName).then(() => {
     setDocumentName(spielName);
     setModalDialog(null);
   });

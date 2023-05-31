@@ -12,11 +12,12 @@ import { useState, useEffect } from 'react';
 
 interface IProps {
   isOpen:boolean,
+  onCancel:() => void,
   onSubmit:(value:string) => void
 }
 
-function NewSpielDialog(props:IProps) {
-  const { isOpen, onSubmit } = props;
+function RenameSpielDialog(props:IProps) {
+  const { isOpen, onCancel, onSubmit } = props;
   const [existingNames, setExistingNames] = useState<NormalizedNameMap|null>(null);
   const [defaultValue, setDefaultValue] = useState<string|null>(null);
 
@@ -24,7 +25,7 @@ function NewSpielDialog(props:IProps) {
     if (!isOpen) return;
     getSpielNames().then( (spielNames:string[]) => {
       const existingNames = createNormalizedNameMap(spielNames);
-      const defaultValue = findUniqueDefaultValue(existingNames, 'My Stupid Spiel');
+      const defaultValue = findUniqueDefaultValue(existingNames, 'My Better-Named Spiel');
       setExistingNames(existingNames);
       setDefaultValue(defaultValue);
     });
@@ -35,9 +36,10 @@ function NewSpielDialog(props:IProps) {
   return (
     <TextInputDialog
       isOpen={isOpen}
-      title='New Spiel'
-      description={`What will you call your new spiel? It could describe a plot event in a story. You can change it later.`}
+      title='Rename Spiel'
+      description={`Let's give your spiel a new name. What will it be?`}
       defaultValue={defaultValue}
+      onCancel={onCancel}
       onSubmit={onSubmit}
       onFixInput={fixPathStoreName}
       onSubmitValidate={(name) => existingNames ? validatePathStoreNameForSubmit(name, existingNames) : ['Finding existing names...']}
@@ -46,4 +48,4 @@ function NewSpielDialog(props:IProps) {
   );
 }
 
-export default NewSpielDialog;
+export default RenameSpielDialog;
