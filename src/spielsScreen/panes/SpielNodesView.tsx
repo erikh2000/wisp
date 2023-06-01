@@ -21,11 +21,12 @@ function _getInsertPosition(nodeNo:number, insertAfterNodeNo:number|null):Insert
   return nodeNo === insertAfterNodeNo ? InsertPosition.AFTER : InsertPosition.NONE;
 }
 
+const UNSPECIFIED_EMOTION = -1;
 function SpielNodesView(props:IProps) {
   const { insertAfterNodeNo, nodes, disabled, onNodeDrag, onNodeDragEnd, onReceiveNodeHeight, onSelect, 
     onSelectForEdit, onSelectReplyForEdit, selectedNodeNo } = props;
   let lastCharacterName = '';
-  let lastEmotion = SpielEmotion.NEUTRAL;
+  let lastEmotion = UNSPECIFIED_EMOTION;
   return (
     <div className={styles.container}>
       {nodes.map((node, nodeNo) => {
