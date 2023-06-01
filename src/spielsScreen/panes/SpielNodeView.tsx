@@ -5,6 +5,7 @@ import {spielEmotionToParenthetical} from "conversations/spielEmotionUtil";
 import { SpielNode, SpielReply } from 'sl-spiel';
 import { Emotion } from 'sl-web-face';
 import { useEffect, useRef } from "react";
+import {summarizeTextArray} from "../../common/textFormatUtil";
 
 export enum InsertPosition {
   NONE,
@@ -67,6 +68,7 @@ function SpielNodeView(props:IProps) {
     onReceiveNodeHeight(containerRef.current.clientHeight);
   }, [containerRef.current?.clientHeight, onReceiveNodeHeight]);
   
+  const dialogueSummary = summarizeTextArray(node.line.dialogue);
   return (
     <div 
         className={className}
@@ -79,7 +81,7 @@ function SpielNodeView(props:IProps) {
     >
       {character}
       {parenthetical}
-      <span className={styles.dialogue}>{node.line.dialogue}</span>
+      <span className={styles.dialogue}>{dialogueSummary}</span>
       {renderedReplies}
     </div>
   );
