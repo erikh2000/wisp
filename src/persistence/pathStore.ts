@@ -1,6 +1,7 @@
 import {keyToName, keyToPath} from "./pathUtil";
 import {MIMETYPE_OCTET_STREAM, MIMETYPE_PLAIN_TEXT, mimeTypeToExtension} from "./mimeTypes";
 import {PROJECTS_PATH} from "./keyPaths";
+import {escapeRegexCharacters} from "../common/regexUtil";
 
 const DB_NAME = 'wisp';
 const KEY_VALUE_STORE = 'KeyValue';
@@ -219,15 +220,37 @@ export async function getAllValuesAtPath(path:string):Promise<KeyValueRecord[]> 
   });
 }
 
-export async function renameKey(currentKey:string, nextKey:string):Promise<void> {
-  const db = await _open(DB_NAME, SCHEMA);
-  const record:KeyValueRecord|null = await _get(db, KEY_VALUE_STORE, currentKey) as KeyValueRecord|null;
-  if (!record) throw Error(`Did not find existing record matching "${currentKey}" key.`);
+function _changePathOfKey(key:string, path:string, nextPath:string):string {
+  return nextPath + key.slice(path.length);
+}
+
+async function _replaceRecordUsingNewKey(db:IDBDatabase, key:string, nextKey:string, updateLastModified:boolean) {
+  const record:KeyValueRecord|null = await _get(db, KEY_VALUE_STORE, key) as KeyValueRecord|null;
+  if (!record) throw Error(`Did not find existing record matching "${key}" key.`);
   record.key = nextKey;
   record.path = keyToPath(nextKey);
-  record.lastModified = Date.now();
+  if (updateLastModified) record.lastModified = Date.now();
   await _put(db, KEY_VALUE_STORE, record);
-  await _delete(db, KEY_VALUE_STORE, currentKey);
+  await _delete(db, KEY_VALUE_STORE, key);
+}
+
+export async function renameKey(currentKey:string, nextKey:string):Promise<void> {
+  const db = await _open(DB_NAME, SCHEMA);
+  await _replaceRecordUsingNewKey(db, currentKey, nextKey, true);
+  
+  const currentDescendantPath = `${currentKey}/`;
+  const currentDescendantPathEscaped = escapeRegexCharacters(currentDescendantPath);
+  const regExp:RegExp = new RegExp(`${currentDescendantPathEscaped}.*`);
+  const descendentKeys:string[] = await getAllKeysMatchingRegex(regExp);
+
+  const nextDescendantPath = `${nextKey}/`;
+  const promises:Promise<void>[] = [];
+  for(let keyI = 0; keyI < descendentKeys.length; ++keyI) {
+    const descendentKey:string = descendentKeys[keyI];
+    const descendentNextKey = _changePathOfKey(descendentKey, currentDescendantPath, nextDescendantPath);
+    promises.push(_replaceRecordUsingNewKey(db, descendentKey, descendentNextKey, false));
+  }
+  await Promise.all(promises);
 }
 
 export async function deleteByKey(key:string):Promise<void> {

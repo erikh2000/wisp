@@ -43,7 +43,7 @@ function RenameSpielDialog(props:IProps) {
       onSubmit={onSubmit}
       onFixInput={fixPathStoreName}
       onSubmitValidate={(name) => existingNames ? validatePathStoreNameForSubmit(name, existingNames) : ['Finding existing names...']}
-      submitText='Create'
+      submitText='Rename'
     />
   );
 }

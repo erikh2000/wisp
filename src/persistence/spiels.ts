@@ -22,7 +22,7 @@ export async function setSpiel(spielName:string, spielYaml:string, projectName:s
 
 export async function renameSpiel(currentSpielName:string, nextSpielName:string, projectName:string = getActiveProjectName()):Promise<void> {
   const currentKey = fillTemplate(SPIEL_PATH_TEMPLATE, {projectName, spielName:currentSpielName});
-  const nextKey = fillTemplate(SPIEL_PATH_TEMPLATE, {projectName, faceName:nextSpielName});
+  const nextKey = fillTemplate(SPIEL_PATH_TEMPLATE, {projectName, spielName:nextSpielName});
   await renameKey(currentKey, nextKey);
   await renameSpielReferencesInProject(currentSpielName, nextSpielName, projectName);
 }
