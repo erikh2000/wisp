@@ -67,9 +67,15 @@ function _setStartAndEndValuesFromSampleAnalysis(samples:Float32Array, sampleRat
   const options = { chunkDuration: 1/40, rmsSegmentCount: 40};
   const noiseFloorData:INoiseFloorData = findNoiseFloor(samples, sampleRate, options);
   const { noiseFloorRms, chunks } = noiseFloorData;
+
+  // Because of the way human speech works, the trail off at the end of a word is often below the noise floor. So we
+  // need to offset to the right of the last chunk to avoid cutting off the end of the speech. This is a bit of a hack
+  // so I may want to update the noise floor algorithm to account for this later.
+  const OFFSET_RIGHT_CHUNK_COUNT = 6;
   
   const startChunkNo = _findFirstChunkAboveNoiseFloor(chunks, noiseFloorRms);
-  const endChunkNo = _findLastChunkAboveNoiseFloor(chunks, noiseFloorRms);
+  let endChunkNo = _findLastChunkAboveNoiseFloor(chunks, noiseFloorRms) + OFFSET_RIGHT_CHUNK_COUNT;
+  if (endChunkNo >= chunks.length) endChunkNo = chunks.length - 1;
   const isAnalysisTrusted = (startChunkNo !== -1 && endChunkNo !== -1);
   
   if (!isAnalysisTrusted) {
@@ -80,7 +86,7 @@ function _setStartAndEndValuesFromSampleAnalysis(samples:Float32Array, sampleRat
   
   const chunkCount = chunks.length;
   const startPercent = (startChunkNo / chunkCount) * 100;
-  const endPercent = ((endChunkNo + 1) / chunkCount) * 100;
+  const endPercent = (endChunkNo / chunkCount) * 100;
   setStartValue(startPercent);
   setEndValue(endPercent);
 }
