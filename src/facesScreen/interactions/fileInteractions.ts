@@ -1,7 +1,7 @@
 import {getHead, getPartUiManager, performDisablingOperation, setHead} from "./coreUtil";
 import {getRevisionManager, setUpRevisionForNewFace} from "./revisionUtil";
 import NewFaceDialog from "facesScreen/fileDialogs/NewFaceDialog";
-import {DEFAULT_FACE_URL, loadFaceFromName} from "facesCommon/interactions/fileInteractions";
+import {DEFAULT_FACE_URL, loadFaceFromName, loadDefaultFace} from "facesCommon/interactions/fileInteractions";
 import {deleteFace} from "persistence/faces";
 import {MIMETYPE_WISP_FACE} from "persistence/mimeTypes";
 import {renameActiveFaceName, setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
@@ -10,7 +10,6 @@ import Screen, {screenConfigs} from "ui/screen/screens";
 import {CanvasComponent, createFaceDocument, loadFaceFromDefinition, loadFaceFromUrl} from "sl-web-face";
 import {NavigateFunction} from "react-router";
 import {stringify} from 'yaml';
-import revisionManager from "../../documents/RevisionManager";
 
 export function onNewFaceName(faceName:string, setModalDialog:any, setDocumentName:any) {
   setActiveFaceName(faceName).then(() => {
@@ -90,10 +89,14 @@ export async function onNewFace(setModalDialog:any, setDocumentName:any, setRevi
   setModalDialog(NewFaceDialog.name);
 }
 
+async function _loadHead(faceName:string):Promise<CanvasComponent> {
+  return await loadFaceFromName(faceName) ?? await loadDefaultFace();
+}
+
 export async function onOpenFace(faceName:string, setModalDialog:any, setDocumentName:any, setRevision:any):Promise<void> {
   if (faceName === UNSPECIFIED_NAME) throw Error('Unexpected');
   setModalDialog(null);
-  await _setUpForNewFace(() => loadFaceFromName(faceName), setDocumentName, setRevision);
+  await _setUpForNewFace(() => _loadHead(faceName), setDocumentName, setRevision);
   setDocumentName(faceName);
   await setActiveFaceName(faceName);
 }

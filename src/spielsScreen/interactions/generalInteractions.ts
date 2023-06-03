@@ -1,9 +1,9 @@
 import {initTest} from "./testInteractions";
 import {getActiveFaceName, getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
-import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
+import {loadDefaultFace, loadFaceFromNameIfModified} from "facesCommon/interactions/fileInteractions";
 import {initFaceEvents} from 'facesCommon/interactions/faceEventUtil';
 import {getSpiel} from "persistence/spiels";
-import {bindSetDisabled, initCore} from "spielsScreen/interactions/coreUtil";
+import {bindSetDisabled, initCore, setHead} from "spielsScreen/interactions/coreUtil";
 import {bindSetTranscriptLines, initTranscript} from "./transcriptInteractions";
 import {getRevisionManager} from "./revisionUtil";
 
@@ -31,21 +31,37 @@ async function _loadSpielFromName(spielName:string):Promise<Spiel> {
   return importSpielFile(spielText);
 }
 
+type FaceLoadTimes = { [faceName:string]:number };
+const faceLoadTimes:FaceLoadTimes = {};
+
+function _getLastFaceLoadTime(faceName:string) {
+  return faceLoadTimes[faceName] ?? 0;  
+}
+
+function _updateLastFaceLoadTime(faceName:string) {
+  faceLoadTimes[faceName] = Date.now();
+}
+
 export async function init(setTranscriptLines:Function, setDisabled:Function, setRevision:Function):Promise<InitResults> {
   const faceName = await getActiveFaceName();
   const spielName = await getActiveSpielName();
   const initResults:InitResults = { faceName, spielName };
   const revisionManager = getRevisionManager();
+
+  let nextHeadComponent = await loadFaceFromNameIfModified(faceName, _getLastFaceLoadTime(faceName));
+  
   revisionManager.disablePersistence();
   
   if (isInitialized) {
     _initForSubsequentMount(setTranscriptLines, setDisabled);
+    if (nextHeadComponent) setHead(nextHeadComponent);
     revisionManager.enablePersistence();
-    return initResults; 
+    return initResults;
   }
   
   const spiel = await _loadSpielFromName(spielName);
-  const headComponent = await loadFaceFromName(faceName);
+  const headComponent = nextHeadComponent ?? await loadDefaultFace();
+  _updateLastFaceLoadTime(faceName);
   initFaceEvents(headComponent);
   await initCore(headComponent, setDisabled);
   await initWebSpeech();

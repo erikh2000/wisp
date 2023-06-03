@@ -11,7 +11,7 @@ import {
 } from "./coreUtil";
 import {centerCanvasComponent} from "common/canvasComponentUtil";
 import {initFaceEvents} from "facesCommon/interactions/faceEventUtil";
-import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
+import {loadDefaultFace, loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {
   getRevisionManager,
   Revision,
@@ -152,7 +152,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
     return initResults
   }
   
-  const head = await loadFaceFromName(initResults.faceName);
+  const head = await loadFaceFromName(initResults.faceName) ?? await loadDefaultFace();
   const partUiManager = new PartUiManager(onPartFocused, onPartMoved, onPartResized);
   await partUiManager.trackPartsForFace(head);
   partUiManager.setFocus(head);

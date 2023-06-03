@@ -1,7 +1,7 @@
 import {renameFace} from "./faces";
 import {PROJECT_KEY_TEMPLATE, PROJECT_KEYS_REGEX, PROJECT_PATH_REGEX_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
 import {MIMETYPE_WISP_PROJECT} from "./mimeTypes";
-import {doesKeyExist, getAllKeysAtPath, getAllKeysMatchingRegex, getText, setText} from "./pathStore";
+import {doesKeyExist, getAllKeysMatchingRegex, getText, setText} from "./pathStore";
 import {fillTemplate, isValidName, keyToName} from "./pathUtil";
 import Project from "./Project";
 

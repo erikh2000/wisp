@@ -3,7 +3,7 @@ import {centerCanvasComponent} from "common/canvasComponentUtil";
 import ConversationManager, {ConversationState} from "conversations/ConversationManager";
 import ConversationSpeed from "conversations/ConversationSpeed";
 import {spielEmotionToEmotion} from "conversations/spielEmotionUtil";
-import {loadFaceFromName} from "facesCommon/interactions/fileInteractions";
+import {loadDefaultFace, loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import {setEmotion, startListening, stopListening} from "facesCommon/interactions/faceEventUtil";
 import {setHead} from "spielsScreen/interactions/coreUtil"
@@ -28,7 +28,7 @@ export async function onChangeFace(faceName:string, setModalDialog:any) {
   try {
     if (faceName === UNSPECIFIED_NAME) throw Error('Unexpected');
     await setActiveFaceName(UNSPECIFIED_NAME);
-    const head = await loadFaceFromName(faceName);
+    const head = await loadFaceFromName(faceName) ?? await loadDefaultFace();
     setHead(head);
     await setActiveFaceName(faceName);
   } finally {

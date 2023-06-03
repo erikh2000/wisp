@@ -2,7 +2,7 @@ import {
   deleteByKey,
   getAllKeysAtPath,
   getAllValuesAtPath,
-  getText,
+  getText, getTextIfModified,
   KeyValueRecord,
   renameKey,
   setText
@@ -31,6 +31,11 @@ export async function getFaceDefinition(faceName:string, projectName:string = ge
   const faceDefYaml = await getText(key);
   if (!faceDefYaml) throw Error('Unexpected');
   return faceDefYaml;
+}
+
+export async function getFaceDefinitionIfModified(faceName:string, since:number, projectName:string = getActiveProjectName()):Promise<string|null> {
+  const key = fillTemplate(FACE_PATH_TEMPLATE, {projectName, faceName});
+  return await getTextIfModified(key, since);
 }
 
 export async function setFaceDefinition(faceName:string, faceDefYaml:string, projectName:string = getActiveProjectName()):Promise<void> {

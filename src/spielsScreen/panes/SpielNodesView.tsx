@@ -1,5 +1,5 @@
 import styles from './SpielNodesView.module.css';
-import { SpielNode, Emotion as SpielEmotion } from 'sl-spiel';
+import { SpielNode } from 'sl-spiel';
 import SpielNodeView, { InsertPosition }  from "./SpielNodeView";
 
 interface IProps {

@@ -4,8 +4,13 @@ import {setHeadForFaceEvents} from "facesCommon/interactions/faceEventUtil";
 let head:CanvasComponent|null = null;
 let setDisabled:any = null;
 
+export function setHead(_head:CanvasComponent):void {
+  if (_head !== head) setHeadForFaceEvents(_head);
+  head = _head;
+}
+
 export async function initCore(headComponent:CanvasComponent, _setDisabled:any) {
-  head = headComponent;
+  setHead(headComponent);
   setDisabled = _setDisabled;
 }
 
@@ -16,11 +21,6 @@ export function getHead():CanvasComponent {
 
 export function getHeadIfReady():CanvasComponent|null {
   return head ?? null;
-}
-
-export function setHead(_head:CanvasComponent):void {
-  if (_head !== head) setHeadForFaceEvents(_head);
-  head = _head;
 }
 
 export async function performDisablingOperation(taskFunction:any):Promise<any> {
