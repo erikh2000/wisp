@@ -46,6 +46,12 @@ export async function getSpielNames(projectName:string = getActiveProjectName())
   return keys.map(key => keyToName(key));
 }
 
+export async function getSpielCount(projectName:string = getActiveProjectName()):Promise<number> {
+  const spielsPath = fillTemplate(SPIELS_PATH_TEMPLATE, {projectName})
+  const keys = await getAllKeysAtPath(spielsPath);
+  return keys.length;
+}
+
 export async function getAllSpielKeys():Promise<string[]> {
   let spielKeys:string[] = [];
   const projectKeys = await getAllProjectKeys();

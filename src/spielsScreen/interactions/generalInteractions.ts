@@ -2,7 +2,7 @@ import {initTest} from "./testInteractions";
 import {getActiveFaceName, getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
 import {loadDefaultFace, loadFaceFromNameIfModified} from "facesCommon/interactions/fileInteractions";
 import {initFaceEvents} from 'facesCommon/interactions/faceEventUtil';
-import {getSpiel} from "persistence/spiels";
+import {getSpiel, getSpielCount} from "persistence/spiels";
 import {bindSetDisabled, initCore, setHead} from "spielsScreen/interactions/coreUtil";
 import {bindSetTranscriptLines, initTranscript} from "./transcriptInteractions";
 import {getRevisionManager} from "./revisionUtil";
@@ -14,7 +14,8 @@ let isInitialized = false;
 
 export type InitResults = {
   faceName:string,
-  spielName:string
+  spielName:string,
+  spielCount:number
 };
 
 /* Handle any initialization needed for mount after a previous initialization was completed. This will cover
@@ -45,7 +46,8 @@ function _updateLastFaceLoadTime(faceName:string) {
 export async function init(setTranscriptLines:Function, setDisabled:Function, setRevision:Function):Promise<InitResults> {
   const faceName = await getActiveFaceName();
   const spielName = await getActiveSpielName();
-  const initResults:InitResults = { faceName, spielName };
+  const spielCount = await getSpielCount();
+  const initResults:InitResults = { faceName, spielName, spielCount };
   const revisionManager = getRevisionManager();
 
   let nextHeadComponent = await loadFaceFromNameIfModified(faceName, _getLastFaceLoadTime(faceName));

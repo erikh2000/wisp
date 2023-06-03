@@ -1,11 +1,13 @@
 import {MIMETYPE_WISP_SPIEL, MIMETYPE_FOUNTAIN} from "persistence/mimeTypes";
 import {setActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
-import {getSpiel, renameSpiel} from "persistence/spiels";
+import {deleteSpiel, getSpiel, renameSpiel} from "persistence/spiels";
 import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
 import {performDisablingOperation} from "spielsScreen/interactions/coreUtil";
 import {setUpRevisionForNewSpiel, getRevisionManager} from "spielsScreen/interactions/revisionUtil";
+import Screen, {screenConfigs} from "ui/screen/screens";
 
 import {importFountain, exportSpielFile, Spiel} from 'sl-spiel';
+import {NavigateFunction} from "react-router";
 
 export function onNewSpielName(spielName:string, setModalDialog:Function, setDocumentName:Function) {
   setActiveSpielName(spielName).then(() => {
@@ -126,4 +128,15 @@ export async function onOpenSpiel(spielName:string, setModalDialog:Function, set
     setDocumentName(spielName);
     setModalDialog(null);
   });
+}
+
+export async function onConfirmDeleteSpiel(spielName:string, navigate:NavigateFunction):Promise<void> {
+  try {
+    await deleteSpiel(spielName);
+    await setActiveSpielName(UNSPECIFIED_NAME);
+    const revisionManager = getRevisionManager();
+    revisionManager.clear();
+  } finally {
+    navigate(screenConfigs[Screen.HOME].url);
+  }
 }

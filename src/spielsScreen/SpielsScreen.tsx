@@ -1,4 +1,6 @@
 import styles from "./SpielsScreen.module.css";
+import ConfirmDeleteSpielDialog from "./fileDialogs/ConfirmDeleteSpielDialog";
+import RenameSpielDialog from "./fileDialogs/RenameSpielDialog";
 import {getHeadIfReady} from "./interactions/coreUtil";
 import {
   createDragMeasurements,
@@ -27,7 +29,7 @@ import {
 } from "./interactions/editInteractions";
 import {
   exportSpiel,
-  importSpiel,
+  importSpiel, onConfirmDeleteSpiel,
   onNewSpiel,
   onNewSpielName,
   onOpenSpiel,
@@ -60,6 +62,7 @@ import {InsertPosition} from "./panes/SpielNodeView";
 import SpielPane from "./panes/SpielPane";
 import TestPane from "./panes/TestPane";
 import TranscriptPane from "./panes/TranscriptPane";
+import OpenSpielChooser from "spielsCommon/dialogs/OpenSpielChooser";
 import Screen from "ui/screen/screens";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import {TextConsoleLine} from "ui/TextConsoleBuffer";
@@ -67,11 +70,7 @@ import {TextConsoleLine} from "ui/TextConsoleBuffer";
 import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Spiel, SpielLine, SpielReply} from "sl-spiel";
-import RenameSpielDialog from "./fileDialogs/RenameSpielDialog";
-import {onNewFace} from "../facesScreen/interactions/fileInteractions";
-import OpenSpielChooser from "../spielsCommon/dialogs/OpenSpielChooser";
-
-function doNothing() {} // TODO - delete after not used
+import {getSpielCount} from "../persistence/spiels";
 
 function _getSelectedReply(spiel:Spiel, selectedReplyNo:number):SpielReply|null {
   const selectedNode = spiel.currentNode;
@@ -111,7 +110,7 @@ function SpielsScreen() {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
     init(setTranscriptLines, setDisabled, setRevision).then(nextInitResults => {
       if (nextInitResults.spielName === UNSPECIFIED_NAME) {
-        setModalDialog(NewSpielDialog.name);
+        setModalDialog(nextInitResults.spielCount ? OpenSpielChooser.name : NewSpielDialog.name);
       } else {
         setDocumentName(nextInitResults.spielName);
       }
@@ -137,7 +136,7 @@ function SpielsScreen() {
     {text:'New', onClick:() => onNewSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Open', onClick:() => setModalDialog(OpenSpielChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:() => setModalDialog(RenameSpielDialog.name), groupNo:0, disabled},
-    {text:'Delete', onClick:doNothing, groupNo:0, disabled:true},
+    {text:'Delete', onClick:() => setModalDialog(ConfirmDeleteSpielDialog.name), groupNo:0, disabled},
     {text:'Import', onClick:() => importSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Export', onClick:() => exportSpiel(documentName), groupNo:0, disabled},
     
@@ -247,6 +246,12 @@ function SpielsScreen() {
         onCancel={() => setModalDialog(null)}
         onChoose={(nextDocumentName) => onOpenSpiel(nextDocumentName, setModalDialog, setDocumentName, setRevision)}
         originalDocumentName={documentName}
+      />
+      <ConfirmDeleteSpielDialog
+        isOpen={modalDialog === ConfirmDeleteSpielDialog.name}
+        onCancel={() => setModalDialog(null)}
+        onConfirm={() => onConfirmDeleteSpiel(documentName, navigate)}
+        spielName={documentName}
       />
     </ScreenContainer>
   );
