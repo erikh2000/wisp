@@ -73,7 +73,7 @@ async function _loadSpielTextFromFileHandle(fileHandle:FileSystemFileHandle):Pro
 
 async function _setUpForNewSpiel(loadSpielTextFunc:() => Promise<string>, setDocumentName:any, setRevision:any):Promise<void> {
   await performDisablingOperation(async () => {
-    setDocumentName(UNSPECIFIED_NAME); // If anything fails, it's better to leave the document name cleared to avoid overwriting a previous face.
+    setDocumentName(UNSPECIFIED_NAME); // If anything fails, it's better to leave the document name cleared to avoid overwriting a previous spiel.
     await setActiveSpielName(UNSPECIFIED_NAME);
     const revisionManager = getRevisionManager();
     await revisionManager.waitForPersist();
@@ -102,5 +102,17 @@ export async function exportSpiel(documentName:string):Promise<void> {
     const writable = await (fileHandle as any).createWritable();
     await writable.write(spielText);
     return await writable.close();
+  });
+}
+
+async function _createNewSpielText():Promise<string> {
+  const spiel = new Spiel();
+  return exportSpielFile(spiel);
+}
+
+export async function onNewSpiel(setModalDialog:Function, setDocumentName:Function, setRevision:Function):Promise<void> {
+  await performDisablingOperation(async () => {
+    await _setUpForNewSpiel(_createNewSpielText, setDocumentName, setRevision);
+    setModalDialog(NewSpielDialog.name);
   });
 }

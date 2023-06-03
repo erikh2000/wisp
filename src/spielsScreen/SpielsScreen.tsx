@@ -25,7 +25,7 @@ import {
   selectSpielNode,
   updateNodeAfterEdit
 } from "./interactions/editInteractions";
-import {exportSpiel, importSpiel, onNewSpielName, onRenameSpiel} from "./interactions/fileInteractions";
+import {exportSpiel, importSpiel, onNewSpiel, onNewSpielName, onRenameSpiel} from "./interactions/fileInteractions";
 import {init, InitResults} from "./interactions/generalInteractions";
 import {
   onChangeFace,
@@ -61,6 +61,7 @@ import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Spiel, SpielLine, SpielReply} from "sl-spiel";
 import RenameSpielDialog from "./fileDialogs/RenameSpielDialog";
+import {onNewFace} from "../facesScreen/interactions/fileInteractions";
 
 function doNothing() {} // TODO - delete after not used
 
@@ -125,10 +126,10 @@ function SpielsScreen() {
   }, [isTestRunning, revision.spiel]);
   
   const actionBarButtons = [
-    {text:'New', onClick:doNothing, groupNo:0, disabled},
-    {text:'Open', onClick:doNothing, groupNo:0, disabled},
+    {text:'New', onClick:() => onNewSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
+    {text:'Open', onClick:doNothing, groupNo:0, disabled:true},
     {text:'Rename', onClick:() => setModalDialog(RenameSpielDialog.name), groupNo:0, disabled},
-    {text:'Delete', onClick:doNothing, groupNo:0, disabled},
+    {text:'Delete', onClick:doNothing, groupNo:0, disabled:true},
     {text:'Import', onClick:() => importSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Export', onClick:() => exportSpiel(documentName), groupNo:0, disabled},
     
