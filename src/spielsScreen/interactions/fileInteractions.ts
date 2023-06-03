@@ -1,11 +1,11 @@
-import {setActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
 import {MIMETYPE_WISP_SPIEL, MIMETYPE_FOUNTAIN} from "persistence/mimeTypes";
+import {setActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
+import {getSpiel, renameSpiel} from "persistence/spiels";
 import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
 import {performDisablingOperation} from "spielsScreen/interactions/coreUtil";
 import {setUpRevisionForNewSpiel, getRevisionManager} from "spielsScreen/interactions/revisionUtil";
 
 import {importFountain, exportSpielFile, Spiel} from 'sl-spiel';
-import {renameSpiel} from "../../persistence/spiels";
 
 export function onNewSpielName(spielName:string, setModalDialog:Function, setDocumentName:Function) {
   setActiveSpielName(spielName).then(() => {
@@ -111,8 +111,19 @@ async function _createNewSpielText():Promise<string> {
 }
 
 export async function onNewSpiel(setModalDialog:Function, setDocumentName:Function, setRevision:Function):Promise<void> {
+  await getRevisionManager().persistCurrent();
   await performDisablingOperation(async () => {
     await _setUpForNewSpiel(_createNewSpielText, setDocumentName, setRevision);
     setModalDialog(NewSpielDialog.name);
+  });
+}
+
+export async function onOpenSpiel(spielName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function):Promise<void> {
+  await getRevisionManager().persistCurrent();
+  await performDisablingOperation(async () => {
+    await _setUpForNewSpiel(() => getSpiel(spielName), setDocumentName, setRevision);
+    await setActiveSpielName(spielName);
+    setDocumentName(spielName);
+    setModalDialog(null);
   });
 }

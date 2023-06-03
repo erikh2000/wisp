@@ -1,7 +1,15 @@
 import {getActiveProjectName, getAllProjectKeys, projectKeyToName, renameSpielReferencesInProject} from "./projects";
 import {fillTemplate, keyToName} from "./pathUtil";
-import {SPIELS_PATH_TEMPLATE, SPIEL_PATH_TEMPLATE} from "./keyPaths";
-import {deleteByKey, getAllKeysAtPath, getText, renameKey, setText} from "./pathStore";
+import {SPIELS_PATH_TEMPLATE, SPIEL_PATH_TEMPLATE, FACES_PATH_TEMPLATE} from "./keyPaths";
+import {
+  deleteByKey,
+  getAllKeysAtPath,
+  getAllValuesAtPath,
+  getText,
+  KeyValueRecord,
+  renameKey,
+  setText
+} from "./pathStore";
 import {MIMETYPE_WISP_SPIEL} from "./mimeTypes";
 
 export async function getSpielByKey(key:string):Promise<string> {
@@ -53,4 +61,9 @@ export async function getAllSpielKeys():Promise<string[]> {
 
 export function spielKeyToName(spielKey:string):string {
   return keyToName(spielKey);
+}
+
+export async function getAllSpielRecords(projectName:string = getActiveProjectName()):Promise<KeyValueRecord[]> {
+  const spielsPath = fillTemplate(SPIELS_PATH_TEMPLATE, {projectName});
+  return await getAllValuesAtPath(spielsPath);
 }

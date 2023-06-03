@@ -25,7 +25,14 @@ import {
   selectSpielNode,
   updateNodeAfterEdit
 } from "./interactions/editInteractions";
-import {exportSpiel, importSpiel, onNewSpiel, onNewSpielName, onRenameSpiel} from "./interactions/fileInteractions";
+import {
+  exportSpiel,
+  importSpiel,
+  onNewSpiel,
+  onNewSpielName,
+  onOpenSpiel,
+  onRenameSpiel
+} from "./interactions/fileInteractions";
 import {init, InitResults} from "./interactions/generalInteractions";
 import {
   onChangeFace,
@@ -62,6 +69,7 @@ import {useNavigate} from "react-router-dom";
 import {Spiel, SpielLine, SpielReply} from "sl-spiel";
 import RenameSpielDialog from "./fileDialogs/RenameSpielDialog";
 import {onNewFace} from "../facesScreen/interactions/fileInteractions";
+import OpenSpielChooser from "../spielsCommon/dialogs/OpenSpielChooser";
 
 function doNothing() {} // TODO - delete after not used
 
@@ -127,7 +135,7 @@ function SpielsScreen() {
   
   const actionBarButtons = [
     {text:'New', onClick:() => onNewSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
-    {text:'Open', onClick:doNothing, groupNo:0, disabled:true},
+    {text:'Open', onClick:() => setModalDialog(OpenSpielChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:() => setModalDialog(RenameSpielDialog.name), groupNo:0, disabled},
     {text:'Delete', onClick:doNothing, groupNo:0, disabled:true},
     {text:'Import', onClick:() => importSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
@@ -233,6 +241,12 @@ function SpielsScreen() {
         isOpen={modalDialog === RenameSpielDialog.name}
         onCancel={() => setModalDialog(null)}
         onSubmit={(nextSpielName) => onRenameSpiel(documentName, nextSpielName, setModalDialog, setDocumentName)}
+      />
+      <OpenSpielChooser
+        isOpen={modalDialog === OpenSpielChooser.name}
+        onCancel={() => setModalDialog(null)}
+        onChoose={(nextDocumentName) => onOpenSpiel(nextDocumentName, setModalDialog, setDocumentName, setRevision)}
+        originalDocumentName={documentName}
       />
     </ScreenContainer>
   );
