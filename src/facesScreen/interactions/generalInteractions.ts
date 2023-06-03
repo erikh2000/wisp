@@ -36,11 +36,13 @@ import {
   MOUTH_PART_TYPE,
   NOSE_PART_TYPE
 } from "sl-web-face";
+import {getFaceCount} from "../../persistence/faces";
 
 export type InitResults = {
-  onFaceCanvasMouseMove:any,
-  onFaceCanvasMouseDown:any,
-  onFaceCanvasMouseUp:any,
+  onFaceCanvasMouseMove:Function,
+  onFaceCanvasMouseDown:Function,
+  onFaceCanvasMouseUp:Function,
+  faceCount:number,
   faceName:string
 }
 
@@ -138,7 +140,8 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return _onPartResized(setRevision); }
   function onPartLoaderUpdated(partTypeName:string, _partName:string) { _updateLoadablePartsForType(partTypeName, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts); }
   
-  const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp, faceName:UNSPECIFIED_NAME };
+  const faceCount = await getFaceCount();
+  const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp, faceName:UNSPECIFIED_NAME, faceCount };
   _addDocumentMouseUpListener(onFaceCanvasMouseUp);
   
   const revisionManager = getRevisionManager();

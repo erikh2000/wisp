@@ -55,6 +55,12 @@ export async function getAllFaceRecords(projectName:string = getActiveProjectNam
   return await getAllValuesAtPath(facesPath);
 }
 
+export async function getFaceCount(projectName:string = getActiveProjectName()):Promise<number> {
+  const facesPath = fillTemplate(FACES_PATH_TEMPLATE, {projectName});
+  const keys = await getAllKeysAtPath(facesPath);
+  return keys.length;
+}
+
 export async function deleteFace(faceName:string, projectName:string = getActiveProjectName()):Promise<void> {
   const key = fillTemplate(FACE_PATH_TEMPLATE, {projectName, faceName});
   await deleteByKey(key);

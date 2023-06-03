@@ -7,7 +7,7 @@ import PartSelector, {PartType} from "./PartSelector";
 import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
 import {
   exportFace,
-  importFace,
+  importFace, onCancelOpenFace,
   onConfirmDeleteFace,
   onNewFace,
   onNewFaceName,
@@ -161,7 +161,7 @@ function FacesScreen() {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
     init(setRevision, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
       if (nextInitResults.faceName === UNSPECIFIED_NAME) { 
-        setModalDialog(NewFaceDialog.name);
+        setModalDialog(nextInitResults.faceCount ? OpenFaceChooser.name : NewFaceDialog.name);
       } else {
         setDocumentName(nextInitResults.faceName);
       }
@@ -257,7 +257,7 @@ function FacesScreen() {
       <OpenFaceChooser
         isOpen={modalDialog === OpenFaceChooser.name}
         onChoose={(nextFaceName:string) => onOpenFace(nextFaceName, setModalDialog, setDocumentName, setRevision) }
-        onCancel={() => setModalDialog(null)}
+        onCancel={() =>  onCancelOpenFace(documentName, setModalDialog, setDocumentName, setRevision) }
         originalDocumentName={documentName}
       />
       <ConfirmDeleteFaceDialog

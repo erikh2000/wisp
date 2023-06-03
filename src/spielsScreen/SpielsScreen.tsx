@@ -29,7 +29,7 @@ import {
 } from "./interactions/editInteractions";
 import {
   exportSpiel,
-  importSpiel, onConfirmDeleteSpiel,
+  importSpiel, onCancelOpenSpiel, onConfirmDeleteSpiel,
   onNewSpiel,
   onNewSpielName,
   onOpenSpiel,
@@ -243,7 +243,7 @@ function SpielsScreen() {
       />
       <OpenSpielChooser
         isOpen={modalDialog === OpenSpielChooser.name}
-        onCancel={() => setModalDialog(null)}
+        onCancel={() => onCancelOpenSpiel(documentName, setModalDialog, setDocumentName, setRevision)}
         onChoose={(nextDocumentName) => onOpenSpiel(nextDocumentName, setModalDialog, setDocumentName, setRevision)}
         originalDocumentName={documentName}
       />

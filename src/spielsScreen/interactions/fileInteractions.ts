@@ -140,3 +140,10 @@ export async function onConfirmDeleteSpiel(spielName:string, navigate:NavigateFu
     navigate(screenConfigs[Screen.HOME].url);
   }
 }
+
+export async function onCancelOpenSpiel(documentName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function):Promise<void> {
+  setModalDialog(null);
+  if (documentName === UNSPECIFIED_NAME) {
+    return onNewSpiel(setModalDialog, setDocumentName, setRevision);
+  }
+}

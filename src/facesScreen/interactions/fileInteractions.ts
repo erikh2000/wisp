@@ -101,6 +101,13 @@ export async function onOpenFace(faceName:string, setModalDialog:any, setDocumen
   await setActiveFaceName(faceName);
 }
 
+export async function onCancelOpenFace(documentName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function):Promise<void> {
+  setModalDialog(null);
+  if (documentName === UNSPECIFIED_NAME) {
+    return onNewFace(setModalDialog, setDocumentName, setRevision);
+  }
+}
+
 export async function onConfirmDeleteFace(faceName:string, navigate:NavigateFunction):Promise<void> {
   try {
     await deleteFace(faceName);
