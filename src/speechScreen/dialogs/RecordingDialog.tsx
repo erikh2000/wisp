@@ -84,6 +84,7 @@ function RecordingDialog(props:IProps) {
   }, [isOpen, speechTable, spielName]);
   
   useEffect(() => {
+    if (!speechTable) return;
     _updateDialogueState(speechTable, dialogueTextNo, setCharacterName, setParenthetical, setDialogueText);
   }, [dialogueTextNo, speechTable, setCharacterName, setParenthetical, setDialogueText]);
 

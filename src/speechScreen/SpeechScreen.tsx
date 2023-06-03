@@ -28,6 +28,8 @@ import Screen from "ui/screen/screens";
 
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
+import OpenSpielChooser from "../spielsCommon/dialogs/OpenSpielChooser";
+import {onOpenSpiel} from "./interactions/fileInteractions";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -55,7 +57,7 @@ function SpeechScreen() {
   const isNoSpiel = documentName === UNSPECIFIED_NAME && !disabled;
   
   const actionBarButtons = [
-    {text:'Change Spiel', onClick:emptyCallback, groupNo:0, disabled:true},
+    {text:'Change Spiel', onClick:() => setModalDialog(OpenSpielChooser.name), groupNo:0, disabled},
     {text:'Import Audio', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Export Audio', onClick:emptyCallback, groupNo:0, disabled:true},
     
@@ -120,6 +122,12 @@ function SpeechScreen() {
         isOpen={modalDialog === GenerateLipAnimationDialog.name}
         onCancel={() => setModalDialog(null)}
         onComplete={(lipzEvents) => onCompleteFinalization(finalizingTakeWavKey, finalizingAudioBuffer, lipzEvents, documentName, setRevision, setModalDialog)}
+      />
+      <OpenSpielChooser
+        isOpen={modalDialog === OpenSpielChooser.name}
+        onCancel={() => setModalDialog(null)}
+        onChoose={(spielName) => onOpenSpiel(spielName, setDocumentName, setRevision, setModalDialog)}
+        originalDocumentName={documentName}
       />
     </ScreenContainer>
   );

@@ -39,7 +39,7 @@ function SpielSpeechPane(props:IProps) {
   const [areAllSelected, setAreAllSelected] = useState(false);
   
   useEffect(() => {
-    if (speechTable === null) return;
+    if (!speechTable) return;
     const nextAllSelected = areAllSpeechTableRowsSelected(speechTable);
     setAreAllSelected(nextAllSelected);
   }, [speechTable, setAreAllSelected]);
