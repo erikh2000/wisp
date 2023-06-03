@@ -7,18 +7,21 @@ interface IProps {
   isSelectable:boolean,
   isSelected:boolean,
   dateGrouping:string,
-  onClick:(documentName:string) => void
+  onClick:(documentName:string) => void,
+  onDoubleClick?:(documentName:string) => void
 }
 
 function DocumentChooserRow(props:IProps) {
-  const { documentName, dateGrouping, isSelectable, isSelected, onClick } = props;
+  const { documentName, dateGrouping, isSelectable, isSelected, onClick, onDoubleClick } = props;
   const rowStyle = isSelected 
     ? styles.rowSelected 
     : isSelectable ? styles.row : styles.rowDisabled;
-  const _onClick = (isSelected || !isSelectable) ? undefined : () => onClick(documentName);
+  const isDisabled = (isSelected || !isSelectable)
+  const _onClick = isDisabled ? undefined : () => onClick(documentName);
+  const _onDoubleClick = onDoubleClick ? () => onDoubleClick(documentName) : undefined;
   return (
     <Fragment>
-      <li className={rowStyle} onClick={_onClick}>{documentName} <span className={styles.date}>{dateGrouping}</span></li>
+      <li className={rowStyle} onClick={_onClick} onDoubleClick={_onDoubleClick}>{documentName} <span className={styles.date}>{dateGrouping}</span></li>
     </Fragment>
   );
 }

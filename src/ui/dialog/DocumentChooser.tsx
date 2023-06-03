@@ -21,7 +21,7 @@ interface IProps {
   title:string
 }
 
-function _renderRows(documents:KeyValueRecord[], originalDocumentName:string, selectedDocumentName:string|null, setSelectedDocumentName:any):JSX.Element[] {
+function _renderRows(documents:KeyValueRecord[], originalDocumentName:string, selectedDocumentName:string|null, setSelectedDocumentName:Function, onChoose:Function):JSX.Element[] {
   documents.sort((a, b) => b.lastModified - a.lastModified);
   let lastDateGrouping = '';
   return documents.map((document) => {
@@ -36,6 +36,7 @@ function _renderRows(documents:KeyValueRecord[], originalDocumentName:string, se
       isSelected={name===selectedDocumentName} 
       isSelectable={name!==selectedDocumentName && name!==originalDocumentName}
       onClick={() => setSelectedDocumentName(name)}
+      onDoubleClick={name!==originalDocumentName ? () => onChoose(name) : undefined}
     />
   });
 }
@@ -43,11 +44,11 @@ function _renderRows(documents:KeyValueRecord[], originalDocumentName:string, se
 function DocumentChooser(props:IProps) {
   const { isOpen, onCancel, onChoose, chooseText, documents, originalDocumentName, title } = props;
   const [selectedDocumentName, setSelectedDocumentName] = useState<string|null>(null);
-  const [rows, setRows] = useState<JSX.Element[]>(_renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName));
+  const [rows, setRows] = useState<JSX.Element[]>(_renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName, onChoose));
 
   useEffect(() => {
     if (!isOpen) return;
-    const nextRows = _renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName);
+    const nextRows = _renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName, onChoose);
     setRows(nextRows);
   }, [isOpen, documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName]);
 
