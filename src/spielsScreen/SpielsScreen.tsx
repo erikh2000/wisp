@@ -71,6 +71,7 @@ import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Spiel, SpielLine, SpielReply} from "sl-spiel";
 import {getSpielCount} from "../persistence/spiels";
+import SpielsScreenSettings from "./SpielsScreenSettings";
 
 function _getSelectedReply(spiel:Spiel, selectedReplyNo:number):SpielReply|null {
   const selectedNode = spiel.currentNode;
@@ -89,8 +90,16 @@ function _getSelectedLineForReply(spiel:Spiel):SpielLine {
   return selectedNode.line;
 }
 
+function _getDefaultSpielScreenSettings():SpielsScreenSettings {
+  return {
+    conversationSpeed: ConversationSpeed.NORMAL,
+    playFullScreen: false
+  };
+}
+
 function SpielsScreen() {
-  const [conversationSpeed, setConversationSpeed] = useState<ConversationSpeed>(ConversationSpeed.NORMAL); // TODO - persist. Maybe it goes in revision?
+  const [spielScreenSettings, setSpielScreenSettings] = useState<SpielsScreenSettings>(_getDefaultSpielScreenSettings()); // TODO - persist in general settings not tied to project/spiel.
+  const [playFullScreen, setPlayFullScreen] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(true);
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [dragMeasurements, setDragMeasurements] = useState<DragMeasurements>(createDragMeasurements());
@@ -170,9 +179,11 @@ function SpielsScreen() {
             headComponent={getHeadIfReady()} 
             onChangeFace={() => setModalDialog(ChangeFaceChooser.name)}
             isTestRunning={isTestRunning}
+            onExitFullScreen={() => setPlayFullScreen(false)}
             onOptions={() => setModalDialog(TestOptionsDialog.name)}
-            onStart={() => startTest(revision.spiel, documentName, setIsTestRunning, setTestNodeNo, setSubtitle)}
+            onStart={() => startTest(revision.spiel, documentName, spielScreenSettings.playFullScreen, setPlayFullScreen, setIsTestRunning, setTestNodeNo, setSubtitle)}
             onStop={() => stopTest(setIsTestRunning)}
+            playFullScreen={playFullScreen}
             disabled={disabled}
             subtitle={subtitle}
           />
@@ -231,10 +242,11 @@ function SpielsScreen() {
         onCancel={() => setModalDialog(null)} 
       />
       <TestOptionsDialog
-        defaultConversationSpeed={conversationSpeed}
+        defaultConversationSpeed={spielScreenSettings.conversationSpeed}
+        defaultPlayFullScreen={playFullScreen}
         isOpen={modalDialog === TestOptionsDialog.name}
         onCancel={() => setModalDialog(null)}
-        onSubmit={nextConversationSpeed => updateTestOptions(nextConversationSpeed, setConversationSpeed, setModalDialog)}
+        onSubmit={(nextConversationSpeed, nextPlayFullScreen) => updateTestOptions(nextConversationSpeed, nextPlayFullScreen, spielScreenSettings, setSpielScreenSettings, setModalDialog)}
       />
       <RenameSpielDialog
         isOpen={modalDialog === RenameSpielDialog.name}

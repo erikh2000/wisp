@@ -12,7 +12,9 @@ interface IProps {
   disabled?:boolean,
   headComponent:CanvasComponent|null,
   isTestRunning:boolean,
+  playFullScreen:boolean,
   onChangeFace:EmptyCallback,
+  onExitFullScreen:EmptyCallback,
   onOptions:EmptyCallback,
   onStart:EmptyCallback,
   onStop:EmptyCallback,
@@ -30,12 +32,20 @@ function _generateButtonDefinitions(isTestRunning:boolean, onChangeFace:EmptyCal
 }
 
 function TestPane(props:IProps) {
-  const { disabled, isTestRunning, headComponent, onChangeFace, onOptions, onStart, onStop, subtitle } = props;
+  const { disabled, isTestRunning, headComponent, onChangeFace, 
+    onExitFullScreen, onOptions, onStart, onStop, 
+    subtitle, playFullScreen } = props;
   const isRecognizing = isRecognizerReady(); 
   const useDisabled = disabled || headComponent === null || !isRecognizing;
   
+  const isFullScreen = playFullScreen && headComponent !== null && isTestRunning;
   const faceContent:JSX.Element = headComponent !== null && isRecognizing 
-    ? <Canvas className={styles.faceCanvas} onDraw={context => onDrawFaceCanvas(context, headComponent)} isAnimated={true} />
+    ? <Canvas className={styles.faceCanvas} 
+              onDraw={context => onDrawFaceCanvas(context, headComponent)} 
+              onExitFullScreen={onExitFullScreen}
+              isAnimated={true} 
+              isFullScreen={isFullScreen}
+      />
     : headComponent === null 
       ? <LoadingBox className={styles.loadingBox} text='loading face' />
       : <LoadingBox className={styles.loadingBox} text='loading language model' />;

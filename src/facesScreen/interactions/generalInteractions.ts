@@ -22,6 +22,7 @@ import {
 import {initViewSettings} from "./viewSettingsInteractions";
 import {PartType} from "facesScreen/PartSelector";
 import {TestVoiceType} from 'facesScreen/testVoices/TestVoiceType';
+import {getFaceCount} from "persistence/faces";
 import {getActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import PartLoader from "ui/partAuthoring/PartLoader";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
@@ -36,12 +37,12 @@ import {
   MOUTH_PART_TYPE,
   NOSE_PART_TYPE
 } from "sl-web-face";
-import {getFaceCount} from "../../persistence/faces";
+import {MouseEventHandler} from "react";
 
 export type InitResults = {
-  onFaceCanvasMouseMove:Function,
-  onFaceCanvasMouseDown:Function,
-  onFaceCanvasMouseUp:Function,
+  onFaceCanvasMouseMove:MouseEventHandler<HTMLCanvasElement>,
+  onFaceCanvasMouseDown:MouseEventHandler<HTMLCanvasElement>,
+  onFaceCanvasMouseUp:MouseEventHandler<HTMLCanvasElement>,
   faceCount:number,
   faceName:string
 }

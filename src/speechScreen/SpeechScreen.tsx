@@ -57,12 +57,7 @@ function SpeechScreen() {
   const isNoSpiel = documentName === UNSPECIFIED_NAME && !disabled;
   
   const actionBarButtons = [
-    {text:'Change Spiel', onClick:() => setModalDialog(OpenSpielChooser.name), groupNo:0, disabled},
-    {text:'Import Audio', onClick:emptyCallback, groupNo:0, disabled:true},
-    {text:'Export Audio', onClick:emptyCallback, groupNo:0, disabled:true},
-    
-    {text:'Undo', onClick:emptyCallback, groupNo:1, disabled:true},
-    {text:'Redo', onClick:emptyCallback, groupNo:1, disabled:true}
+    {text:'Change Spiel', onClick:() => setModalDialog(OpenSpielChooser.name), groupNo:0, disabled}
   ];
 
   const content = isNoSpiel ? <NoSpielPane /> :

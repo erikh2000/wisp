@@ -8,26 +8,36 @@ import {useState, useEffect} from "react";
 
 interface IProps {
   defaultConversationSpeed:ConversationSpeed,
+  defaultPlayFullScreen:boolean,
   isOpen:boolean,
   onCancel:() => void,
-  onSubmit:(conversationSpeed:ConversationSpeed) => void
+  onSubmit:(conversationSpeed:ConversationSpeed, platFullScreen:boolean) => void
 }
 
 function TestOptionDialog(props:IProps) {
-  const {defaultConversationSpeed, isOpen, onCancel, onSubmit} = props;
+  const {defaultConversationSpeed, defaultPlayFullScreen, isOpen, onCancel, onSubmit} = props;
   const [conversationSpeed, setConversationSpeed] = useState<ConversationSpeed>(defaultConversationSpeed);
+  const [playFullScreen, setPlayFullScreen] = useState<boolean>(defaultPlayFullScreen);
   
   useEffect(() => {
     if (!isOpen) return;
     setConversationSpeed(defaultConversationSpeed);
-  }, [isOpen, defaultConversationSpeed]);
+    setPlayFullScreen(defaultPlayFullScreen);
+  }, [isOpen, defaultConversationSpeed, defaultPlayFullScreen]);
 
   return (
     <ModalDialog title='Test Options' isOpen={isOpen} onCancel={onCancel}>
       <ConversationSpeedSelector conversationSpeed={conversationSpeed} onChange={nextConversationSpeed => setConversationSpeed(nextConversationSpeed)} />
+      <label htmlFor='playFullScreenCheckboc'>Play full-screen:</label>
+      <input 
+        type='checkbox' 
+        name='playFullScreenCheckboc' 
+        checked={playFullScreen} 
+        onChange={(event) => setPlayFullScreen(event.target.checked)} 
+      />
       <DialogFooter>
         <DialogButton text='Cancel' onClick={onCancel} />
-        <DialogButton text='Update' onClick={() => onSubmit(conversationSpeed)} isPrimary/>
+        <DialogButton text='Update' onClick={() => onSubmit(conversationSpeed, playFullScreen)} isPrimary/>
       </DialogFooter>
     </ModalDialog>
   )

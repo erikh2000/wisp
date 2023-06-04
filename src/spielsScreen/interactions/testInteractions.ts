@@ -11,6 +11,7 @@ import {setHead} from "spielsScreen/interactions/coreUtil"
 import {CanvasComponent, Emotion} from "sl-web-face";
 import {Spiel} from 'sl-spiel';
 import {Recognizer} from "sl-web-speech";
+import SpielsScreenSettings from "../SpielsScreenSettings";
 
 let conversationManager:ConversationManager|null = null;
 let recognizer:Recognizer|null = null;
@@ -20,7 +21,8 @@ let lastState = ConversationState.STOPPED;
 export function onDrawFaceCanvas(context:CanvasRenderingContext2D, headComponent:CanvasComponent) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
   centerCanvasComponent(headComponent, canvasWidth, canvasHeight);
-  context.clearRect(0, 0, canvasWidth, canvasHeight);
+  context.fillStyle = 'white';
+  context.fillRect(0, 0, canvasWidth, canvasHeight);
   headComponent.render(context);
 }
 
@@ -80,7 +82,7 @@ function _onConversationStateChange(state:ConversationState) {
   lastState = state;
 }
 
-export function startTest(spiel:Spiel, spielName:string, setIsTestRunning:Function, setTestNodeNo:Function, setSubtitle:Function) {
+export function startTest(spiel:Spiel, spielName:string, playFullScreen:boolean, setPlayFullScreen:Function, setIsTestRunning:Function, setTestNodeNo:Function, setSubtitle:Function) {
   if (!conversationManager || !isRecognizerReady || !recognizer) throw Error('Unexpected');
   addText('*Started test.*');
   recognizer.unmute();
@@ -88,6 +90,7 @@ export function startTest(spiel:Spiel, spielName:string, setIsTestRunning:Functi
     _onSayLine(nodeNo, character, emotion, dialogue, setTestNodeNo, setSubtitle));
   conversationManager.bindOnStateChange(_onConversationStateChange);
   conversationManager.play(spiel, spielName);
+  setPlayFullScreen(playFullScreen);
   setIsTestRunning(true);
 }
 
@@ -100,9 +103,12 @@ export function stopTest(setIsTestRunning:Function) {
   setIsTestRunning(false);
 }
 
-export function updateTestOptions(conversationSpeed:ConversationSpeed, setConversationSpeed:Function, setModalDialog:Function) {
+export function updateTestOptions(conversationSpeed:ConversationSpeed, playFullScreen:boolean, spielScreenSettings:SpielsScreenSettings, setSpielScreenSettings:Function, setModalDialog:Function) {
   if (!conversationManager) throw Error('Unexpected');
   conversationManager.conversationSpeed = conversationSpeed;
-  setConversationSpeed(conversationSpeed);
+  const nextSpielScreenSettings = {...spielScreenSettings};
+  nextSpielScreenSettings.conversationSpeed = conversationSpeed;
+  nextSpielScreenSettings.playFullScreen = playFullScreen;
+  setSpielScreenSettings(nextSpielScreenSettings);
   setModalDialog(null);
 }
