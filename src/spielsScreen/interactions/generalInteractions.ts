@@ -1,4 +1,4 @@
-import {initTest} from "./testInteractions";
+import {getDefaultScreenSettings, initTest} from "./testInteractions";
 import {getActiveFaceName, getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
 import {loadDefaultFace, loadFaceFromNameIfModified} from "facesCommon/interactions/fileInteractions";
 import {initFaceEvents} from 'facesCommon/interactions/faceEventUtil';
@@ -9,13 +9,16 @@ import {getRevisionManager} from "./revisionUtil";
 
 import { Spiel, importSpielFile } from 'sl-spiel';
 import { init as initWebSpeech } from 'sl-web-speech';
+import SpielsScreenSettings from "../SpielsScreenSettings";
+import {getSpielsScreenSettings} from "../../persistence/settings";
 
 let isInitialized = false;
 
 export type InitResults = {
   faceName:string,
   spielName:string,
-  spielCount:number
+  spielCount:number,
+  screenSettings:SpielsScreenSettings
 };
 
 /* Handle any initialization needed for mount after a previous initialization was completed. This will cover
@@ -43,11 +46,16 @@ function _updateLastFaceLoadTime(faceName:string) {
   faceLoadTimes[faceName] = Date.now();
 }
 
+async function _loadScreenSettings():Promise<SpielsScreenSettings> {
+  return await getSpielsScreenSettings() ?? getDefaultScreenSettings();
+}
+
 export async function init(setTranscriptLines:Function, setDisabled:Function, setRevision:Function):Promise<InitResults> {
   const faceName = await getActiveFaceName();
   const spielName = await getActiveSpielName();
   const spielCount = await getSpielCount();
-  const initResults:InitResults = { faceName, spielName, spielCount };
+  const screenSettings = await _loadScreenSettings();
+  const initResults:InitResults = { faceName, spielName, spielCount, screenSettings };
   const revisionManager = getRevisionManager();
 
   let nextHeadComponent = await loadFaceFromNameIfModified(faceName, _getLastFaceLoadTime(faceName));

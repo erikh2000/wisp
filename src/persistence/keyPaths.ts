@@ -1,5 +1,8 @@
 export const ROOT_PATH = '/';
 export const PROJECTS_PATH = '/projects/';
+
+export const FACES_SCREEN_SETTINGS_KEY = '/facesScreen';
+export const SPIELS_SCREEN_SETTINGS_KEY = '/spielsScreen';
 export const PROJECT_KEY_TEMPLATE = '/projects/{projectName}/project';
 export const PROJECT_PATH_REGEX_TEMPLATE = '\\/projects\\/{projectName}\\/.*';
 export const PROJECT_KEYS_REGEX = /\/projects\/[^/]*\/project/g;

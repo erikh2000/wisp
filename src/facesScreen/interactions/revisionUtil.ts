@@ -6,10 +6,8 @@ import {
   setHead
 } from "./coreUtil";
 import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
-import {setEmotion, setLidLevel} from "facesCommon/interactions/faceEventUtil";
 import RevisionManager from "documents/RevisionManager";
 import {PartType} from "facesScreen/PartSelector";
-import {TestVoiceType} from "facesScreen/testVoices/TestVoiceType";
 import {setFaceDefinition} from "persistence/faces";
 import {getActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
@@ -19,10 +17,7 @@ import { stringify } from 'yaml';
 
 export type Revision = {
   headComponent:CanvasComponent|null,
-  emotion:Emotion,
-  lidLevel:LidLevel,
   partType:PartType,
-  testVoice:TestVoiceType,
   eyesPartNo:number,
   headPartNo:number,
   mouthPartNo:number,
@@ -43,11 +38,6 @@ const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(
 
 export function getRevisionManager() { return revisionManager; }
 
-function _publishFaceEventsForRevision(revision:Revision) {
-  setEmotion(revision.emotion);
-  setLidLevel(revision.lidLevel);
-}
-
 async function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
   if (!revision) return;
   const head = revision.headComponent?.duplicate();
@@ -56,7 +46,6 @@ async function _updateEverythingToMatchRevision(revision:Revision|null, setRevis
   const partUiManager = getPartUiManager();
   await partUiManager.trackPartsForFace(head);
   updateSelectionBoxesToMatchFace(head);
-  _publishFaceEventsForRevision(revision);
   const nextFocusPart = findCanvasComponentForPartType(head, revision.partType);
   if (nextFocusPart) partUiManager.setFocus(nextFocusPart);
   setRevision(revision);
@@ -77,26 +66,22 @@ export function updateForFaceRelatedRevision(changes:any, setRevision:any) {
   revisionManager.addChanges({headComponent, ...changes});
   const nextRevision = revisionManager.currentRevision;
   if (!nextRevision) return;
-  _publishFaceEventsForRevision(nextRevision);
   setRevision(nextRevision);
 }
 
-export function updateForStaticFaceRevision(changes:any, setRevision:any) {
+// Authoring = affecting authoring state on the screen, e.g. selected part, rather a change to the face asset.
+export function updateForAuthoringRevision(changes:any, setRevision:any) {
   const revisionManager = getRevisionManager();
   revisionManager.addChanges({...changes});
   const nextRevision = revisionManager.currentRevision;
   if (!nextRevision) return;
-  _publishFaceEventsForRevision(nextRevision);
   setRevision(nextRevision);
 }
 
 export function setUpRevisionForNewFace(headComponent:CanvasComponent, setRevision:any) {
   const partLoader = getPartLoader();
   const nextRevision:Revision = {
-    emotion:Emotion.NEUTRAL,
     partType:PartType.HEAD,
-    lidLevel:LidLevel.NORMAL,
-    testVoice:TestVoiceType.MUTED,
     headComponent: headComponent.duplicate(),
     eyesPartNo: findLoadablePartNo(partLoader.eyes, headComponent, PartType.EYES),
     nosePartNo: findLoadablePartNo(partLoader.noses, headComponent, PartType.NOSE),

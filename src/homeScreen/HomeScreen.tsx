@@ -5,13 +5,12 @@ import seespaceLabsLogoImage from './images/seespaceLabsLogo.png';
 import projectsImage from './images/projects.png';
 import spielsImage from './images/spiels.png';
 import facesImage from './images/faces.png';
-import scenesImage from './images/scenes.png';
 import speechImage from './images/speech.png';
 import Screen, { ScreenConfig, screenConfigs } from "ui/screen/screens";
 
 import { useState } from 'react';
 
-const screenImages = [facesImage, spielsImage, speechImage, scenesImage, projectsImage];
+const screenImages = [facesImage, spielsImage, speechImage, projectsImage];
 
 function _initHomeScreenConfigs() {
   return screenConfigs.filter((_screenConfig, screenNo) => screenNo !== Screen.HOME);

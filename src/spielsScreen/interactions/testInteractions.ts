@@ -12,6 +12,7 @@ import {CanvasComponent, Emotion} from "sl-web-face";
 import {Spiel} from 'sl-spiel';
 import {Recognizer} from "sl-web-speech";
 import SpielsScreenSettings from "../SpielsScreenSettings";
+import {setSpielsScreenSettings} from "../../persistence/settings";
 
 let conversationManager:ConversationManager|null = null;
 let recognizer:Recognizer|null = null;
@@ -103,12 +104,20 @@ export function stopTest(setIsTestRunning:Function) {
   setIsTestRunning(false);
 }
 
-export function updateTestOptions(conversationSpeed:ConversationSpeed, playFullScreen:boolean, spielScreenSettings:SpielsScreenSettings, setSpielScreenSettings:Function, setModalDialog:Function) {
+export function getDefaultScreenSettings() {
+  return {
+    conversationSpeed: ConversationSpeed.NORMAL,
+    playFullScreen: false
+  };
+}
+
+export function updateTestOptions(conversationSpeed:ConversationSpeed, playFullScreen:boolean, spielScreenSettings:SpielsScreenSettings, setScreenSettings:Function, setModalDialog:Function) {
   if (!conversationManager) throw Error('Unexpected');
   conversationManager.conversationSpeed = conversationSpeed;
   const nextSpielScreenSettings = {...spielScreenSettings};
   nextSpielScreenSettings.conversationSpeed = conversationSpeed;
   nextSpielScreenSettings.playFullScreen = playFullScreen;
-  setSpielScreenSettings(nextSpielScreenSettings);
+  setScreenSettings(nextSpielScreenSettings);
   setModalDialog(null);
+  setSpielsScreenSettings(nextSpielScreenSettings).then(() => {});
 }

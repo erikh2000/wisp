@@ -40,6 +40,7 @@ import {
 import {onHairColorChange, onIrisColorChange, onSkinToneChange} from "./interactions/recolorUtil";
 import {onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import {
+  getDefaultScreenSettings,
   getTestVoiceCredits,
   onEmotionChange,
   onEmotionClick,
@@ -71,6 +72,7 @@ import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
+import FacesScreenSettings from "./FacesScreenSettings";
 
 function _getThumbnail(parts:LoadablePart[], partNo:number):ImageBitmap|null {
   return partNo !== UNSPECIFIED && partNo < parts.length ? parts[partNo].thumbnail : null;
@@ -154,8 +156,9 @@ function FacesScreen() {
   const [mouthParts, setMouthParts] = useState<LoadablePart[]>([]);
   const [noseParts, setNoseParts] = useState<LoadablePart[]>([]);
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [screenSettings, setScreenSettings] = useState<FacesScreenSettings>(getDefaultScreenSettings());
   const navigate = useNavigate();
-  const { partType, testVoice, emotion, lidLevel } = revision;
+  const { partType} = revision;
   
   useEffectAfterMount(() => {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
@@ -165,6 +168,7 @@ function FacesScreen() {
       } else {
         setDocumentName(nextInitResults.faceName);
       }
+      setScreenSettings(nextInitResults.screenSettings);
       setInitResults(nextInitResults);
       setDisabled(false);
     });
@@ -203,9 +207,9 @@ function FacesScreen() {
         </InnerContentPane>
         <div className={styles.rightColumn}>
           <InnerContentPane className={styles.viewPane} caption='View' comment={getTestVoiceCredits()}>
-            <EmotionSelector emotion={emotion} onChange={(nextEmotion) => onEmotionChange(nextEmotion, setRevision)} onClick={(nextEmotion) => onEmotionClick(nextEmotion)} disabled={disabled}/>
-            <LidLevelSelector lidLevel={lidLevel} onChange={(nextLidLevel) => onLidLevelChange(nextLidLevel, setRevision)} disabled={disabled}/>
-            <TestVoiceSelector testVoiceType={testVoice} onChange={(nextTestVoice) => onTestVoiceChange(nextTestVoice, setRevision)} disabled={disabled}/>
+            <EmotionSelector emotion={screenSettings.emotion} onChange={(nextEmotion) => onEmotionChange(nextEmotion, setScreenSettings)} onClick={(nextEmotion) => onEmotionClick(nextEmotion)} disabled={disabled}/>
+            <LidLevelSelector lidLevel={screenSettings.lidLevel} onChange={(nextLidLevel) => onLidLevelChange(nextLidLevel, setScreenSettings)} disabled={disabled}/>
+            <TestVoiceSelector testVoiceType={screenSettings.testVoice} onChange={(nextTestVoice) => onTestVoiceChange(nextTestVoice, setScreenSettings)} disabled={disabled}/>
           </InnerContentPane>
           {selectionPane}
         </div>

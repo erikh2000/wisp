@@ -12,16 +12,16 @@ import {
 import {centerCanvasComponent} from "common/canvasComponentUtil";
 import {initFaceEvents} from "facesCommon/interactions/faceEventUtil";
 import {loadDefaultFace, loadFaceFromName} from "facesCommon/interactions/fileInteractions";
+import FacesScreenSettings from "facesScreen/FacesScreenSettings";
 import {
   getRevisionManager,
   Revision,
   setUpRevisionForNewFace,
   updateForFaceRelatedRevision,
-  updateForStaticFaceRevision
+  updateForAuthoringRevision
 } from "./revisionUtil";
-import {initViewSettings} from "./viewSettingsInteractions";
+import {getDefaultScreenSettings, initViewSettings, updateScreenSettings} from "./viewSettingsInteractions";
 import {PartType} from "facesScreen/PartSelector";
-import {TestVoiceType} from 'facesScreen/testVoices/TestVoiceType';
 import {getFaceCount} from "persistence/faces";
 import {getActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import PartLoader from "ui/partAuthoring/PartLoader";
@@ -29,22 +29,22 @@ import PartUiManager from "ui/partAuthoring/PartUiManager";
 
 import {
   CanvasComponent,
-  Emotion,
   EYES_PART_TYPE,
   EXTRA_PART_TYPE,
   HEAD_PART_TYPE,
-  LidLevel,
   MOUTH_PART_TYPE,
   NOSE_PART_TYPE
 } from "sl-web-face";
 import {MouseEventHandler} from "react";
+import {getFacesScreenSettings} from "../../persistence/settings";
 
 export type InitResults = {
   onFaceCanvasMouseMove:MouseEventHandler<HTMLCanvasElement>,
   onFaceCanvasMouseDown:MouseEventHandler<HTMLCanvasElement>,
   onFaceCanvasMouseUp:MouseEventHandler<HTMLCanvasElement>,
   faceCount:number,
-  faceName:string
+  faceName:string,
+  screenSettings:FacesScreenSettings
 }
 
 let _isInitialized = false;
@@ -56,7 +56,7 @@ function _onPartMoved(component:CanvasComponent, x:number, y:number, setRevision
 
 export function onPartTypeChange(partType:PartType, setRevision:any) {
   const head = getHead();
-  updateForStaticFaceRevision({partType}, setRevision);
+  updateForAuthoringRevision({partType}, setRevision);
   const partUiManager = getPartUiManager();
   const nextFocusPart = findCanvasComponentForPartType(head, partType);
   if (partUiManager) {
@@ -75,7 +75,7 @@ function _onPartFocused(component:CanvasComponent|null, setRevision:any):boolean
   const revisionManager = getRevisionManager();
   const currentPartType = revisionManager.currentRevision?.partType;
   const partType = findPartTypeForCanvasComponent(component, head.children);
-  if (partType !== currentPartType) updateForStaticFaceRevision({partType}, setRevision);
+  if (partType !== currentPartType) updateForAuthoringRevision({partType}, setRevision);
   return true;
 }
 
@@ -122,7 +122,8 @@ function _updateLoadablePartsForType(partTypeName:string, setEyeParts:any, setEx
 /* Handle any initialization needed for mount after a previous initialization was completed. This will cover
    refreshing any module-scope vars that stored instances tied to a React component's lifetime and calling setters
    to on React components to synchronize their state with module-scope vars. */
-async function _initForSubsequentMount(_setDisabled:any, setEyeParts:any, setExtraParts:any, setHeadParts:any, setMouthParts:any, setNoseParts:any) {
+async function _initForSubsequentMount(_setDisabled:any, setEyeParts:any, setExtraParts:any, setHeadParts:any, 
+                                       setMouthParts:any, setNoseParts:any, screenSettings:FacesScreenSettings) {
   await bindSetDisabled(_setDisabled);
   const partLoader = getPartLoader();
   setNoseParts([...partLoader.noses]);
@@ -130,6 +131,11 @@ async function _initForSubsequentMount(_setDisabled:any, setEyeParts:any, setExt
   setEyeParts([...partLoader.eyes]);
   setExtraParts([...partLoader.extras]);
   setHeadParts([...partLoader.heads]);
+  updateScreenSettings(screenSettings);
+}
+
+async function _loadScreenSettings():Promise<FacesScreenSettings> {
+  return await getFacesScreenSettings() ?? getDefaultScreenSettings();
 }
 
 export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, setHeadParts:any, setMouthParts:any, setNoseParts:any, _setDisabled:any):Promise<InitResults> {
@@ -141,8 +147,11 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   function onPartResized(part:CanvasComponent, _x:number, _y:number, _width:number, _height:number) { return _onPartResized(setRevision); }
   function onPartLoaderUpdated(partTypeName:string, _partName:string) { _updateLoadablePartsForType(partTypeName, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts); }
   
+  const screenSettings:FacesScreenSettings = await _loadScreenSettings();
+  
   const faceCount = await getFaceCount();
-  const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, onFaceCanvasMouseUp, faceName:UNSPECIFIED_NAME, faceCount };
+  const initResults:InitResults = { onFaceCanvasMouseMove:_onFaceCanvasMouseMove, onFaceCanvasMouseDown, 
+    onFaceCanvasMouseUp, faceName:UNSPECIFIED_NAME, faceCount, screenSettings };
   _addDocumentMouseUpListener(onFaceCanvasMouseUp);
   
   const revisionManager = getRevisionManager();
@@ -151,7 +160,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   initResults.faceName = await getActiveFaceName();
   
   if (_isInitialized) {
-    await _initForSubsequentMount(_setDisabled, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts);
+    await _initForSubsequentMount(_setDisabled, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, screenSettings);
     revisionManager.enablePersistence();
     return initResults
   }
@@ -164,7 +173,7 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   await partLoader.loadManifest('/parts/part-manifest.yml');
   initCore(head, partUiManager, partLoader, _setDisabled);
   const [faceEventManager, faceId] = initFaceEvents(head);
-  await initViewSettings('/speech/test-voices/test-voice-manifest.yml', faceEventManager, faceId);
+  await initViewSettings('/speech/test-voices/test-voice-manifest.yml', faceEventManager, faceId, screenSettings);
 
   revisionManager.enablePersistence();
   setUpRevisionForNewFace(head, setRevision);
@@ -194,10 +203,7 @@ export function getRevisionForMount():Revision {
   let revision = revisionManager.currentRevision;
   if (revision) return revision;
   revision = {
-    emotion: Emotion.NEUTRAL,
-    lidLevel: LidLevel.NORMAL,
     partType: PartType.HEAD,
-    testVoice: TestVoiceType.MUTED,
     headComponent: null,
     eyesPartNo: UNSPECIFIED,
     extraSlotPartNos: [],

@@ -1,17 +1,18 @@
-import {getRevisionManager, updateForStaticFaceRevision} from "./revisionUtil";
 import TestVoiceType from "facesScreen/testVoices/TestVoiceType";
 import TestVoices from "facesScreen/testVoices/TestVoices";
 import TestVoiceLoader from "facesScreen/testVoices/TestVoiceLoader";
 
 import {Emotion, FaceEventManager, LidLevel} from "sl-web-face";
+import FacesScreenSettings from "../FacesScreenSettings";
+import {setFacesScreenSettings} from "../../persistence/settings";
 
 let testVoices:TestVoices|null = null;
+let _screenSettings:FacesScreenSettings|null = null;
+let _faceEventManager:FaceEventManager|null = null;
+let _faceId:number = -1;
 
 function _getTestVoiceType():TestVoiceType {
-  const revisionManager = getRevisionManager();
-  const currentRevision = revisionManager.currentRevision;
-  if (!currentRevision) return TestVoiceType.MUTED;
-  return currentRevision.testVoice;
+  return _screenSettings ? _screenSettings.testVoice : TestVoiceType.MUTED;
 }
 
 function _playTestVoiceForEmotion(emotion:Emotion) {
@@ -20,25 +21,51 @@ function _playTestVoiceForEmotion(emotion:Emotion) {
   testVoices.play(testVoice, emotion);
 }
 
-export async function initViewSettings(testVoiceManifestUrl:string, faceEventManager:FaceEventManager, faceId:number) {
+export function getDefaultScreenSettings() {
+  return {
+    emotion: Emotion.NEUTRAL,
+    lidLevel: LidLevel.NORMAL,
+    testVoice: TestVoiceType.MUTED
+  };
+}
+
+
+export function updateScreenSettings(screenSettings:FacesScreenSettings) {
+  _screenSettings = screenSettings;
+}
+
+export async function initViewSettings(testVoiceManifestUrl:string, faceEventManager:FaceEventManager, faceId:number, screenSettings:FacesScreenSettings) {
   const testVoiceLoader = new TestVoiceLoader();
   testVoices = await testVoiceLoader.loadManifest(testVoiceManifestUrl, faceEventManager, faceId);
-} 
+  updateScreenSettings(screenSettings);
+  _faceEventManager = faceEventManager;
+  _faceId = faceId;
+}
 
-export function onTestVoiceChange(testVoice:TestVoiceType, setRevision:any) {
-  updateForStaticFaceRevision({testVoice}, setRevision);
+export function onTestVoiceChange(testVoice:TestVoiceType, setScreenSettings:Function) {
+  if (!_screenSettings) throw Error('Unexpected');
+  _screenSettings.testVoice = testVoice;
+  setScreenSettings({..._screenSettings});
+  setFacesScreenSettings(_screenSettings).then(() => {});
 }
 
 export function onEmotionClick(emotion:Emotion) {
   _playTestVoiceForEmotion(emotion);
 }
 
-export function onEmotionChange(emotion:Emotion, setRevision:any) {
-  updateForStaticFaceRevision({emotion}, setRevision);
+export function onLidLevelChange(lidLevel:LidLevel, setScreenSettings:Function) {
+  if (!_screenSettings || !_faceEventManager) throw Error('Unexpected');
+  _screenSettings.lidLevel = lidLevel;
+  _faceEventManager.setLidLevel(_faceId, lidLevel);
+  setScreenSettings(_screenSettings);
+  setFacesScreenSettings(_screenSettings).then(() => {});
 }
-
-export function onLidLevelChange(lidLevel:LidLevel, setRevision:any) {
-  updateForStaticFaceRevision({lidLevel}, setRevision);
+export function onEmotionChange(emotion:Emotion, setScreenSettings:Function) {
+  if (!_screenSettings || !_faceEventManager) throw Error('Unexpected');
+  _screenSettings.emotion = emotion;
+  _faceEventManager.setEmotion(_faceId, emotion);
+  setScreenSettings({..._screenSettings});
+  setFacesScreenSettings(_screenSettings).then(() => {});
 }
 
 export function getTestVoiceCredits():string|undefined {

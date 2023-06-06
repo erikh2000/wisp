@@ -6,6 +6,8 @@ export const MIMETYPE_WISP_SPIEL = 'application/vnd.seespacelabs.wisp.spiel';
 export const MIMETYPE_FOUNTAIN = 'text/vnd.fountain'; // I don't actually know the "official" MIME type of Fountain. Please holler at me if you do.
 export const MIMETYPE_AUDIO_WAV = 'audio/wav';
 
+export const MIMETYPE_WISP_SETTING = 'application/vnd.seespacelabs.wisp.setting';
+
 type MimeTypeToExtensionMap = {
   [key:string]:string
 }
@@ -17,7 +19,8 @@ const MIMETYPE_TO_EXTENSION_MAP:MimeTypeToExtensionMap = {
   [MIMETYPE_WISP_PROJECT]: 'wisp',
   [MIMETYPE_WISP_SPIEL]: 'spiel',
   [MIMETYPE_FOUNTAIN]: 'fountain',
-  [MIMETYPE_AUDIO_WAV]: 'wav'
+  [MIMETYPE_AUDIO_WAV]: 'wav',
+  [MIMETYPE_WISP_SETTING]: 'settings'
 };
 
 const DEFAULT_EXTENSION = '';
