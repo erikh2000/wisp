@@ -2,9 +2,9 @@
 @value accent-orange, primary-off-white, accent-dark-grey from colors; 
     
 .menuTile {
-    flex-basis: 20rem;
+    flex-basis: 50rem;
     background-color: primary-off-white;
-    background-size: 200%;
+    background-size: 100%;
     border-style: solid;
     border-color: accent-dark-grey;
     border-width: 0.5rem;
@@ -14,11 +14,12 @@
     padding: 1rem;
     cursor: pointer;
     max-height: 650px;
+    min-width: 20rem;
     opacity: .8;
 }
 
 .menuTile:hover {
-    background-size: 210%;
+    background-size: 105%;
     opacity: 1;
 }
 
