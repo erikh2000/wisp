@@ -6,6 +6,7 @@
     border-style: solid;
     border-color: transparent;
     text-align: center;
+    font-size: 1.5rem;
 }
 
 .container {
@@ -35,7 +36,7 @@
 
 .character {
     display: block;
-    text-align: center;
+    text-align: center;;
 }
 
 .dialogue {
