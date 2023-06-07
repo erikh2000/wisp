@@ -14,7 +14,7 @@
     composes: disableSelect;
     flex-grow: 0;
     min-width: 5rem;
-    font-size: 1rem;
+    font-size: 1.3rem;
 }
 
 .selectorButton {
@@ -49,7 +49,7 @@
 
 .selectorButtonText {
     letter-spacing: .1rem;
-    font-size: .8rem;
+    font-size: 1.1rem;
     color: button-text;
 }
 

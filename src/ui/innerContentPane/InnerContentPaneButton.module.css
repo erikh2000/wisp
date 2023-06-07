@@ -27,6 +27,7 @@
 .contentPaneButtonText {
     font-family: 'simply_olive', serif;
     letter-spacing: .1rem;
+    font-size: 1.4rem;
     color: button-text;
 }
 

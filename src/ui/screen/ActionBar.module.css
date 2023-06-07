@@ -12,8 +12,9 @@
     flex-grow: 0;
 
     padding-left: 1rem;
+    padding-right: 1rem;
     font-style: italic;
-    font-size: 1.3rem;
+    font-size: 1.7rem;
     border-right-style: dashed;
     border-right-width: 0.1rem;
     border-right-color: background-content;
@@ -28,4 +29,5 @@
     flex-grow: 1;
     display:flex;
     justify-content: space-between;
+    padding-left: 1rem;
 }

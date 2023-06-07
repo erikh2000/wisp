@@ -5,7 +5,7 @@
 
 .menuBarButton {
     composes: disableSelect;
-    height: 7rem;
+    height: 9rem;
     width: 3rem;
     justify-content: center;
     background-color: button;
@@ -29,7 +29,7 @@
 
 .menuBarButtonText {
     font-family: 'simply_olive', serif;
-    font-size: 1.5rem;
+    font-size: 2rem;
     transform: rotate(270deg);
     transform-origin: 50% 50%;
     color: button-text;
