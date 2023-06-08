@@ -19,7 +19,7 @@ function _renderEntrySpielNameSelector(spielNames:string[], entrySpielName:strin
     return (<option key={index} value={spielName}>{spielName}</option>);
   });
   return (
-    <select name='entrySpielName' value={entrySpielName ?? ''} onChange={event => {onChangeEntrySpielName(event.target.value)}} disabled={disabled}>
+    <select name='entrySpielName' className={styles.entrySpielName} value={entrySpielName ?? ''} onChange={event => {onChangeEntrySpielName(event.target.value)}} disabled={disabled}>
       {options}
     </select>
   );
