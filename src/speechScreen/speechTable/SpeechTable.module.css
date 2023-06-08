@@ -8,7 +8,7 @@
 }
 
 .dialogueColumn {
-    flex-basis: 20rem;
+    flex-basis: 40rem;
     border-right-style: solid;
     border-color: darkgrey;
     padding-left: .2rem;
@@ -23,12 +23,12 @@
 }
 
 .finalColumn {
-    flex-basis: 2rem;
+    flex-basis: 3rem;
     padding-left: .2rem;
 }
 
 .finalColumnForHeader {
-    flex-basis: 3.15rem;
+    flex-basis: 4.35rem;
     padding-left: .2rem;
 }
 
@@ -38,10 +38,12 @@
 }
 
 .row {
+    font-size: 1.5rem;
     width: calc(100% - .5rem);
 }
 
 .speechTableHeader {
+    font-size: 1.5rem;
     display: flex;
     border-bottom-style: solid;
     border-bottom-width: .15rem;
@@ -80,14 +82,16 @@
 }
 
 .dragTarget {
-    font-size: .4rem;
+    font-size: .6rem;
     background-color: button-primary;
     color: #333333;
     border-radius: 0.2rem;
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
-    padding-left: 0.1rem;
-    padding-right: 0.1rem;
+    position: relative;
+    top: .1rem;
+    padding-top: .28rem;
+    padding-bottom: .28rem;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
 }
 
 .dragTargetHover {
@@ -97,6 +101,9 @@
 
 .finalizeDragTarget {
     composes: dragTarget;
+    position: relative;
+    top: -.3rem;
+    margin-left: .25rem;
 }
 
 .finalizeDragTargetHover {
@@ -107,7 +114,7 @@
 .deleteDragTarget {
     composes: dragTarget;
     float: right;
-    margin-top: .25rem;
+    margin-top: 0rem;
     margin-right: .25rem;
 }
 

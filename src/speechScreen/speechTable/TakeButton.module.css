@@ -6,10 +6,10 @@
 .take {
     background-color: button;
     margin-right: 0.2rem;
-    padding-left: 0.2rem;
-    padding-right: 0.2rem;
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
     color: button-text;
-    font-size: .8rem;
+    font-size: 1.1rem;
     border-style: none;
     cursor: pointer;
 }
@@ -25,5 +25,5 @@
 
 .finalTake {
     composes: take;
-    font-size: .6rem;
+    font-size: .8rem;
 }
