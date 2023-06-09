@@ -18,14 +18,15 @@ interface IProps {
   originalDocumentName:string,
   onCancel:() => void,
   onChoose:ChooseCallback,
+  onGetNameFromKey?:(key:string) => string, // Use if key does not have a display-friendly name at end of path.
   title:string
 }
 
-function _renderRows(documents:KeyValueRecord[], originalDocumentName:string, selectedDocumentName:string|null, setSelectedDocumentName:Function, onChoose:Function):JSX.Element[] {
+function _renderRows(documents:KeyValueRecord[], originalDocumentName:string, selectedDocumentName:string|null, setSelectedDocumentName:Function, onChoose:Function, getNameFromKey:Function):JSX.Element[] {
   documents.sort((a, b) => b.lastModified - a.lastModified);
   let lastDateGrouping = '';
   return documents.map((document) => {
-    const name = keyToName(document.key);
+    const name = getNameFromKey(document.key);
     const dateGrouping = getDateGrouping(document.lastModified);
     const displayGrouping = dateGrouping === lastDateGrouping ? '' : dateGrouping;
     lastDateGrouping = dateGrouping;
@@ -42,13 +43,14 @@ function _renderRows(documents:KeyValueRecord[], originalDocumentName:string, se
 }
 
 function DocumentChooser(props:IProps) {
-  const { isOpen, onCancel, onChoose, chooseText, documents, originalDocumentName, title } = props;
+  const { isOpen, onCancel, onChoose, onGetNameFromKey, chooseText, documents, originalDocumentName, title } = props;
+  const getNameFromKey = onGetNameFromKey ?? keyToName;
   const [selectedDocumentName, setSelectedDocumentName] = useState<string|null>(null);
-  const [rows, setRows] = useState<JSX.Element[]>(_renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName, onChoose));
-
+  const [rows, setRows] = useState<JSX.Element[]>(_renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName, onChoose, getNameFromKey));
+  
   useEffect(() => {
     if (!isOpen) return;
-    const nextRows = _renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName, onChoose);
+    const nextRows = _renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName, onChoose, getNameFromKey);
     setRows(nextRows);
   }, [isOpen, documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName]);
 

@@ -1,7 +1,7 @@
 import {keyToName, keyToPath} from "./pathUtil";
 import {MIMETYPE_OCTET_STREAM, MIMETYPE_PLAIN_TEXT, mimeTypeToExtension} from "./mimeTypes";
 import {PROJECTS_PATH} from "./keyPaths";
-import {escapeRegexCharacters} from "../common/regexUtil";
+import {createNonGlobalRegex, escapeRegexCharacters} from "common/regexUtil";
 
 const DB_NAME = 'wisp';
 const KEY_VALUE_STORE = 'KeyValue';
@@ -208,6 +208,7 @@ export async function getAllKeysMatchingRegex(regex:RegExp):Promise<string[]> {
   const transaction = db.transaction(KEY_VALUE_STORE);
   const objectStore = transaction.objectStore(KEY_VALUE_STORE);
   const request = objectStore.getAllKeys();
+  regex = createNonGlobalRegex(regex);
   return new Promise((resolve, reject) => {
     request.onerror = (event:any) => reject(`Failed to get all keys with error code ${event.target.errorCode}.`);
     request.onsuccess = () => {
@@ -230,6 +231,23 @@ export async function getAllValuesAtPath(path:string):Promise<KeyValueRecord[]> 
   });
 }
 
+export async function getValuesForKeys(keys:string[]):Promise<KeyValueRecord[]> {
+  const db = await _open(DB_NAME, SCHEMA);
+  const transaction = db.transaction(KEY_VALUE_STORE);
+  const objectStore = transaction.objectStore(KEY_VALUE_STORE);
+  
+  function _getValueByKey(key:string):Promise<KeyValueRecord> {
+    const request = objectStore.get(key);
+    return new Promise((resolve, reject) => {
+      request.onerror = (event:any) => reject(`Failed to get ${key} from "${KEY_VALUE_STORE} with error code ${event.target.errorCode}.`);
+      request.onsuccess = (_event:any) => resolve(request.result)
+    });
+  }
+
+  const promises = keys.map(_key => _getValueByKey(_key));
+  return Promise.all(promises);
+}
+
 function _changePathOfKey(key:string, path:string, nextPath:string):string {
   return nextPath + key.slice(path.length);
 }
@@ -250,7 +268,7 @@ export async function renameKey(currentKey:string, nextKey:string):Promise<void>
   
   const currentDescendantPath = `${currentKey}/`;
   const currentDescendantPathEscaped = escapeRegexCharacters(currentDescendantPath);
-  const regExp:RegExp = new RegExp(`${currentDescendantPathEscaped}.*`);
+  const regExp:RegExp = new RegExp(`${currentDescendantPathEscaped}.*`, '');
   const descendentKeys:string[] = await getAllKeysMatchingRegex(regExp);
 
   const nextDescendantPath = `${nextKey}/`;

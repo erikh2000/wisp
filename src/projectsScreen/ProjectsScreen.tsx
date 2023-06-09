@@ -1,3 +1,6 @@
+import NewProjectDialog from "./dialogs/NewProjectDialog";
+import OpenProjectChooser from "./dialogs/OpenProjectChooser";
+import {createNewProject, openProject} from "./interactions/fileInteractions";
 import {init} from './interactions/generalInteractions';
 import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText} from "./interactions/projectInteractions";
 import GeneralSettingsPane from "./panes/GeneralSettingsPane";
@@ -32,8 +35,8 @@ function ProjectsScreen() {
   }, []);
 
   const actionBarButtons = [
-    {text:'New', onClick:emptyCallback, groupNo:0, disabled:true},
-    {text:'Open', onClick:emptyCallback, groupNo:0, disabled:true},
+    {text:'New', onClick:() => setModalDialog(NewProjectDialog.name), groupNo:0, disabled},
+    {text:'Open', onClick:() => setModalDialog(OpenProjectChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Export', onClick:() => setModalDialog(ExportProjectDialog.name), groupNo:0},
@@ -61,6 +64,17 @@ function ProjectsScreen() {
         projectName={documentName}
         onComplete={() => setModalDialog(null)}
         onCancel={() => setModalDialog(null)}
+      />
+      <NewProjectDialog
+        isOpen={modalDialog === NewProjectDialog.name}
+        onCancel={() => setModalDialog(null)}
+        onSubmit={(projectName) => createNewProject(projectName, setModalDialog, setDocumentName, setRevision)}
+      />
+      <OpenProjectChooser
+        isOpen={modalDialog === OpenProjectChooser.name}
+        originalDocumentName={documentName}
+        onCancel={() => setModalDialog(null)}
+        onChoose={(projectName) => openProject(projectName, setModalDialog, setDocumentName, setRevision, setSpielNames)}
       />
     </ScreenContainer>
   );

@@ -21,7 +21,7 @@ function _initForSubsequentMount(revisionManager:RevisionManager<Revision>, setD
 }
 
 export async function init(setDisabled:Function, setRevision:Function):Promise<InitResults> {
-  const projectName = await getActiveProjectName();
+  const projectName = getActiveProjectName();
   const spielNames = await getSpielNames(projectName);
   const initResults:InitResults = { projectName, spielNames };
 

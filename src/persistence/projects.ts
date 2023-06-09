@@ -1,8 +1,8 @@
 import {renameFace} from "./faces";
 import {PROJECT_KEY_TEMPLATE, PROJECT_KEYS_REGEX, PROJECT_PATH_REGEX_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
 import {MIMETYPE_WISP_PROJECT} from "./mimeTypes";
-import {doesKeyExist, getAllKeysMatchingRegex, getText, setText} from "./pathStore";
-import {fillTemplate, isValidName, keyToName} from "./pathUtil";
+import {doesKeyExist, getAllKeysMatchingRegex, getText, getValuesForKeys, KeyValueRecord, setText} from "./pathStore";
+import {fillTemplate, isValidName} from "./pathUtil";
 import Project from "./Project";
 
 import {parse, stringify} from 'yaml';
@@ -10,11 +10,22 @@ import {parse, stringify} from 'yaml';
 export const DEFAULT_PROJECT_NAME = 'default';
 export const UNSPECIFIED_NAME = '';
 
-let activeProjectName:string = DEFAULT_PROJECT_NAME;
+let activeProjectName:string = DEFAULT_PROJECT_NAME; // TODO get active project name from general settings.
+
+export function getProjectNameFromKey(key:string):string {
+  // key is of the form: /projects/<projectName>/...
+  const tokens = key.split('/');
+  return tokens[2];
+}
 
 export async function getProjectNames():Promise<string[]> {
   const keys = await getAllKeysMatchingRegex(PROJECT_KEYS_REGEX);
-  return keys.map(key => keyToName(key));
+  return keys.map(key => getProjectNameFromKey(key));
+}
+
+export async function getAllProjectRecords():Promise<KeyValueRecord[]> {
+  const keys = await getAllProjectKeys();
+  return await getValuesForKeys(keys);
 }
 
 export async function createProject(projectName:string) {
@@ -41,7 +52,14 @@ async function _getProjectByKey(key:string):Promise<Project> {
 export async function getActiveProject():Promise<Project> {
   const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:activeProjectName});
   return _getProjectByKey(key);
-} 
+}
+
+export async function setActiveProject(projectName:string) {
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:projectName});
+  if (!await doesKeyExist(key)) throw Error(`${projectName} project does not exist.`);
+  activeProjectName = projectName;
+  // TODO persist active project name in general settings
+}
 
 export async function getActiveFaceName():Promise<string> {
   const project = await getActiveProject();
