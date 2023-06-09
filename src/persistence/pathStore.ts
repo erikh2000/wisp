@@ -117,22 +117,22 @@ async function _getRecordByKey(key:string):Promise<KeyValueRecord> {
 
 export async function getText(key:string):Promise<string|null> {
   const record = await _getRecordByKey(key);
-  return record.text ?? null;
+  return record?.text ?? null;
 }
 
 export async function getTextIfModified(key:string, since:number):Promise<string|null> {
   const record = await _getRecordByKey(key);
-  return (record.text !== null && record.lastModified > since) ? record.text : null;
+  return (record && record.text !== null && record.lastModified > since) ? record.text : null;
 }
 
 export async function getBytes(key:string):Promise<Uint8Array|null> {
   const record = await _getRecordByKey(key);
-  return record.bytes ?? null;
+  return record?.bytes ?? null;
 }
 
 export async function getBytesIfModified(key:string, since:number):Promise<Uint8Array|null> {
   const record = await _getRecordByKey(key);
-  return (record.bytes !== null && record.lastModified > since) ? record.bytes : null;
+  return (record && record.bytes !== null && record.lastModified > since) ? record.bytes : null;
 }
 
 export type FileStorageData = {

@@ -6,11 +6,12 @@ import {fillTemplate, isValidName} from "./pathUtil";
 import Project from "./Project";
 
 import {parse, stringify} from 'yaml';
+import {getProjectsScreenSettings, setProjectsScreenSettings} from "./settings";
 
 export const DEFAULT_PROJECT_NAME = 'default';
 export const UNSPECIFIED_NAME = '';
 
-let activeProjectName:string = DEFAULT_PROJECT_NAME; // TODO get active project name from general settings.
+let activeProjectName:string = UNSPECIFIED_NAME;
 
 export function getProjectNameFromKey(key:string):string {
   // key is of the form: /projects/<projectName>/...
@@ -57,8 +58,8 @@ export async function getActiveProject():Promise<Project> {
 export async function setActiveProject(projectName:string) {
   const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:projectName});
   if (!await doesKeyExist(key)) throw Error(`${projectName} project does not exist.`);
+  await setProjectsScreenSettings({activeProjectName:projectName});
   activeProjectName = projectName;
-  // TODO persist active project name in general settings
 }
 
 export async function getActiveFaceName():Promise<string> {
@@ -103,7 +104,18 @@ export async function updateActiveProject(changes:Partial<Project>) {
   await setText(key, stringify(currentProject), MIMETYPE_WISP_PROJECT);
 }
 
-export function getActiveProjectName():string { return activeProjectName; }
+export async function initActiveProjectName() {
+  const projectsScreenSettings = await getProjectsScreenSettings();
+  activeProjectName = projectsScreenSettings?.activeProjectName ?? DEFAULT_PROJECT_NAME;
+  if (!projectsScreenSettings) await setProjectsScreenSettings({activeProjectName});
+  (globalThis as any).__activeProjectName = activeProjectName;
+}
+
+export function getActiveProjectName():string {
+  if (!activeProjectName) activeProjectName = (globalThis as any).__activeProjectName;
+  if (!activeProjectName) throw Error('Must call initActiveProjectName() first');
+  return activeProjectName; 
+}
 
 export function getAllProjectKeys():Promise<string[]> {
   return getAllKeysMatchingRegex(PROJECT_KEYS_REGEX);
