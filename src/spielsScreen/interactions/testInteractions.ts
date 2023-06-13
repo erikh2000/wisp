@@ -5,14 +5,14 @@ import ConversationSpeed from "conversations/ConversationSpeed";
 import {spielEmotionToEmotion} from "conversations/spielEmotionUtil";
 import {loadDefaultFace, loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import {setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
+import {setSpielsScreenSettings} from "persistence/settings";
 import {setEmotion, startListening, stopListening} from "facesCommon/interactions/faceEventUtil";
 import {setHead} from "spielsScreen/interactions/coreUtil"
+import SpielsScreenSettings from "spielsScreen/SpielsScreenSettings";
 
 import {CanvasComponent, Emotion} from "sl-web-face";
 import {Spiel} from 'sl-spiel';
 import {Recognizer} from "sl-web-speech";
-import SpielsScreenSettings from "../SpielsScreenSettings";
-import {setSpielsScreenSettings} from "../../persistence/settings";
 
 let conversationManager:ConversationManager|null = null;
 let recognizer:Recognizer|null = null;

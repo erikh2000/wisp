@@ -5,7 +5,7 @@ import {initFaceEvents} from 'facesCommon/interactions/faceEventUtil';
 import {getSpiel, getSpielCount} from "persistence/spiels";
 import {bindSetDisabled, initCore, setHead} from "spielsScreen/interactions/coreUtil";
 import {bindSetTranscriptLines, initTranscript} from "./transcriptInteractions";
-import {getRevisionManager} from "./revisionUtil";
+import {getRevisionManager, initRevisionManager} from "./revisionUtil";
 
 import { Spiel, importSpielFile } from 'sl-spiel';
 import { init as initWebSpeech } from 'sl-web-speech';
@@ -56,16 +56,12 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
   const spielCount = await getSpielCount();
   const screenSettings = await _loadScreenSettings();
   const initResults:InitResults = { faceName, spielName, spielCount, screenSettings };
-  const revisionManager = getRevisionManager();
 
   let nextHeadComponent = await loadFaceFromNameIfModified(faceName, _getLastFaceLoadTime(faceName));
-  
-  revisionManager.disablePersistence();
   
   if (isInitialized) {
     _initForSubsequentMount(setTranscriptLines, setDisabled);
     if (nextHeadComponent) setHead(nextHeadComponent);
-    revisionManager.enablePersistence();
     return initResults;
   }
   
@@ -77,10 +73,8 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
   await initWebSpeech();
   initTranscript(setTranscriptLines);
 
-  revisionManager.enablePersistence();
-  const revision = { spiel };
-  setRevision(revision);
-  revisionManager.add(revision);
+  initRevisionManager(spiel);
+  setRevision(getRevisionManager().currentRevision);
   
   await initTest()
 

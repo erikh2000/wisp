@@ -4,48 +4,36 @@ class RevisionManager<T> {
   private revisions:T[];
   private currentRevisionNo:number;
   private persister:RevisionPersister<T>;
-  private isPersisting:boolean;
+  private initialRevision:T;
   
-  constructor(onPersistRevision:IPersistRevisionCallback<T>) {
-    this.currentRevisionNo = -1;
-    this.revisions = [];
+  constructor(initialRevision:T, onPersistRevision:IPersistRevisionCallback<T>) {
+    this.currentRevisionNo = 0;
+    this.initialRevision = {...initialRevision};
+    this.revisions = [this.initialRevision];
     this.persister = new RevisionPersister<T>(onPersistRevision);
-    this.isPersisting = false;
   }
 
-  clear() {
-    this.currentRevisionNo = -1;
-    this.revisions = [];
-  }
-  
-  enablePersistence() {
-    this.isPersisting = true;
-  }
-  
-  disablePersistence() {
-    this.isPersisting = false;
+  clear(initialRevision:T|null = null) {
+    this.currentRevisionNo = 0;
+    if (initialRevision) this.initialRevision = {...initialRevision};
+    this.revisions = [this.initialRevision];
   }
   
   add(revision:T) {
     const removeFromNo = this.currentRevisionNo + 1;
     if (removeFromNo < this.revisions.length) this.revisions = this.revisions.slice(0, removeFromNo);
     this.revisions.push(revision);
-    if (this.isPersisting) this.persister.persist(revision);
+    this.persister.persist(revision);
     ++this.currentRevisionNo;
   }
   
-  async waitForPersist():Promise<void> {
-    return this.persister.waitForCompletion();
-  }
-  
-  // Forces persistence of current revision, rather than waiting for next revision to be added.
+  // Forces persistence of current revision. Useful for when the debounced persistence won't guarantee persistence 
+  // of the current revision, e.g. when the user is about to close the page.
   async persistCurrent():Promise<void> {
-    if (!this.currentRevision) throw Error('Cannot persist when no revision is stored.');
-    return this.persister.persist(this.currentRevision);
+    return this.persister.persistNow(this.currentRevision);
   }
   
   addChanges(changes:any) {
-    if (!this.revisions.length) throw Error('Can only add changes after one revision is stored.');
     const nextRevision = {...this.currentRevision} as T;
     let hasChanged = false;
     Object.keys(changes).forEach(key => {
@@ -66,20 +54,19 @@ class RevisionManager<T> {
   prev():T|null {
     if (this.currentRevisionNo <= 0) return null;
     const revision = this.revisions[--this.currentRevisionNo];
-    if (this.isPersisting) this.persister.persist(revision);
+    this.persister.persist(revision);
     return revision;
   }
   
   next():T|null {
     if (this.currentRevisionNo >= this.revisions.length - 1) return null;
     const revision = this.revisions[++this.currentRevisionNo];
-    if (this.isPersisting) this.persister.persist(revision);
+    this.persister.persist(revision);
     return revision;
   }
   
-  get currentRevision():T|null {
-    return this.revisions.length === 0 
-      ? null : this.revisions[this.currentRevisionNo];
+  get currentRevision():T {
+    return this.revisions[this.currentRevisionNo];
   }
 }
 

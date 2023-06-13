@@ -13,11 +13,14 @@ export type ChooseCallback = (documentName:string) => void;
 
 interface IProps {
   chooseText?:string,
+  description?:string,
   documents:KeyValueRecord[],
   isOpen:boolean,
+  newText?:string,
   originalDocumentName:string,
-  onCancel:() => void,
+  onCancel?:() => void,
   onChoose:ChooseCallback,
+  onNew?:() => void,
   onGetNameFromKey?:(key:string) => string, // Use if key does not have a display-friendly name at end of path.
   title:string
 }
@@ -43,7 +46,7 @@ function _renderRows(documents:KeyValueRecord[], originalDocumentName:string, se
 }
 
 function DocumentChooser(props:IProps) {
-  const { isOpen, onCancel, onChoose, onGetNameFromKey, chooseText, documents, originalDocumentName, title } = props;
+  const { description, isOpen, onCancel, onChoose, onGetNameFromKey, onNew, chooseText, documents, originalDocumentName, title } = props;
   const getNameFromKey = onGetNameFromKey ?? keyToName;
   const [selectedDocumentName, setSelectedDocumentName] = useState<string|null>(null);
   const [rows, setRows] = useState<JSX.Element[]>(_renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName, onChoose, getNameFromKey));
@@ -55,15 +58,20 @@ function DocumentChooser(props:IProps) {
   }, [isOpen, documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName]);
 
   const disabled = selectedDocumentName === null;
+  const cancelButtonRender = onCancel ? <DialogButton onClick={onCancel} text={'Cancel'} /> : null;
+  const newButtonRender = onNew ? <DialogButton onClick={onNew} text={props.newText ?? 'New'} /> : null;
+  const descriptionRender = description ? <p>{description}</p> : null;
   
   return (
     <ModalDialog title={title} onCancel={onCancel} isOpen={isOpen}>
+      {descriptionRender}
       <ul className={styles.rowList}>
         {rows}
       </ul>
       <DialogFooter>
+        {cancelButtonRender}
+        {newButtonRender}
         <DialogButton onClick={() => {if (selectedDocumentName) onChoose(selectedDocumentName)}} text={chooseText ?? 'Choose'} disabled={disabled} isPrimary/>
-        <DialogButton onClick={onCancel} text={'Cancel'} />
       </DialogFooter>
     </ModalDialog>
   )

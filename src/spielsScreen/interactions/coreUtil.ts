@@ -1,5 +1,6 @@
-import {CanvasComponent} from "sl-web-face";
 import {setHeadForFaceEvents} from "facesCommon/interactions/faceEventUtil";
+
+import {CanvasComponent} from "sl-web-face";
 
 let head:CanvasComponent|null = null;
 let setDisabled:any = null;
@@ -12,11 +13,6 @@ export function setHead(_head:CanvasComponent):void {
 export async function initCore(headComponent:CanvasComponent, _setDisabled:any) {
   setHead(headComponent);
   setDisabled = _setDisabled;
-}
-
-export function getHead():CanvasComponent {
-  if (!head) throw Error('Unexpected');
-  return head;
 }
 
 export function getHeadIfReady():CanvasComponent|null {

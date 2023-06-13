@@ -20,41 +20,46 @@ async function onPersistRevision(revision:Revision):Promise<void> {
 export function setUpRevisionForNewSpiel(spielText:string, setRevision:any) {
   const spiel = importSpielFile(spielText);
   const nextRevision:Revision = { spiel };
-  revisionManager.clear();
-  revisionManager.add(nextRevision);
+  const _revisionManager = getRevisionManager();
+  _revisionManager.clear(nextRevision);
   setRevision(nextRevision);
 }
 
-const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(onPersistRevision);
+let revisionManager:RevisionManager<Revision>|null = null;
 
-export function getRevisionManager() { return revisionManager; }
+export function initRevisionManager(spiel:Spiel) {
+  const initialRevision:Revision = { spiel };
+  revisionManager = new RevisionManager<Revision>(initialRevision, onPersistRevision);
+}
+
+export function getRevisionManager():RevisionManager<Revision> {
+  if (!revisionManager) throw new Error('call initRevisionManager() first');
+  return revisionManager; 
+}
 
 export function getRevisionForMount():Revision {
-  const revision = revisionManager.currentRevision;
-  if (revision) return revision;
-  const newRevision = { spiel: new Spiel() };
-  revisionManager.add(newRevision);
-  return newRevision;
+  return revisionManager ? revisionManager.currentRevision : { spiel: new Spiel() };
 }
 
 export function updateRevisionForSpiel(spiel:Spiel, setRevision:Function) {
   const nextSpiel = spiel.duplicate();
-  revisionManager.addChanges({spiel:nextSpiel});
-  setRevision(revisionManager.currentRevision);
+  const _revisionManager = getRevisionManager();
+  _revisionManager.addChanges({spiel:nextSpiel});
+  setRevision(_revisionManager.currentRevision);
 }
 
 export async function onUndo(setRevision:Function) {
   await performDisablingOperation(() => {
-    revisionManager.prev();
-    const revision = revisionManager.currentRevision;
-    setRevision(revision);
+    const _revisionManager = getRevisionManager();
+    _revisionManager.prev();
+    setRevision(_revisionManager.currentRevision);
   });
 }
 
 export async function onRedo(setRevision:Function) {
   await performDisablingOperation(() => {
-    revisionManager.next();
-    const revision = revisionManager.currentRevision;
-    setRevision(revision);
+    const _revisionManager = getRevisionManager();
+    _revisionManager.next();
+    setRevision(_revisionManager.currentRevision);
   });
 }

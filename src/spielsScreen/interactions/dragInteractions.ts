@@ -1,5 +1,6 @@
-import { Spiel } from 'sl-spiel';
 import {updateRevisionForSpiel} from "./revisionUtil";
+
+import { Spiel } from 'sl-spiel';
 
 export type DragMeasurements = {
   nodeHeights: number[];

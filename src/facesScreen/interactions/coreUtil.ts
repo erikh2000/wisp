@@ -1,4 +1,7 @@
-import {MAX_EXTRA_COUNT, PartType} from "../PartSelector";
+import {setHeadForFaceEvents} from "facesCommon/interactions/faceEventUtil";
+import {MAX_EXTRA_COUNT, PartType} from "facesScreen/PartSelector";
+import PartUiManager from "ui/partAuthoring/PartUiManager";
+import PartLoader from "ui/partAuthoring/PartLoader";
 
 import {
   CanvasComponent, 
@@ -7,9 +10,6 @@ import {
   MOUTH_PART_TYPE,
   NOSE_PART_TYPE,
 } from "sl-web-face";
-import PartUiManager from "ui/partAuthoring/PartUiManager";
-import PartLoader from "ui/partAuthoring/PartLoader";
-import {setHeadForFaceEvents} from "facesCommon/interactions/faceEventUtil";
 
 export const UNSPECIFIED = -1;
 

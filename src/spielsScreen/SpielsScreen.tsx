@@ -52,10 +52,10 @@ import EditSpielNodeDialog from "./spielDialogs/EditLineDialog";
 import EditReplyDialog from "./spielDialogs/EditReplyDialog";
 import AddRootReplyDialog from "./spielDialogs/AddRootReplyDialog";
 import EditRootReplyDialog from "./spielDialogs/EditRootReplyDialog";
+import SpielsScreenSettings from "./SpielsScreenSettings";
 import TestOptionsDialog from "./testDialogs/TestOptionsDialog";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import useEffectAfterMount from "common/useEffectAfterMount";
-import ConversationSpeed from "conversations/ConversationSpeed";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ChangeFaceChooser from "./fileDialogs/ChangeFaceChooser";
 import NewSpielDialog from "./fileDialogs/NewSpielDialog";
@@ -71,8 +71,6 @@ import {TextConsoleLine} from "ui/TextConsoleBuffer";
 import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Spiel, SpielLine, SpielReply} from "sl-spiel";
-import {getSpielCount} from "../persistence/spiels";
-import SpielsScreenSettings from "./SpielsScreenSettings";
 
 function _getSelectedReply(spiel:Spiel, selectedReplyNo:number):SpielReply|null {
   const selectedNode = spiel.currentNode;
@@ -93,7 +91,7 @@ function _getSelectedLineForReply(spiel:Spiel):SpielLine {
 
 function SpielsScreen() {
   const [screenSettings, setScreenSettings] = useState<SpielsScreenSettings>(getDefaultScreenSettings());
-  const [playFullScreen, setPlayFullScreen] = useState<boolean>(false); // Purposefully distnct from screenSettings - this is the current full screen state, rather than the setting.
+  const [playFullScreen, setPlayFullScreen] = useState<boolean>(false); // Purposefully distinct from screenSettings - this is the current full screen state, rather than the setting.
   const [disabled, setDisabled] = useState<boolean>(true);
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [dragMeasurements, setDragMeasurements] = useState<DragMeasurements>(createDragMeasurements());

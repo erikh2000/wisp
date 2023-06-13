@@ -29,7 +29,6 @@ export function getDefaultScreenSettings() {
   };
 }
 
-
 export function updateScreenSettings(screenSettings:FacesScreenSettings) {
   _screenSettings = screenSettings;
 }

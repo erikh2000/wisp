@@ -1,7 +1,15 @@
 import {renameFace} from "./faces";
 import {PROJECT_KEY_TEMPLATE, PROJECT_KEYS_REGEX, PROJECT_PATH_REGEX_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
 import {MIMETYPE_WISP_PROJECT} from "./mimeTypes";
-import {doesKeyExist, getAllKeysMatchingRegex, getText, getValuesForKeys, KeyValueRecord, setText} from "./pathStore";
+import {
+  deleteAllKeys,
+  doesKeyExist,
+  getAllKeysMatchingRegex,
+  getText,
+  getValuesForKeys,
+  KeyValueRecord,
+  setText
+} from "./pathStore";
 import {fillTemplate, isValidName} from "./pathUtil";
 import Project from "./Project";
 
@@ -56,9 +64,12 @@ export async function getActiveProject():Promise<Project> {
 }
 
 export async function setActiveProject(projectName:string) {
-  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:projectName});
-  if (!await doesKeyExist(key)) throw Error(`${projectName} project does not exist.`);
+  if (projectName !== UNSPECIFIED_NAME) {
+    const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:projectName});
+    if (!await doesKeyExist(key)) throw Error(`${projectName} project does not exist.`);
+  }
   await setProjectsScreenSettings({activeProjectName:projectName});
+  (globalThis as any).__activeProjectName = projectName;
   activeProjectName = projectName;
 }
 
@@ -113,12 +124,15 @@ export async function initActiveProjectName() {
 
 export function getActiveProjectName():string {
   if (!activeProjectName) activeProjectName = (globalThis as any).__activeProjectName;
-  if (!activeProjectName) throw Error('Must call initActiveProjectName() first');
   return activeProjectName; 
 }
 
-export function getAllProjectKeys():Promise<string[]> {
+export async function getAllProjectKeys():Promise<string[]> {
   return getAllKeysMatchingRegex(PROJECT_KEYS_REGEX);
+}
+
+export async function getProjectCount():Promise<number> {
+  return (await getAllProjectKeys()).length;
 }
 
 export function getAllKeysForProject(projectName:string = getActiveProjectName()):Promise<string[]> {
@@ -142,11 +156,14 @@ export async function renameSpielReferencesInProject(currentSpielName:string, ne
 }
 
 export function projectKeyToName(key:string):string {
-  // Parsing PROJECTNAME from /projects/PROJECTNAME/project
+  // Parsing PROJECT NAME from /projects/PROJECT NAME/project
   if (!key.startsWith(PROJECTS_PATH)) throw Error('Unexpected');
   const endNamePos = key.indexOf('/', PROJECTS_PATH.length);
   if (endNamePos === -1) throw Error('Unexpected');
   return key.substring(PROJECTS_PATH.length, endNamePos);
 }
 
-// TODO - add code for creating multiple projects and selecting between them.
+export async function deleteProject(projectName:string) {
+  const keys = await getAllKeysForProject(projectName);
+  await deleteAllKeys(keys)
+}

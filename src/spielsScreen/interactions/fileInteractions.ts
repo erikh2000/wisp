@@ -75,10 +75,10 @@ async function _loadSpielTextFromFileHandle(fileHandle:FileSystemFileHandle):Pro
 
 async function _setUpForNewSpiel(loadSpielTextFunc:() => Promise<string>, setDocumentName:any, setRevision:any):Promise<void> {
   await performDisablingOperation(async () => {
+    const revisionManager = getRevisionManager();
+    await revisionManager.persistCurrent();
     setDocumentName(UNSPECIFIED_NAME); // If anything fails, it's better to leave the document name cleared to avoid overwriting a previous spiel.
     await setActiveSpielName(UNSPECIFIED_NAME);
-    const revisionManager = getRevisionManager();
-    await revisionManager.waitForPersist();
     const spielText = await loadSpielTextFunc();
     await setUpRevisionForNewSpiel(spielText, setRevision);
   });
@@ -98,7 +98,7 @@ export async function exportSpiel(documentName:string):Promise<void> {
     let fileHandle = await _selectNewSpielFileHandle(documentName);
     if (!fileHandle) return;
     const revisionManager = getRevisionManager();
-    await revisionManager.waitForPersist();
+    await revisionManager.persistCurrent();
     const spiel = revisionManager.currentRevision?.spiel ?? new Spiel();
     const spielText = exportSpielFile(spiel);
     const writable = await (fileHandle as any).createWritable();
@@ -114,20 +114,16 @@ async function _createNewSpielText():Promise<string> {
 
 export async function onNewSpiel(setModalDialog:Function, setDocumentName:Function, setRevision:Function):Promise<void> {
   await getRevisionManager().persistCurrent();
-  await performDisablingOperation(async () => {
-    await _setUpForNewSpiel(_createNewSpielText, setDocumentName, setRevision);
-    setModalDialog(NewSpielDialog.name);
-  });
+  await _setUpForNewSpiel(_createNewSpielText, setDocumentName, setRevision);
+  setModalDialog(NewSpielDialog.name);
 }
 
 export async function onOpenSpiel(spielName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function):Promise<void> {
   await getRevisionManager().persistCurrent();
-  await performDisablingOperation(async () => {
-    await _setUpForNewSpiel(() => getSpiel(spielName), setDocumentName, setRevision);
-    await setActiveSpielName(spielName);
-    setDocumentName(spielName);
-    setModalDialog(null);
-  });
+  await _setUpForNewSpiel(() => getSpiel(spielName), setDocumentName, setRevision);
+  await setActiveSpielName(spielName);
+  setDocumentName(spielName);
+  setModalDialog(null);
 }
 
 export async function onConfirmDeleteSpiel(spielName:string, navigate:NavigateFunction):Promise<void> {

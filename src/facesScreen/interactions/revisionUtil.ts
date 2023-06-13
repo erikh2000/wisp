@@ -3,7 +3,7 @@ import {
   getHead, getPartLoader,
   getPartUiManager,
   performDisablingOperation,
-  setHead
+  setHead, UNSPECIFIED
 } from "./coreUtil";
 import {findLoadablePartNo, findLoadablePartNosForExtras} from "./partChooserInteractions";
 import RevisionManager from "documents/RevisionManager";
@@ -12,7 +12,7 @@ import {setFaceDefinition} from "persistence/faces";
 import {getActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import {updateSelectionBoxesToMatchFace} from "ui/partAuthoring/SelectionBoxCanvasComponent";
 
-import {CanvasComponent, createFaceDocument, Emotion, FaceDocument, LidLevel} from "sl-web-face";
+import {CanvasComponent, createFaceDocument, FaceDocument} from "sl-web-face";
 import { stringify } from 'yaml';
 
 export type Revision = {
@@ -34,9 +34,39 @@ async function onPersistRevision(revision:Revision):Promise<void> {
   await setFaceDefinition(activeFaceName, faceDefYaml);
 }
 
-const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(onPersistRevision);
+let revisionManager:RevisionManager<Revision>|null = null; 
 
-export function getRevisionManager() { return revisionManager; }
+export function initRevisionManager(headComponent:CanvasComponent) {
+  const partLoader = getPartLoader();
+  const initialRevision:Revision = {
+    partType:PartType.HEAD,
+    headComponent: headComponent.duplicate(),
+    eyesPartNo: findLoadablePartNo(partLoader.eyes, headComponent, PartType.EYES),
+    nosePartNo: findLoadablePartNo(partLoader.noses, headComponent, PartType.NOSE),
+    mouthPartNo: findLoadablePartNo(partLoader.mouths, headComponent, PartType.MOUTH),
+    headPartNo: findLoadablePartNo(partLoader.heads, headComponent, PartType.HEAD),
+    extraSlotPartNos: findLoadablePartNosForExtras(partLoader.extras, headComponent)
+  }
+  revisionManager = new RevisionManager<Revision>(initialRevision, onPersistRevision);
+}
+
+export function getRevisionManager():RevisionManager<Revision> {
+  if (!revisionManager) throw Error('Call initRevisionManager() first');
+  return revisionManager; 
+}
+
+export function getRevisionForMount():Revision {
+  return revisionManager ? revisionManager.currentRevision :
+    {
+      partType: PartType.HEAD,
+      headComponent: null,
+      eyesPartNo: UNSPECIFIED,
+      extraSlotPartNos: [],
+      headPartNo: UNSPECIFIED,
+      nosePartNo: UNSPECIFIED,
+      mouthPartNo: UNSPECIFIED
+    };
+}
 
 async function _updateEverythingToMatchRevision(revision:Revision|null, setRevision:any) {
   if (!revision) return;
@@ -52,11 +82,15 @@ async function _updateEverythingToMatchRevision(revision:Revision|null, setRevis
 }
 
 export function onUndo(setRevision:any) {
-  performDisablingOperation(async () => _updateEverythingToMatchRevision(revisionManager.prev(), setRevision));
+  performDisablingOperation(
+    async () => _updateEverythingToMatchRevision(getRevisionManager().prev(), setRevision))
+    .then(() => {});
 }
 
 export function onRedo(setRevision:any) {
-  performDisablingOperation(async () => _updateEverythingToMatchRevision(revisionManager.next(), setRevision));
+  performDisablingOperation(
+    async () => _updateEverythingToMatchRevision(getRevisionManager().next(), setRevision))
+    .then(() => {});
 }
 
 export function updateForFaceRelatedRevision(changes:any, setRevision:any) {
@@ -69,16 +103,16 @@ export function updateForFaceRelatedRevision(changes:any, setRevision:any) {
   setRevision(nextRevision);
 }
 
-// Authoring = affecting authoring state on the screen, e.g. selected part, rather a change to the face asset.
+// Authoring = affecting authoring state on the screen, e.g. selected part, rather than a change to the face asset.
 export function updateForAuthoringRevision(changes:any, setRevision:any) {
   const revisionManager = getRevisionManager();
   revisionManager.addChanges({...changes});
   const nextRevision = revisionManager.currentRevision;
-  if (!nextRevision) return;
   setRevision(nextRevision);
 }
 
 export function setUpRevisionForNewFace(headComponent:CanvasComponent, setRevision:any) {
+  const _revisionManager = getRevisionManager();
   const partLoader = getPartLoader();
   const nextRevision:Revision = {
     partType:PartType.HEAD,
@@ -89,7 +123,7 @@ export function setUpRevisionForNewFace(headComponent:CanvasComponent, setRevisi
     headPartNo: findLoadablePartNo(partLoader.heads, headComponent, PartType.HEAD),
     extraSlotPartNos: findLoadablePartNosForExtras(partLoader.extras, headComponent)
   }
-  revisionManager.clear();
-  revisionManager.add(nextRevision);
+  _revisionManager.clear(nextRevision);
+  _revisionManager.add(nextRevision);
   setRevision(nextRevision);
 }

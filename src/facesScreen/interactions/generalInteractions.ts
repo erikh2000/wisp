@@ -1,5 +1,4 @@
 import {
-  UNSPECIFIED,
   bindSetDisabled,
   findCanvasComponentForPartType, 
   findPartTypeForCanvasComponent, 
@@ -15,10 +14,9 @@ import {loadDefaultFace, loadFaceFromName} from "facesCommon/interactions/fileIn
 import FacesScreenSettings from "facesScreen/FacesScreenSettings";
 import {
   getRevisionManager,
-  Revision,
   setUpRevisionForNewFace,
   updateForFaceRelatedRevision,
-  updateForAuthoringRevision
+  updateForAuthoringRevision, initRevisionManager
 } from "./revisionUtil";
 import {getDefaultScreenSettings, initViewSettings, updateScreenSettings} from "./viewSettingsInteractions";
 import {PartType} from "facesScreen/PartSelector";
@@ -154,14 +152,10 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
     onFaceCanvasMouseUp, faceName:UNSPECIFIED_NAME, faceCount, screenSettings };
   _addDocumentMouseUpListener(onFaceCanvasMouseUp);
   
-  const revisionManager = getRevisionManager();
-  revisionManager.disablePersistence();
-  
   initResults.faceName = await getActiveFaceName();
   
   if (_isInitialized) {
     await _initForSubsequentMount(_setDisabled, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, screenSettings);
-    revisionManager.enablePersistence();
     return initResults
   }
   
@@ -172,10 +166,10 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   const partLoader = new PartLoader(onPartLoaderUpdated);
   await partLoader.loadManifest('/parts/part-manifest.yml');
   initCore(head, partUiManager, partLoader, _setDisabled);
+  initRevisionManager(head);
   const [faceEventManager, faceId] = initFaceEvents(head);
   await initViewSettings('/speech/test-voices/test-voice-manifest.yml', faceEventManager, faceId, screenSettings);
-
-  revisionManager.enablePersistence();
+  
   setUpRevisionForNewFace(head, setRevision);
   
   _isInitialized = true;
@@ -196,21 +190,4 @@ export function onDrawFaceCanvas(context:CanvasRenderingContext2D) {
   const head = getHead();
   centerCanvasComponent(head, canvasWidth, canvasHeight);
   head.render(context);
-}
-
-export function getRevisionForMount():Revision {
-  const revisionManager = getRevisionManager();
-  let revision = revisionManager.currentRevision;
-  if (revision) return revision;
-  revision = {
-    partType: PartType.HEAD,
-    headComponent: null,
-    eyesPartNo: UNSPECIFIED,
-    extraSlotPartNos: [],
-    headPartNo: UNSPECIFIED,
-    nosePartNo: UNSPECIFIED,
-    mouthPartNo: UNSPECIFIED
-  };
-  revisionManager.add(revision);
-  return revision;
 }

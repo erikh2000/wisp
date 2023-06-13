@@ -1,6 +1,7 @@
+import ConfirmDeleteProjectDialog from "./dialogs/ConfirmDeleteProjectDialog";
 import NewProjectDialog from "./dialogs/NewProjectDialog";
 import OpenProjectChooser from "./dialogs/OpenProjectChooser";
-import {createNewProject, openProject} from "./interactions/fileInteractions";
+import {createNewProject, onConfirmDeleteProject, openProject} from "./interactions/fileInteractions";
 import {init} from './interactions/generalInteractions';
 import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText} from "./interactions/projectInteractions";
 import GeneralSettingsPane from "./panes/GeneralSettingsPane";
@@ -11,6 +12,7 @@ import {UNSPECIFIED_NAME} from "persistence/projects";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
 import ExportProjectDialog from './dialogs/ExportProjectDialog';
+import OpenOrNewProjectChooser from "./dialogs/OpenOrNewProjectChooser";
 
 import React, { useState } from "react";
 
@@ -26,10 +28,12 @@ function ProjectsScreen() {
   useEffectAfterMount(() => {
     
     init(setDisabled, setRevision).then(nextInitResults => {
-      if (nextInitResults.projectName !== UNSPECIFIED_NAME) {
+      if (nextInitResults.projectName === UNSPECIFIED_NAME) {
+        setModalDialog(OpenOrNewProjectChooser.name);
+      } else {
         setDocumentName(nextInitResults.projectName);
         setSpielNames(nextInitResults.spielNames);
-      }
+      } 
       setDisabled(false);
     });
   }, []);
@@ -38,6 +42,7 @@ function ProjectsScreen() {
     {text:'New', onClick:() => setModalDialog(NewProjectDialog.name), groupNo:0, disabled},
     {text:'Open', onClick:() => setModalDialog(OpenProjectChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:emptyCallback, groupNo:0, disabled:true},
+    {text:'Delete', onClick:() => setModalDialog(ConfirmDeleteProjectDialog.name), groupNo:0, disabled},
     {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Export', onClick:() => setModalDialog(ExportProjectDialog.name), groupNo:0},
 
@@ -67,13 +72,25 @@ function ProjectsScreen() {
       />
       <NewProjectDialog
         isOpen={modalDialog === NewProjectDialog.name}
-        onCancel={() => setModalDialog(null)}
+        onCancel={() => setModalDialog(documentName === UNSPECIFIED_NAME ? OpenOrNewProjectChooser.name : null)}
         onSubmit={(projectName) => createNewProject(projectName, setModalDialog, setDocumentName, setRevision)}
       />
       <OpenProjectChooser
         isOpen={modalDialog === OpenProjectChooser.name}
         originalDocumentName={documentName}
         onCancel={() => setModalDialog(null)}
+        onChoose={(projectName) => openProject(projectName, setModalDialog, setDocumentName, setRevision, setSpielNames)}
+      />
+      <ConfirmDeleteProjectDialog
+        isOpen={modalDialog === ConfirmDeleteProjectDialog.name}
+        projectName={documentName}
+        onCancel={() => setModalDialog(null)}
+        onConfirm={() => onConfirmDeleteProject(documentName, setModalDialog, setDocumentName, setRevision, setSpielNames)}
+      />
+      <OpenOrNewProjectChooser 
+        isOpen={modalDialog === OpenOrNewProjectChooser.name}
+        originalDocumentName={documentName}
+        onNew={() => setModalDialog(NewProjectDialog.name)}
         onChoose={(projectName) => openProject(projectName, setModalDialog, setDocumentName, setRevision, setSpielNames)}
       />
     </ScreenContainer>

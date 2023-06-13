@@ -1,11 +1,12 @@
 import {createDefaultRevision, getRevisionManager, Revision} from "./revisionUtil";
 import {bindSetDisabled, initCore} from "./coreUtil";
 import RevisionManager from "documents/RevisionManager";
-import {getActiveProject, getActiveProjectName, UNSPECIFIED_NAME} from "persistence/projects";
+import {getActiveProject, getActiveProjectName, getProjectCount, UNSPECIFIED_NAME} from "persistence/projects";
 import {getSpielNames} from "persistence/spiels";
 
 type InitResults = {
   projectName:string,
+  projectCount:number,
   spielNames:string[]
 }
 
@@ -16,17 +17,15 @@ let isInitialized = false;
    to on React components to synchronize their state with module-scope vars. */
 function _initForSubsequentMount(revisionManager:RevisionManager<Revision>, setDisabled:Function) {
   bindSetDisabled(setDisabled);
-  // If I later find there is state in revisions that needs to be kept, change the code here to add it to a first revision.
-  revisionManager.clear();
 }
 
 export async function init(setDisabled:Function, setRevision:Function):Promise<InitResults> {
   const projectName = getActiveProjectName();
   const spielNames = await getSpielNames(projectName);
-  const initResults:InitResults = { projectName, spielNames };
+  const projectCount = await getProjectCount();
+  const initResults:InitResults = { projectCount, projectName, spielNames };
 
   const revisionManager = getRevisionManager();
-  revisionManager.disablePersistence();
 
   if (isInitialized) {
     _initForSubsequentMount(revisionManager, setDisabled);
@@ -35,6 +34,11 @@ export async function init(setDisabled:Function, setRevision:Function):Promise<I
 
   await initCore(setDisabled);
   
+  if (projectName === UNSPECIFIED_NAME) {
+    isInitialized = true;
+    return initResults;
+  }
+  
   const project = await getActiveProject();
   const revision = createDefaultRevision();
   revision.entrySpiel = project.entrySpiel 
@@ -42,7 +46,6 @@ export async function init(setDisabled:Function, setRevision:Function):Promise<I
   revision.aboutText = project.aboutText;
   revision.creditsText = project.creditsText;
   revisionManager.add(revision);
-  revisionManager.enablePersistence();
   setRevision(revisionManager.currentRevision);
 
   isInitialized = true;

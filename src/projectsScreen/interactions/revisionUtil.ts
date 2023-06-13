@@ -12,8 +12,6 @@ async function onPersistRevision(revision:Revision):Promise<void> {
   await updateActiveProject({aboutText, creditsText, entrySpiel});
 }
 
-const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(onPersistRevision);
-
 export function createDefaultRevision():Revision {
   return {
     aboutText: '',
@@ -22,12 +20,10 @@ export function createDefaultRevision():Revision {
   };
 }
 
+const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(createDefaultRevision(), onPersistRevision);
+
 export function getRevisionManager() { return revisionManager; }
 
 export function getRevisionForMount():Revision {
-  const revision = revisionManager.currentRevision;
-  if (revision) return revision;
-  const newRevision = createDefaultRevision();
-  revisionManager.add(newRevision);
-  return newRevision;
+  return revisionManager.currentRevision;
 }

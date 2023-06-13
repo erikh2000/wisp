@@ -10,7 +10,6 @@ export async function onOpenSpiel(spielName:string, setDocumentName:Function, se
     await revisionManager.persistCurrent();
     setDocumentName(UNSPECIFIED_NAME); // If anything fails, it's better to leave the document name cleared to avoid overwriting a previous spiel.
     await setActiveSpielName(UNSPECIFIED_NAME);
-    await revisionManager.waitForPersist();
     const spielText = await getSpiel(spielName);
     await setUpRevisionForNewSpiel(spielName, spielText, setRevision);
     await setActiveSpielName(spielName);

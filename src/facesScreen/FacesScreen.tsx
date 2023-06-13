@@ -16,7 +16,6 @@ import {
 } from "./interactions/fileInteractions";
 import {
   deinit,
-  getRevisionForMount,
   init,
   InitResults,
   onDrawFaceCanvas,
@@ -38,7 +37,7 @@ import {
   onRemoveNose
 } from "./interactions/partChooserInteractions";
 import {onHairColorChange, onIrisColorChange, onSkinToneChange} from "./interactions/recolorUtil";
-import {onRedo, onUndo, Revision} from "./interactions/revisionUtil";
+import {getRevisionForMount, onRedo, onUndo, Revision} from "./interactions/revisionUtil";
 import {
   getDefaultScreenSettings,
   getTestVoiceCredits,

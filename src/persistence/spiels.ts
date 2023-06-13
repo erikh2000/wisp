@@ -1,6 +1,6 @@
 import {getActiveProjectName, getAllProjectKeys, projectKeyToName, renameSpielReferencesInProject} from "./projects";
 import {fillTemplate, keyToName} from "./pathUtil";
-import {SPIELS_PATH_TEMPLATE, SPIEL_PATH_TEMPLATE, FACES_PATH_TEMPLATE} from "./keyPaths";
+import {SPIELS_PATH_TEMPLATE, SPIEL_PATH_TEMPLATE} from "./keyPaths";
 import {
   deleteByKey,
   getAllKeysAtPath,

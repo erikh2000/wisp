@@ -37,7 +37,7 @@ function _removePart(headComponent:CanvasComponent, revisionPartNoName:string, p
   const changes = {[revisionPartNoName]:UNSPECIFIED};
   performDisablingOperation(async () => {
     updateForFaceRelatedRevision(changes, setRevision);
-  });
+  }).then(() => {});
 }
 
 function _removeExtra(headComponent:CanvasComponent, extraSlotNo:number, extraSlotPartNos:number[], setRevision:any) {
@@ -48,7 +48,7 @@ function _removeExtra(headComponent:CanvasComponent, extraSlotNo:number, extraSl
   const changes = {extraPartNos:nextExtraSlotPartNos};
   performDisablingOperation(async () => {
     updateForFaceRelatedRevision(changes, setRevision);
-  });
+  }).then(() => {});
 }
 
 async function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], partNo:number, partType:PartType, setModalDialog:any, setRevision:any) {
@@ -73,7 +73,7 @@ async function _onPartChanged(revisionPartNoName:string, parts:LoadablePart[], p
     }
     await partUiManager.trackPartsForFace(getHead());
     updateForFaceRelatedRevision({[revisionPartNoName]:partNo}, setRevision);
-  });
+  }).then(() => {});
 }
 
 async function _onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], extraSlotPartNos:number[], partNo:number, setModalDialog:any, setRevision:any) {
@@ -94,20 +94,20 @@ async function _onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], ex
     const nextExtraSlotPartNos = [...extraSlotPartNos];
     nextExtraSlotPartNos[extraSlotNo] = partNo;
     updateForFaceRelatedRevision({extraSlotPartNos:nextExtraSlotPartNos}, setRevision);
-  });
+  }).then(() => {});
 }
 
 
 export function onChooseHead(setModalDialog:any) { setModalDialog(HeadChooser.name); }
 
 export function onHeadChanged(headParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
-  _onPartChanged('headPartNo', headParts, partNo, PartType.HEAD, setModalDialog, setRevision);
+  _onPartChanged('headPartNo', headParts, partNo, PartType.HEAD, setModalDialog, setRevision).then(() => {});
 }
 
 export function onChooseEyes(setModalDialog:any) { setModalDialog(EyesChooser.name); }
 
 export function onEyesChanged(eyesParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
-  _onPartChanged('eyesPartNo', eyesParts, partNo, PartType.EYES, setModalDialog, setRevision);
+  _onPartChanged('eyesPartNo', eyesParts, partNo, PartType.EYES, setModalDialog, setRevision).then(() => {});
 }
 
 export function onRemoveEyes(setRevision:any) { _removePart(getHead(),'eyesPartNo', PartType.EYES, setRevision); }
@@ -115,7 +115,7 @@ export function onRemoveEyes(setRevision:any) { _removePart(getHead(),'eyesPartN
 export function onChooseMouth(setModalDialog:any) { setModalDialog(MouthChooser.name); }
 
 export function onMouthChanged(mouthParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
-  _onPartChanged('mouthPartNo', mouthParts, partNo, PartType.MOUTH, setModalDialog, setRevision);
+  _onPartChanged('mouthPartNo', mouthParts, partNo, PartType.MOUTH, setModalDialog, setRevision).then(() => {});
 }
 
 export function onRemoveMouth(setRevision:any) { _removePart(getHead(),'mouthPartNo', PartType.MOUTH, setRevision); }
@@ -123,7 +123,7 @@ export function onRemoveMouth(setRevision:any) { _removePart(getHead(),'mouthPar
 export function onChooseNose(setModalDialog:any) { setModalDialog(NoseChooser.name); }
 
 export function onNoseChanged(noseParts:LoadablePart[], partNo:number, setModalDialog:any, setRevision:any) {
-  _onPartChanged('nosePartNo', noseParts, partNo, PartType.NOSE, setModalDialog, setRevision);
+  _onPartChanged('nosePartNo', noseParts, partNo, PartType.NOSE, setModalDialog, setRevision).then(() => {});
 }
 
 export function onRemoveNose(setRevision:any) { _removePart(getHead(),'nosePartNo', PartType.NOSE, setRevision); }
@@ -131,7 +131,7 @@ export function onRemoveNose(setRevision:any) { _removePart(getHead(),'nosePartN
 export function onChooseExtra(setModalDialog:any) { setModalDialog(ExtraChooser.name); }
 
 export function onExtraChanged(extraSlotNo:number, extraParts:LoadablePart[], extraSlotPartNos:number[], partNo:number, setModalDialog:any, setRevision:any) {
-  _onExtraChanged(extraSlotNo, extraParts, extraSlotPartNos, partNo, setModalDialog, setRevision);
+  _onExtraChanged(extraSlotNo, extraParts, extraSlotPartNos, partNo, setModalDialog, setRevision).then(() => {});
 }
 
 export function onRemoveExtra(extraSlotNo:number, extraSlotPartNos:number[], setRevision:any) {

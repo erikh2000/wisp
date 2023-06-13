@@ -1,16 +1,17 @@
+import {createDefaultRevision, getRevisionManager} from "./revisionUtil";
 import {
   createProject,
-  getActiveProject,
-  getActiveProjectName,
+  deleteProject,
+  getActiveProject, getActiveProjectName,
   setActiveProject,
-  updateActiveProject
+  UNSPECIFIED_NAME,
 } from "persistence/projects";
-import {createDefaultRevision, getRevisionManager} from "./revisionUtil";
-import {getSpielNames} from "../../persistence/spiels";
+import OpenOrNewProjectChooser from "projectsScreen/dialogs/OpenOrNewProjectChooser";
+import {getSpielNames} from "persistence/spiels";
 
 export async function createNewProject(projectName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function) {
   const revisionManager = getRevisionManager();
-  await revisionManager.waitForPersist();
+  await revisionManager.persistCurrent();
   
   await createProject(projectName);
   await setActiveProject(projectName);
@@ -25,7 +26,7 @@ export async function createNewProject(projectName:string, setModalDialog:Functi
 
 export async function openProject(projectName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function, setSpielNames:Function) {
   const revisionManager = getRevisionManager();
-  await revisionManager.waitForPersist();
+  if (getActiveProjectName() !== UNSPECIFIED_NAME) await revisionManager.persistCurrent();
 
   await setActiveProject(projectName);
   const project = await getActiveProject();
@@ -37,7 +38,17 @@ export async function openProject(projectName:string, setModalDialog:Function, s
   revision.aboutText = project.aboutText;
   revisionManager.add(revision);
   setRevision(revisionManager.currentRevision);
-  setDocumentName(projectName);
+  await setDocumentName(projectName);
   setSpielNames(spielNames);
   setModalDialog(null);
+}
+
+export async function onConfirmDeleteProject(projectName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function, setSpielNames:Function) {
+  await deleteProject(projectName);
+  await setActiveProject(UNSPECIFIED_NAME);
+  const revisionManager = getRevisionManager();
+  revisionManager.clear();
+  setDocumentName(null);
+  setSpielNames([]);
+  setModalDialog(OpenOrNewProjectChooser.name);
 }

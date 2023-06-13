@@ -10,31 +10,48 @@ class RevisionPersister<T> {
   private _onPersistRevision:IPersistRevisionCallback<T>;
   private _revision:T|null
   private _debounceTimer:NodeJS.Timeout|null;
-  private _lastPersistPromise:Promise<void>|null;
   
   constructor(onPersistRevision:IPersistRevisionCallback<T>) {
     this._onPersistRevision = onPersistRevision;
     this._revision = null;
     this._debounceTimer = null;
-    this._lastPersistPromise = null;
   }
   
-  async waitForCompletion():Promise<void> {
-    if (!this._lastPersistPromise) return;
-    return await this._lastPersistPromise;
+  private _abort() {
+    if (this._debounceTimer) {
+      clearTimeout(this._debounceTimer);
+      this._debounceTimer = null;
+    }
+  }
+  
+  private async _persist(revision:T):Promise<void> {
+    this._abort(); // Prevent previous revision from being persisted since this one is newer.
+    const callback:any = this._onPersistRevision; // Cast to any because I can't get TSC to be happy with the function signature containing a generic.
+    return callback(revision);
   }
   
   persist(revision:T) {
     disableAwayNavigation();
-    this._revision = revision;
-    if (this._debounceTimer) clearTimeout(this._debounceTimer); // Prevent previous revision from being persisted since this one is newer.
+    this._abort(); // Prevent previous revision from being persisted since this one is newer.
     this._debounceTimer = setTimeout(() => {
-      this.waitForCompletion().then(() => {
-        const callback:any = this._onPersistRevision; // Cast to any because I can't get TSC to be happy with the function signature containing a generic.
-        this._lastPersistPromise = callback(revision);
-        (this._lastPersistPromise as Promise<void>).then(() => enableAwayNavigation());
-      });
+      this._persist(revision)
+        .then(() => enableAwayNavigation())
+        .catch((e) => {
+          console.error(e);
+          enableAwayNavigation();
+        });
     }, DEBOUNCE_PERSIST_INTERVAL);
+  }
+  
+  async persistNow(revision:T):Promise<void> {
+    this._abort(); // Prevent previous revision from being persisted since this one is newer.
+    disableAwayNavigation();
+    try {
+      await this._persist(revision);
+    } catch (e) {
+      console.error(e);
+    }
+    enableAwayNavigation();
   }
 }
 

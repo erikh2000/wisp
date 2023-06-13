@@ -70,11 +70,11 @@ export async function _selectNewFaceFileHandle(suggestedFilename:string):Promise
 
 async function _setUpForNewFace(loadHeadFunc:() => Promise<CanvasComponent>, setDocumentName:any, setRevision:any):Promise<void> {
   await performDisablingOperation(async () => {
+    const revisionManager = getRevisionManager();
+    await revisionManager.persistCurrent();
     setDocumentName(UNSPECIFIED_NAME); // If anything fails, it's better to leave the document name cleared to avoid overwriting a previous face.
     await setActiveFaceName(UNSPECIFIED_NAME);
     const partUiManager = getPartUiManager();
-    const revisionManager = getRevisionManager();
-    await revisionManager.waitForPersist();
     revisionManager.clear();
     const head = await loadHeadFunc();
     await partUiManager.trackPartsForFace(head);

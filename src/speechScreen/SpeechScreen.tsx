@@ -7,6 +7,7 @@ import TrimSpeechDialog from "./dialogs/TrimSpeechDialog";
 import NoSpielPane from "./NoSpielPane";
 import styles from "./SpeechScreen.module.css";
 import SpielSpeechPane from "./SpielSpeechPane";
+import {onOpenSpiel} from "./interactions/fileInteractions";
 import { init } from './interactions/generalInteractions';
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
 import {
@@ -23,15 +24,12 @@ import {
 import useEffectAfterMount from "common/useEffectAfterMount";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";
+import OpenSpielChooser from "spielsCommon/dialogs/OpenSpielChooser";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
 
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
-import OpenSpielChooser from "../spielsCommon/dialogs/OpenSpielChooser";
-import {onOpenSpiel} from "./interactions/fileInteractions";
-
-const emptyCallback = () => {}; // TODO delete when not using
 
 function SpeechScreen() {
   const [disabled, setDisabled] = useState<boolean>(true);

@@ -8,26 +8,31 @@ export type Revision = {
   speechTable: SpeechTable;
 }
 
-async function onPersistRevision(revision:Revision):Promise<void> {
-  // TODO
+async function onPersistRevision(_revision:Revision):Promise<void> {
+  // For now, there is nothing to persist.
 }
 
-const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(onPersistRevision);
+let revisionManager:RevisionManager<Revision>|null = null;
 
-export function getRevisionManager() { return revisionManager; }
+export function getRevisionManager():RevisionManager<Revision> {
+  if (!revisionManager) throw Error("Call initRevisionManager() first");
+  return revisionManager; 
+}
+
+export function initRevisionManager(speechTable:SpeechTable) {
+  const initialRevision = { speechTable };
+  revisionManager = new RevisionManager<Revision>(initialRevision, onPersistRevision);
+}
 
 export function getRevisionForMount():Revision {
-  const revision = revisionManager.currentRevision;
-  if (revision) return revision;
-  const newRevision = { speechTable: { rows:[] } };
-  revisionManager.add(newRevision);
-  return newRevision;
+  return revisionManager ? revisionManager.currentRevision : { speechTable: { rows:[] } };
 }
 
 export function updateRevisionForSpeechTable(speechTable:SpeechTable, setRevision:Function) {
+  const _revisionManager = getRevisionManager();
   const nextSpeechTable = duplicateSpeechTable(speechTable);
-  revisionManager.addChanges({speechTable:nextSpeechTable});
-  setRevision(revisionManager.currentRevision);
+  _revisionManager.addChanges({speechTable:nextSpeechTable});
+  setRevision(_revisionManager.currentRevision);
 }
 
 export async function setUpRevisionForNewSpiel(spielName:string, spielText:string, setRevision:any) {
@@ -35,7 +40,6 @@ export async function setUpRevisionForNewSpiel(spielName:string, spielText:strin
   const speechTable = spielToSpeechTable(spiel);
   await updateSpeechTableWithTakes(spielName, speechTable);
   const nextRevision:Revision = { speechTable };
-  revisionManager.clear();
-  revisionManager.add(nextRevision);
+  getRevisionManager().clear(nextRevision);
   setRevision(nextRevision);
 }
