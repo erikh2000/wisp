@@ -1,20 +1,26 @@
 import {renameFace} from "./faces";
-import {PROJECT_KEY_TEMPLATE, PROJECT_KEYS_REGEX, PROJECT_PATH_REGEX_TEMPLATE, PROJECTS_PATH} from "./keyPaths";
+import {
+  PROJECT_KEY_TEMPLATE,
+  PROJECT_KEYS_REGEX,
+  PROJECT_PATH_REGEX_TEMPLATE,
+  PROJECT_PATH_TEMPLATE,
+  PROJECTS_PATH
+} from "./keyPaths";
 import {MIMETYPE_WISP_PROJECT} from "./mimeTypes";
+import {getProjectsScreenSettings, setProjectsScreenSettings} from "./settings";
 import {
   deleteAllKeys,
   doesKeyExist,
   getAllKeysMatchingRegex,
   getText,
   getValuesForKeys,
-  KeyValueRecord,
+  KeyValueRecord, renameKey, renamePath,
   setText
 } from "./pathStore";
 import {fillTemplate, isValidName} from "./pathUtil";
 import Project from "./Project";
 
 import {parse, stringify} from 'yaml';
-import {getProjectsScreenSettings, setProjectsScreenSettings} from "./settings";
 
 export const DEFAULT_PROJECT_NAME = 'default';
 export const UNSPECIFIED_NAME = '';
@@ -166,4 +172,14 @@ export function projectKeyToName(key:string):string {
 export async function deleteProject(projectName:string) {
   const keys = await getAllKeysForProject(projectName);
   await deleteAllKeys(keys)
+}
+
+export async function renameProject(nextProjectName:string, projectName:string = getActiveProjectName()) {
+  const projectKey = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName});
+  const nextProjectKey = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:nextProjectName});
+  await renameKey(projectKey, nextProjectKey); // Normally, this would rename all the descendent keys, but since project file is stored as a separate key under the project path, need to continue with the next section. 
+  const projectPath = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName});
+  const nextProjectPath = fillTemplate(PROJECT_PATH_TEMPLATE, {projectName:nextProjectName});
+  await renamePath(projectPath, nextProjectPath);
+  await setActiveProject(nextProjectName);
 }

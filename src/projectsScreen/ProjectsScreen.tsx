@@ -1,7 +1,8 @@
 import ConfirmDeleteProjectDialog from "./dialogs/ConfirmDeleteProjectDialog";
 import NewProjectDialog from "./dialogs/NewProjectDialog";
 import OpenProjectChooser from "./dialogs/OpenProjectChooser";
-import {createNewProject, onConfirmDeleteProject, openProject} from "./interactions/fileInteractions";
+import RenameProjectDialog from "./dialogs/RenameProjectDialog";
+import {createNewProject, onConfirmDeleteProject, onRenameProject, openProject} from "./interactions/fileInteractions";
 import {init} from './interactions/generalInteractions';
 import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText} from "./interactions/projectInteractions";
 import GeneralSettingsPane from "./panes/GeneralSettingsPane";
@@ -41,7 +42,7 @@ function ProjectsScreen() {
   const actionBarButtons = [
     {text:'New', onClick:() => setModalDialog(NewProjectDialog.name), groupNo:0, disabled},
     {text:'Open', onClick:() => setModalDialog(OpenProjectChooser.name), groupNo:0, disabled},
-    {text:'Rename', onClick:emptyCallback, groupNo:0, disabled:true},
+    {text:'Rename', onClick:() => setModalDialog(RenameProjectDialog.name), groupNo:0, disabled},
     {text:'Delete', onClick:() => setModalDialog(ConfirmDeleteProjectDialog.name), groupNo:0, disabled},
     {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Export', onClick:() => setModalDialog(ExportProjectDialog.name), groupNo:0},
@@ -92,6 +93,11 @@ function ProjectsScreen() {
         originalDocumentName={documentName}
         onNew={() => setModalDialog(NewProjectDialog.name)}
         onChoose={(projectName) => openProject(projectName, setModalDialog, setDocumentName, setRevision, setSpielNames)}
+      />
+      <RenameProjectDialog
+        isOpen={modalDialog === RenameProjectDialog.name}
+        onCancel={() => setModalDialog(null)}
+        onSubmit={(newProjectName) => onRenameProject(documentName, newProjectName, setModalDialog, setDocumentName)}
       />
     </ScreenContainer>
   );

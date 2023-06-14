@@ -2,7 +2,7 @@ import {createDefaultRevision, getRevisionManager} from "./revisionUtil";
 import {
   createProject,
   deleteProject,
-  getActiveProject, getActiveProjectName,
+  getActiveProject, getActiveProjectName, renameProject,
   setActiveProject,
   UNSPECIFIED_NAME,
 } from "persistence/projects";
@@ -51,4 +51,10 @@ export async function onConfirmDeleteProject(projectName:string, setModalDialog:
   setDocumentName(null);
   setSpielNames([]);
   setModalDialog(OpenOrNewProjectChooser.name);
+}
+
+export async function onRenameProject(currentProjectName:string, newProjectName:string, setModalDialog:Function, setDocumentName:Function) {
+  await renameProject(newProjectName, currentProjectName);
+  await setDocumentName(newProjectName);
+  setModalDialog(null);
 }

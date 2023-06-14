@@ -262,23 +262,31 @@ async function _replaceRecordUsingNewKey(db:IDBDatabase, key:string, nextKey:str
   await _delete(db, KEY_VALUE_STORE, key);
 }
 
-export async function renameKey(currentKey:string, nextKey:string):Promise<void> {
-  const db = await _open(DB_NAME, SCHEMA);
-  await _replaceRecordUsingNewKey(db, currentKey, nextKey, true);
-  
-  const currentDescendantPath = `${currentKey}/`;
-  const currentDescendantPathEscaped = escapeRegexCharacters(currentDescendantPath);
-  const regExp:RegExp = new RegExp(`${currentDescendantPathEscaped}.*`, '');
+async function _renamePath(db:IDBDatabase, currentPath:string, nextPath:string) {
+  const currentPathEscaped = escapeRegexCharacters(currentPath);
+  const regExp:RegExp = new RegExp(`${currentPathEscaped}.*`, '');
   const descendentKeys:string[] = await getAllKeysMatchingRegex(regExp);
 
-  const nextDescendantPath = `${nextKey}/`;
   const promises:Promise<void>[] = [];
   for(let keyI = 0; keyI < descendentKeys.length; ++keyI) {
     const descendentKey:string = descendentKeys[keyI];
-    const descendentNextKey = _changePathOfKey(descendentKey, currentDescendantPath, nextDescendantPath);
+    const descendentNextKey = _changePathOfKey(descendentKey, currentPath, nextPath);
     promises.push(_replaceRecordUsingNewKey(db, descendentKey, descendentNextKey, false));
   }
   await Promise.all(promises);
+}
+
+export async function renamePath(currentPath:string, nextPath:string):Promise<void> {
+  const db = await _open(DB_NAME, SCHEMA);
+  return _renamePath(db, currentPath, nextPath);
+}
+
+export async function renameKey(currentKey:string, nextKey:string):Promise<void> {
+  const db = await _open(DB_NAME, SCHEMA);
+  await _replaceRecordUsingNewKey(db, currentKey, nextKey, true);
+  const currentDescendantPath = `${currentKey}/`;
+  const nextDescendantPath = `${nextKey}/`;
+  return await _renamePath(db, currentDescendantPath, nextDescendantPath);
 }
 
 export async function deleteByKey(key:string):Promise<void> {
