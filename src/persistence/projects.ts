@@ -19,6 +19,7 @@ import {
 } from "./pathStore";
 import {fillTemplate, isValidName} from "./pathUtil";
 import Project from "./Project";
+import {CURRENT_DATA_VERSION} from "./versions";
 
 import {parse, stringify} from 'yaml';
 
@@ -46,7 +47,15 @@ export async function getAllProjectRecords():Promise<KeyValueRecord[]> {
 export async function createProject(projectName:string) {
   if (!isValidName(projectName)) throw Error('Invalid project name');
   const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName});
-  const project:Project = { created:Date.now(), activeFace:UNSPECIFIED_NAME, activeSpiel:UNSPECIFIED_NAME, entrySpiel:UNSPECIFIED_NAME, aboutText:'', creditsText:'' };
+  const project:Project = { 
+    created:Date.now(), 
+    activeFace:UNSPECIFIED_NAME, 
+    activeSpiel:UNSPECIFIED_NAME, 
+    entrySpiel:UNSPECIFIED_NAME, 
+    aboutText:'', 
+    creditsText:'',
+    version: CURRENT_DATA_VERSION
+  };
   const projectYaml = stringify(project);
   await setText(key, projectYaml, MIMETYPE_WISP_PROJECT);
   
@@ -59,8 +68,9 @@ export async function createDefaultProjectIfMissing() {
 }
 
 async function _getProjectByKey(key:string):Promise<Project> {
-  const projectYaml = await getText(key);
+  let projectYaml = await getText(key);
   if (!projectYaml) throw Error('Unexpected');
+  if (projectYaml.indexOf('version:') === -1) projectYaml=`version: ${CURRENT_DATA_VERSION}\n${projectYaml}`; // TODO add support for chained upgrades.
   return parse(projectYaml);
 }
 

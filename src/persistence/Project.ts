@@ -4,7 +4,8 @@ type Project = {
   activeSpiel:string,
   entrySpiel:string,
   aboutText:string,
-  creditsText:string
+  creditsText:string,
+  version:number
 };
 
 export default Project;
