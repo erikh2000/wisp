@@ -51,15 +51,23 @@ class RevisionManager<T> {
     this.add(nextRevision);
   }
   
+  get hasPrev():boolean {
+    return this.currentRevisionNo > 0;
+  }
+  
   prev():T|null {
-    if (this.currentRevisionNo <= 0) return null;
+    if (!this.hasPrev) return null;
     const revision = this.revisions[--this.currentRevisionNo];
     this.persister.persist(revision);
     return revision;
   }
   
+  get hasNext():boolean {
+    return this.currentRevisionNo < this.revisions.length - 1;
+  }
+  
   next():T|null {
-    if (this.currentRevisionNo >= this.revisions.length - 1) return null;
+    if (!this.hasNext) return null;
     const revision = this.revisions[++this.currentRevisionNo];
     this.persister.persist(revision);
     return revision;

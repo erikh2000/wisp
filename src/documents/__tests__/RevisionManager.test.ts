@@ -57,6 +57,11 @@ describe('RevisionManager', () => {
     const r = new RevisionManager<Object>({}, doNothingPersister);
     expect(r.prev()).toBeNull();
   });
+  
+  it('hasPrev returns false when no revisions added', () => {
+    const r = new RevisionManager<Object>({}, doNothingPersister);
+    expect(r.hasPrev).toBeFalsy();
+  });
 
   it('prev() returns null when at beginning of revisions', () => {
     const r = new RevisionManager<Object>({}, doNothingPersister);
@@ -64,16 +69,47 @@ describe('RevisionManager', () => {
     expect(r.prev()).not.toBeNull();
     expect(r.prev()).toBeNull();
   });
+  
+  it('hasPrev returns false when at beginning of revisions', () => {
+    const r = new RevisionManager<Object>({}, doNothingPersister);
+    r.add({x:'apples'});
+    r.prev();
+    expect(r.hasPrev).toBeFalsy();
+  });
+  
+  it('hasPrev returns true when there is a previous revision', () => {
+    const r = new RevisionManager<Object>({}, doNothingPersister);
+    r.add({x:'apples'});
+    expect(r.hasPrev).toBeTruthy();
+  });
 
   it('next() returns null when no revisions added', () => {
     const r = new RevisionManager<Object>({}, doNothingPersister);
     expect(r.next()).toBeNull();
+  });
+  
+  it('hasNext returns false when no revisions added', () => {
+    const r = new RevisionManager<Object>({}, doNothingPersister);
+    expect(r.hasNext).toBeFalsy();
   });
 
   it('next() returns null when at end of revisions', () => {
     const r = new RevisionManager<Object>({}, doNothingPersister);
     r.add({x:'apples'});
     expect(r.next()).toBeNull();
+  });
+  
+  it('hasNext returns false when at end of revisions', () => {
+    const r = new RevisionManager<Object>({}, doNothingPersister);
+    r.add({x:'apples'});
+    expect(r.hasNext).toBeFalsy();
+  });
+  
+  it('hasNext returns true when there is a next revision', () => {
+    const r = new RevisionManager<Object>({}, doNothingPersister);
+    r.add({x:'apples'});
+    r.prev();
+    expect(r.hasNext).toBeTruthy();
   });
   
   it('adds changes to a new revision', () => {
@@ -124,7 +160,7 @@ describe('RevisionManager', () => {
 
     it('does not call persister for initial revision', async () => {
       const persister = jest.fn();
-      const r = new RevisionManager<Object>({x:'hey!'}, 
+      new RevisionManager<Object>({x:'hey!'}, 
         async (text) => { persister(text) });
       await wait(600);
       expect(persister).not.toBeCalled();
