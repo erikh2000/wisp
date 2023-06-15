@@ -8,7 +8,7 @@ import NoSpielPane from "./NoSpielPane";
 import styles from "./SpeechScreen.module.css";
 import SpielSpeechPane from "./SpielSpeechPane";
 import {onOpenSpiel} from "./interactions/fileInteractions";
-import { init } from './interactions/generalInteractions';
+import { init } from './interactions/initialization';
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
 import {
   onChangeRowSelection,

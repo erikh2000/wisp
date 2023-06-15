@@ -1,6 +1,5 @@
 import {
   bindSetDisabled,
-  findCanvasComponentForPartType, 
   findPartTypeForCanvasComponent, 
   getHead,
   getPartLoader,
@@ -8,7 +7,6 @@ import {
   initCore, 
   isHeadReady
 } from "./coreUtil";
-import {centerCanvasComponent} from "common/canvasComponentUtil";
 import {initFaceEvents} from "facesCommon/interactions/faceEventUtil";
 import {loadDefaultFace, loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import FacesScreenSettings from "facesScreen/FacesScreenSettings";
@@ -19,9 +17,9 @@ import {
   updateForAuthoringRevision, initRevisionManager
 } from "./revisionUtil";
 import {getDefaultScreenSettings, initViewSettings, updateScreenSettings} from "./viewSettingsInteractions";
-import {PartType} from "facesScreen/PartSelector";
 import {getFaceCount} from "persistence/faces";
-import {getActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
+import {getActiveFaceName, getActiveProjectName, UNSPECIFIED_NAME} from "persistence/projects";
+import {getFacesScreenSettings} from "persistence/settings";
 import PartLoader from "ui/partAuthoring/PartLoader";
 import PartUiManager from "ui/partAuthoring/PartUiManager";
 
@@ -34,7 +32,6 @@ import {
   NOSE_PART_TYPE
 } from "sl-web-face";
 import {MouseEventHandler} from "react";
-import {getFacesScreenSettings} from "../../persistence/settings";
 
 export type InitResults = {
   onFaceCanvasMouseMove:MouseEventHandler<HTMLCanvasElement>,
@@ -45,25 +42,11 @@ export type InitResults = {
   screenSettings:FacesScreenSettings
 }
 
-let _isInitialized = false;
+let initializedProjectName = UNSPECIFIED_NAME;
 
 function _onPartMoved(component:CanvasComponent, x:number, y:number, setRevision:any):boolean {
   updateForFaceRelatedRevision({}, setRevision);
   return true;
-}
-
-export function onPartTypeChange(partType:PartType, setRevision:any) {
-  const head = getHead();
-  updateForAuthoringRevision({partType}, setRevision);
-  const partUiManager = getPartUiManager();
-  const nextFocusPart = findCanvasComponentForPartType(head, partType);
-  if (partUiManager) {
-    if (nextFocusPart) {
-      partUiManager.setFocus(nextFocusPart);
-    } else {
-      partUiManager.clearFocus();
-    }
-  }
 }
 
 function _onPartFocused(component:CanvasComponent|null, setRevision:any):boolean {
@@ -136,6 +119,14 @@ async function _loadScreenSettings():Promise<FacesScreenSettings> {
   return await getFacesScreenSettings() ?? getDefaultScreenSettings();
 }
 
+function _isInitialized() {
+  return initializedProjectName === getActiveProjectName();
+}
+
+function _setInitialized() {
+  initializedProjectName = getActiveProjectName();
+}
+
 export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, setHeadParts:any, setMouthParts:any, setNoseParts:any, _setDisabled:any):Promise<InitResults> {
   
   function onFaceCanvasMouseUp(event:any) { getPartUiManager().onMouseUp(event); }
@@ -154,9 +145,9 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   
   initResults.faceName = await getActiveFaceName();
   
-  if (_isInitialized) {
+  if (_isInitialized()) {
     await _initForSubsequentMount(_setDisabled, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, screenSettings);
-    return initResults
+    return initResults;
   }
   
   const head = await loadFaceFromName(initResults.faceName) ?? await loadDefaultFace();
@@ -172,22 +163,12 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   
   setUpRevisionForNewFace(head, setRevision);
   
-  _isInitialized = true;
+  _setInitialized();
   
   return initResults;
 }
 
 export function deinit() {
-  if (!isInitialized) return;
+  if (!_isInitialized()) return;
   _removeDocumentMouseUpListener(_onFaceCanvasMouseMove);
-}
-
-export function isInitialized() { return _isInitialized; }
-
-export function onDrawFaceCanvas(context:CanvasRenderingContext2D) {
-  const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
-  context.clearRect(0, 0, canvasWidth, canvasHeight);
-  const head = getHead();
-  centerCanvasComponent(head, canvasWidth, canvasHeight);
-  head.render(context);
 }

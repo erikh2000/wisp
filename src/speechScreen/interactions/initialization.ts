@@ -1,7 +1,7 @@
 import {bindSetDisabled, initCore} from "./coreUtil";
 import {getRevisionManager, initRevisionManager} from "./revisionUtil";
 import {getSpiel} from "persistence/spiels";
-import {getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
+import {getActiveProjectName, getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
 import {
   getUniqueCharacterNames,
   spielToSpeechTable,
@@ -15,7 +15,15 @@ export type InitResults = {
   characterNames:string[]
 }
 
-let isInitialized = false;
+let initializedProjectName = UNSPECIFIED_NAME;
+
+function _isInitialized() {
+  return initializedProjectName === getActiveProjectName();
+}
+
+function _setInitialized() {
+  initializedProjectName = getActiveProjectName();
+}
 
 /* Handle any initialization needed for mount after a previous initialization was completed. This will cover
    refreshing any module-scope vars that stored instances tied to a React component's lifetime and calling setters
@@ -35,7 +43,7 @@ export async function init(setDisabled:Function, setRevision:Function):Promise<I
   const spielName = await getActiveSpielName();
   const initResults:InitResults = { spielName, characterNames:[] };
   
-  if (isInitialized) {
+  if (_isInitialized()) {
     _initForSubsequentMount(setDisabled);
     // Unlike other screen, don't return here, because need to load the spiel fresh from persistence in case a change
     // on spiels screen was made.
@@ -50,7 +58,7 @@ export async function init(setDisabled:Function, setRevision:Function):Promise<I
   
   setRevision(getRevisionManager().currentRevision);
   
-  isInitialized = true;
+  _setInitialized();
   return initResults;
 }
 

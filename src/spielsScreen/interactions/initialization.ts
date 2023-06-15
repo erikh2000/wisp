@@ -1,18 +1,27 @@
 import {getDefaultScreenSettings, initTest} from "./testInteractions";
-import {getActiveFaceName, getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
+import {getActiveFaceName, getActiveProjectName, getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
 import {loadDefaultFace, loadFaceFromNameIfModified} from "facesCommon/interactions/fileInteractions";
 import {initFaceEvents} from 'facesCommon/interactions/faceEventUtil';
+import {getSpielsScreenSettings} from "persistence/settings";
 import {getSpiel, getSpielCount} from "persistence/spiels";
+import SpielsScreenSettings from "spielsScreen/SpielsScreenSettings";
 import {bindSetDisabled, initCore, setHead} from "spielsScreen/interactions/coreUtil";
 import {bindSetTranscriptLines, initTranscript} from "./transcriptInteractions";
 import {getRevisionManager, initRevisionManager} from "./revisionUtil";
 
 import { Spiel, importSpielFile } from 'sl-spiel';
 import { init as initWebSpeech } from 'sl-web-speech';
-import SpielsScreenSettings from "../SpielsScreenSettings";
-import {getSpielsScreenSettings} from "../../persistence/settings";
 
-let isInitialized = false;
+
+let initializedProjectName = UNSPECIFIED_NAME;
+
+function _isInitialized() {
+  return initializedProjectName === getActiveProjectName();
+}
+
+function _setInitialized() {
+  initializedProjectName = getActiveProjectName();
+}
 
 export type InitResults = {
   faceName:string,
@@ -59,7 +68,7 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
 
   let nextHeadComponent = await loadFaceFromNameIfModified(faceName, _getLastFaceLoadTime(faceName));
   
-  if (isInitialized) {
+  if (_isInitialized()) {
     _initForSubsequentMount(setTranscriptLines, setDisabled);
     if (nextHeadComponent) setHead(nextHeadComponent);
     return initResults;
@@ -78,6 +87,6 @@ export async function init(setTranscriptLines:Function, setDisabled:Function, se
   
   await initTest()
 
-  isInitialized = true;
+  _setInitialized();
   return initResults;
 }

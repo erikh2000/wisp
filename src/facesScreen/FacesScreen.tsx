@@ -6,6 +6,10 @@ import OpenFaceChooser from "./fileDialogs/OpenFaceChooser";
 import PartSelector, {PartType} from "./PartSelector";
 import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
 import {
+  onDrawFaceCanvas,
+  onPartTypeChange
+} from "./interactions/faceInteractions";
+import {
   exportFace,
   importFace, onCancelOpenFace,
   onConfirmDeleteFace,
@@ -17,10 +21,8 @@ import {
 import {
   deinit,
   init,
-  InitResults,
-  onDrawFaceCanvas,
-  onPartTypeChange
-} from "./interactions/generalInteractions";
+  InitResults
+} from "./interactions/initialization";
 import {
   onChooseExtra,
   onChooseEyes,

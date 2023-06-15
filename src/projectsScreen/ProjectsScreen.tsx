@@ -3,7 +3,7 @@ import NewProjectDialog from "./dialogs/NewProjectDialog";
 import OpenProjectChooser from "./dialogs/OpenProjectChooser";
 import RenameProjectDialog from "./dialogs/RenameProjectDialog";
 import {createNewProject, onConfirmDeleteProject, onRenameProject, openProject} from "./interactions/fileInteractions";
-import {init} from './interactions/generalInteractions';
+import {init} from './interactions/initialization';
 import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText} from "./interactions/projectInteractions";
 import GeneralSettingsPane from "./panes/GeneralSettingsPane";
 import styles from "./ProjectsScreen.module.css";

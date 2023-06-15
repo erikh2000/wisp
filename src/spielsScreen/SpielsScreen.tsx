@@ -35,7 +35,7 @@ import {
   onOpenSpiel,
   onRenameSpiel
 } from "./interactions/fileInteractions";
-import {init, InitResults} from "./interactions/generalInteractions";
+import {init, InitResults} from "./interactions/initialization";
 import {
   getDefaultScreenSettings,
   onChangeFace,
