@@ -44,7 +44,7 @@ import {
   stopTest,
   updateTestOptions
 } from "./interactions/testInteractions";
-import {getRevisionForMount, onRedo, onUndo, Revision} from "./interactions/revisionUtil";
+import {getRevisionForMount, onRedo, onUndo, updateUndoRedoDisabled, Revision} from "./interactions/revisionUtil";
 import AddLineDialog from "./spielDialogs/AddLineDialog";
 import AddReplyDialog from "./spielDialogs/AddReplyDialog";
 import EditLineDialog from "./spielDialogs/EditLineDialog";
@@ -93,6 +93,8 @@ function SpielsScreen() {
   const [screenSettings, setScreenSettings] = useState<SpielsScreenSettings>(getDefaultScreenSettings());
   const [playFullScreen, setPlayFullScreen] = useState<boolean>(false); // Purposefully distinct from screenSettings - this is the current full screen state, rather than the setting.
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [undoDisabled, setUndoDisabled] = useState<boolean>(true);
+  const [redoDisabled, setRedoDisabled] = useState<boolean>(true);
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [dragMeasurements, setDragMeasurements] = useState<DragMeasurements>(createDragMeasurements());
   const [initResults, setInitResults] = useState<InitResults|null>(null);
@@ -120,6 +122,10 @@ function SpielsScreen() {
       setDisabled(false);
     });
   }, []);
+
+  useEffect(() => {
+    updateUndoRedoDisabled(disabled, setUndoDisabled, setRedoDisabled);
+  }, [disabled, revision, setUndoDisabled, setRedoDisabled]);
   
   useEffect(() => {
     if (!revision) return;
@@ -142,8 +148,8 @@ function SpielsScreen() {
     {text:'Import', onClick:() => importSpiel(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Export', onClick:() => exportSpiel(documentName), groupNo:0, disabled},
     
-    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled},
-    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled}
+    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled:undoDisabled},
+    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled:redoDisabled}
   ];
   
   const isSpielsPaneDisabled = disabled || isTestRunning;

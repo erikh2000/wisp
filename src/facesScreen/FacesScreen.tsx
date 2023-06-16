@@ -1,3 +1,4 @@
+import FacesScreenSettings from "./FacesScreenSettings";
 import styles from './FacesScreen.module.css';
 import ConfirmDeleteFaceDialog from "./fileDialogs/ConfirmDeleteFaceDialog";
 import NewFaceDialog from "./fileDialogs/NewFaceDialog";
@@ -39,7 +40,13 @@ import {
   onRemoveNose
 } from "./interactions/partChooserInteractions";
 import {onHairColorChange, onIrisColorChange, onSkinToneChange} from "./interactions/recolorUtil";
-import {getRevisionForMount, onRedo, onUndo, Revision} from "./interactions/revisionUtil";
+import {
+  getRevisionForMount,
+  onRedo,
+  onUndo,
+  Revision,
+  updateUndoRedoDisabled
+} from "./interactions/revisionUtil";
 import {
   getDefaultScreenSettings,
   getTestVoiceCredits,
@@ -71,9 +78,8 @@ import Screen from 'ui/screen/screens';
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 import {LoadablePart} from "ui/partAuthoring/PartLoader";
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigate} from "react-router-dom";
-import FacesScreenSettings from "./FacesScreenSettings";
 
 function _getThumbnail(parts:LoadablePart[], partNo:number):ImageBitmap|null {
   return partNo !== UNSPECIFIED && partNo < parts.length ? parts[partNo].thumbnail : null;
@@ -157,6 +163,8 @@ function FacesScreen() {
   const [mouthParts, setMouthParts] = useState<LoadablePart[]>([]);
   const [noseParts, setNoseParts] = useState<LoadablePart[]>([]);
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [undoDisabled, setUndoDisabled] = useState<boolean>(true);
+  const [redoDisabled, setRedoDisabled] = useState<boolean>(true);
   const [screenSettings, setScreenSettings] = useState<FacesScreenSettings>(getDefaultScreenSettings());
   const navigate = useNavigate();
   const { partType} = revision;
@@ -176,6 +184,10 @@ function FacesScreen() {
     return deinit();
   }, []);
   
+  useEffect(() => {
+    updateUndoRedoDisabled(disabled, setUndoDisabled, setRedoDisabled);
+  }, [disabled, revision, setUndoDisabled, setRedoDisabled]);
+  
   const actionBarButtons = [
     {text:'New', onClick:() => onNewFace(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Open', onClick:() => setModalDialog(OpenFaceChooser.name), groupNo:0, disabled},
@@ -184,8 +196,8 @@ function FacesScreen() {
     {text:'Import', onClick:() => importFace(setModalDialog, setDocumentName, setRevision), groupNo:0, disabled},
     {text:'Export', onClick:() => exportFace(documentName), groupNo:0, disabled},
     
-    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled},
-    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled}
+    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled:undoDisabled},
+    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled:redoDisabled}
   ];
   
   const selectionPane:JSX.Element = _renderSelectionPane(partType, disabled, revision, headParts,

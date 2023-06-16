@@ -93,6 +93,12 @@ export function onRedo(setRevision:any) {
     .then(() => {});
 }
 
+export function updateUndoRedoDisabled(disabled:boolean, setUndoDisabled:Function, setRedoDisabled:Function) {
+  if (!revisionManager) disabled = true;
+  setUndoDisabled(disabled || !revisionManager?.hasPrev);
+  setRedoDisabled(disabled || !revisionManager?.hasNext);
+}
+
 export function updateForFaceRelatedRevision(changes:any, setRevision:any) {
   const head = getHead();
   const headComponent = head.duplicate();

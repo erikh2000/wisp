@@ -5,6 +5,7 @@ import RenameProjectDialog from "./dialogs/RenameProjectDialog";
 import {createNewProject, onConfirmDeleteProject, onRenameProject, openProject} from "./interactions/fileInteractions";
 import {init} from './interactions/initialization';
 import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText} from "./interactions/projectInteractions";
+import {onRedo, onUndo, updateUndoRedoDisabled} from "./interactions/revisionUtil";
 import GeneralSettingsPane from "./panes/GeneralSettingsPane";
 import styles from "./ProjectsScreen.module.css";
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
@@ -15,12 +16,14 @@ import Screen from "ui/screen/screens";
 import ExportProjectDialog from './dialogs/ExportProjectDialog';
 import OpenOrNewProjectChooser from "./dialogs/OpenOrNewProjectChooser";
 
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
 function ProjectsScreen() {
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [undoDisabled, setUndoDisabled] = useState<boolean>(true);
+  const [redoDisabled, setRedoDisabled] = useState<boolean>(true);
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [spielNames, setSpielNames] = useState<string[]>([]);
@@ -39,6 +42,10 @@ function ProjectsScreen() {
     });
   }, []);
 
+  useEffect(() => {
+    updateUndoRedoDisabled(disabled, setUndoDisabled, setRedoDisabled);
+  }, [disabled, revision, setUndoDisabled, setRedoDisabled]);
+
   const actionBarButtons = [
     {text:'New', onClick:() => setModalDialog(NewProjectDialog.name), groupNo:0, disabled},
     {text:'Open', onClick:() => setModalDialog(OpenProjectChooser.name), groupNo:0, disabled},
@@ -47,8 +54,8 @@ function ProjectsScreen() {
     {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Export', onClick:() => setModalDialog(ExportProjectDialog.name), groupNo:0},
 
-    {text:'Undo', onClick:emptyCallback, groupNo:1, disabled:true},
-    {text:'Redo', onClick:emptyCallback, groupNo:1, disabled:true}
+    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled:undoDisabled},
+    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled:redoDisabled}
   ];
 
   return (

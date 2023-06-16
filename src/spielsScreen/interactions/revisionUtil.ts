@@ -63,3 +63,9 @@ export async function onRedo(setRevision:Function) {
     setRevision(_revisionManager.currentRevision);
   });
 }
+
+export function updateUndoRedoDisabled(disabled:boolean, setUndoDisabled:Function, setRedoDisabled:Function) {
+  if (!revisionManager) disabled = true;
+  setUndoDisabled(disabled || !revisionManager?.hasPrev);
+  setRedoDisabled(disabled || !revisionManager?.hasNext);
+}
