@@ -1,11 +1,12 @@
 import NavBarButton from "ui/screen/NavBarButton";
-import ActionBar, { ButtonDefinition as ActionBarButtonDefinition } from "ui/screen/ActionBar";
+import ActionBar, {ButtonDefinition as ActionBarButtonDefinition} from "ui/screen/ActionBar";
 import wispLogoImage from './images/wispLogoSmall.png';
 import styles from './ScreenContainer.module.css';
-import Screen, { ScreenConfig, screenConfigs } from "ui/screen/screens";
+import Screen, {ScreenConfig, screenConfigs} from "ui/screen/screens";
 
 import {PropsWithChildren, useState} from "react";
 import {useNavigate} from "react-router-dom";
+import ToastPane from "../toasts/ToastPane";
 
 interface IProps {
   documentName?:string,
@@ -44,6 +45,7 @@ function ScreenContainer(props:PropsWithChildren<IProps>) {
         <ActionBar documentName={documentName} buttons={actionBarButtons} />
         {children}
       </div>
+      <ToastPane />
     </div>
   )
 }

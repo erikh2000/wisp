@@ -1,10 +1,10 @@
+import FacesScreenSettings from "facesScreen/FacesScreenSettings";
 import TestVoiceType from "facesScreen/testVoices/TestVoiceType";
 import TestVoices from "facesScreen/testVoices/TestVoices";
 import TestVoiceLoader from "facesScreen/testVoices/TestVoiceLoader";
+import {setFacesScreenSettings} from "persistence/settings";
 
 import {Emotion, FaceEventManager, LidLevel} from "sl-web-face";
-import FacesScreenSettings from "../FacesScreenSettings";
-import {setFacesScreenSettings} from "../../persistence/settings";
 
 let testVoices:TestVoices|null = null;
 let _screenSettings:FacesScreenSettings|null = null;

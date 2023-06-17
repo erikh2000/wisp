@@ -5,6 +5,7 @@ import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
 
 import { PLAYER_CHARACTER_NAME } from "sl-spiel";
 import {UNSPECIFIED_NAME} from "../../persistence/projects";
+import {infoToast} from "../../ui/toasts/toastUtil";
 
 export function onChangeRowSelection(rowNo:number, isSelected:boolean, speechTable:SpeechTable, setRevision:Function) {
   speechTable.rows[rowNo].isSelected = isSelected;
@@ -41,7 +42,17 @@ export function selectRowsByCriteria(criteria:SelectionCriteria, speechTable:Spe
     return !(criteria.notRecorded && isDialogueRecorded(row));
   }
   
-  speechTable.rows.forEach((row) => row.isSelected = _shouldSelectRow(row, criteria));
+  let selectedCount = 0;
+  speechTable.rows.forEach((row) => {
+    row.isSelected = _shouldSelectRow(row, criteria);
+    if (row.isSelected) ++selectedCount;
+  });
+  
   updateRevisionForSpeechTable(speechTable, setRevision);
   setModalDialog(null);
+  switch(selectedCount) {
+    case 0: return infoToast('No rows selected.');
+    case 1: return infoToast('Selected one row.');
+    default: return infoToast(`Selected ${selectedCount} rows.`);
+  }
 }

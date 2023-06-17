@@ -5,6 +5,7 @@ import NewSpielDialog from "spielsScreen/fileDialogs/NewSpielDialog";
 import {performDisablingOperation} from "spielsScreen/interactions/coreUtil";
 import {setUpRevisionForNewSpiel, getRevisionManager} from "spielsScreen/interactions/revisionUtil";
 import Screen, {screenConfigs} from "ui/screen/screens";
+import {infoToast} from "ui/toasts/toastUtil";
 
 import {importFountain, exportSpielFile, Spiel} from 'sl-spiel';
 import {NavigateFunction} from "react-router";
@@ -16,6 +17,7 @@ export function onNewSpielName(spielName:string, setModalDialog:Function, setDoc
   }).then(() => {
     setDocumentName(spielName);
     setModalDialog(null);
+    infoToast('New spiel created.');
   });
 }
 
@@ -23,6 +25,7 @@ export function onRenameSpiel(documentName:string, spielName:string, setModalDia
   renameSpiel(documentName, spielName).then(() => {
     setDocumentName(spielName);
     setModalDialog(null);
+    infoToast('Spiel renamed.');
   });
 }
 
@@ -90,6 +93,7 @@ export async function importSpiel(setModalDialog:Function, setDocumentName:Funct
     if (!spielFileHandle) return;
     await _setUpForNewSpiel(() => _loadSpielTextFromFileHandle(spielFileHandle), setDocumentName, setRevision);
     setModalDialog(NewSpielDialog.name);
+    infoToast('Spiel imported.');
   });
 }
 
@@ -103,7 +107,8 @@ export async function exportSpiel(documentName:string):Promise<void> {
     const spielText = exportSpielFile(spiel);
     const writable = await (fileHandle as any).createWritable();
     await writable.write(spielText);
-    return await writable.close();
+    await writable.close();
+    infoToast('Spiel exported.');
   });
 }
 

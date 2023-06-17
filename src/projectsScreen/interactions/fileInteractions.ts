@@ -8,6 +8,7 @@ import {
 } from "persistence/projects";
 import OpenOrNewProjectChooser from "projectsScreen/dialogs/OpenOrNewProjectChooser";
 import {getSpielNames} from "persistence/spiels";
+import {infoToast} from "ui/toasts/toastUtil";
 
 export async function createNewProject(projectName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function) {
   const revisionManager = getRevisionManager();
@@ -22,6 +23,7 @@ export async function createNewProject(projectName:string, setModalDialog:Functi
   await revisionManager.persistCurrent();
   setRevision(revisionManager.currentRevision);
   setModalDialog(null);
+  infoToast('New project created');
 }
 
 export async function openProject(projectName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function, setSpielNames:Function) {
@@ -51,10 +53,12 @@ export async function onConfirmDeleteProject(projectName:string, setModalDialog:
   setDocumentName(null);
   setSpielNames([]);
   setModalDialog(OpenOrNewProjectChooser.name);
+  infoToast('Project deleted');
 }
 
 export async function onRenameProject(currentProjectName:string, newProjectName:string, setModalDialog:Function, setDocumentName:Function) {
   await renameProject(newProjectName, currentProjectName);
   await setDocumentName(newProjectName);
   setModalDialog(null);
+  infoToast('Project renamed');
 }

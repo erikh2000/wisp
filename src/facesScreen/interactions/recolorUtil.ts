@@ -53,7 +53,6 @@ export async function onHairColorChange(hairColor:HairColor, setRevision:any) {
 
 export async function onIrisColorChange(irisColor:IrisColor, setRevision:any) {
   return performDisablingOperation(async () => {
-    
     const head = getHead();
     const currentEyes = findCanvasComponentForPartType(head, PartType.EYES);
     if (!currentEyes) return;
@@ -62,6 +61,5 @@ export async function onIrisColorChange(irisColor:IrisColor, setRevision:any) {
     const partUiManager = getPartUiManager();
     await partUiManager.trackPartsForFace(head);
     updateForFaceRelatedRevision({}, setRevision);
-    
   });
 }

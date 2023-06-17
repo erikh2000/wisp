@@ -6,6 +6,7 @@ import {deleteFace} from "persistence/faces";
 import {MIMETYPE_WISP_FACE} from "persistence/mimeTypes";
 import {renameActiveFaceName, setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import Screen, {screenConfigs} from "ui/screen/screens";
+import {infoToast} from "ui/toasts/toastUtil";
 
 import {CanvasComponent, createFaceDocument, loadFaceFromDefinition, loadFaceFromUrl} from "sl-web-face";
 import {NavigateFunction} from "react-router";
@@ -18,6 +19,7 @@ export function onNewFaceName(faceName:string, setModalDialog:any, setDocumentNa
   }).then(() => {
     setDocumentName(faceName);
     setModalDialog(null);
+    infoToast('New face created.');
   });
 }
 
@@ -25,6 +27,7 @@ export function onRenameFace(nextFaceName:string, setModalDialog:any, setDocumen
   renameActiveFaceName(nextFaceName).then(() => {
     setDocumentName(nextFaceName);
     setModalDialog(null);
+    infoToast('Face renamed.');
   });
 }
 
@@ -125,6 +128,7 @@ export async function importFace(setModalDialog:any, setDocumentName:any, setRev
     if (!faceFileHandle) return;
     await _setUpForNewFace(() => _loadFaceFromFaceDefFileHandle(faceFileHandle), setDocumentName, setRevision);
     setModalDialog(NewFaceDialog.name);
+    infoToast('Face imported.');
   });
 }
 
@@ -137,6 +141,7 @@ export async function exportFace(documentName:string):Promise<void> {
     const faceDefYml = stringify(faceDef);
     const writable = await (fileHandle as any).createWritable();
     await writable.write(faceDefYml);
-    return await writable.close();
+    await writable.close();
+    infoToast('Face exported.');
   });
 }

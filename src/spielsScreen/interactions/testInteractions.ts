@@ -9,6 +9,7 @@ import {setSpielsScreenSettings} from "persistence/settings";
 import {setEmotion, startListening, stopListening} from "facesCommon/interactions/faceEventUtil";
 import {setHead} from "spielsScreen/interactions/coreUtil"
 import SpielsScreenSettings from "spielsScreen/SpielsScreenSettings";
+import {infoToast} from "ui/toasts/toastUtil";
 
 import {CanvasComponent, Emotion} from "sl-web-face";
 import {Spiel} from 'sl-spiel';
@@ -120,4 +121,5 @@ export function updateTestOptions(conversationSpeed:ConversationSpeed, playFullS
   setScreenSettings(nextSpielScreenSettings);
   setModalDialog(null);
   setSpielsScreenSettings(nextSpielScreenSettings).then(() => {});
+  infoToast('Updated test options.');
 }

@@ -15,6 +15,7 @@ import {
   updateSpeechTableWithTakes
 } from "speechScreen/speechTable/speechTableUtil";
 import SpeechTable from "speechScreen/speechTable/types/SpeechTable";
+import {infoToast} from "ui/toasts/toastUtil";
 
 import { audioBufferAndCuesToWavBytes, stopAll, playAudioBuffer, WavCue, wavBytesToAudioBuffer } from 'sl-web-audio';
 import {LipzEvent, phonemeToVisemeText} from 'sl-web-speech';
@@ -39,12 +40,14 @@ export async function deleteAllTakes(spielName:string, setRevision:Function, set
   await deleteAllTakesForSpiel(dialogueTextKeyInfos);
   _updateSpeechTableTakesAndRevision(spielName, setRevision).then(() => {});
   setModalDialog(null);
+  infoToast("All takes deleted.");
 }
 
 export async function onDeleteTake(takeWavKey:string, spielName:string, setRevision:Function, setModalDialog:Function) {
   await deleteTake(takeWavKey);
   _updateSpeechTableTakesAndRevision(spielName, setRevision).then(() => {});
   setModalDialog(null);
+  infoToast("Take deleted.");
 }
 
 export async function onFinalizeTake(takeWavKey:string, setModalDialog:Function, setActiveTakeWavKey:Function) {
@@ -67,6 +70,7 @@ export async function onCompleteFinalization(takeWavKey:string|null, audioBuffer
   await saveTakeBytes(finalWavKey, wavBytes);
   await _updateSpeechTableTakesAndRevision(spielName, setRevision);
   setModalDialog(null);
+  infoToast("Take finalized.");
 }
 
 export async function loadTakeWave(wavKey:string):Promise<AudioBuffer> {
@@ -84,6 +88,7 @@ export async function playTakeWave(wavKey:string) {
 export function onCompleteRecording(spielName:string, setRevision:Function, setModalDialog:Function) {
   _updateSpeechTableTakesAndRevision(spielName, setRevision).then(() => {});
   setModalDialog(null);
+  infoToast("Recording complete.");
 }
 
 export function onCancelRecording(spielName:string, setRevision:Function, setModalDialog:Function) {

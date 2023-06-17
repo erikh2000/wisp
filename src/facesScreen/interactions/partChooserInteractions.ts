@@ -9,6 +9,7 @@ import {
 import {updateForFaceRelatedRevision} from "./revisionUtil";
 import {PartType} from "facesScreen/PartSelector";
 import HeadChooser from "facesScreen/partChoosers/HeadChooser";
+import ExtraChooser from "facesScreen/partChoosers/ExtraChooser";
 import EyesChooser from "facesScreen/partChoosers/EyesChooser";
 import MouthChooser from "facesScreen/partChoosers/MouthChooser";
 import NoseChooser from "facesScreen/partChoosers/NoseChooser";
@@ -21,7 +22,6 @@ import {
   loadComponentFromPartUrl,
   replaceComponentFromPartUrl,
 } from "sl-web-face";
-import ExtraChooser from "../partChoosers/ExtraChooser";
 
 function _reparentHeadParts(oldHead:CanvasComponent, newHead:CanvasComponent) {
   const children = oldHead.findNonUiChildren();
