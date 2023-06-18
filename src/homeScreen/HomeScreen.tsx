@@ -4,13 +4,14 @@ import wispLogoImage from './images/wispLogo.png';
 import seespaceLabsLogoImage from './images/seespaceLabsLogo.png';
 import projectsImage from './images/projects.png';
 import spielsImage from './images/spiels.png';
+import locationsImage from './images/locations.png';
 import facesImage from './images/faces.png';
 import speechImage from './images/speech.png';
 import Screen, { ScreenConfig, screenConfigs } from "ui/screen/screens";
 
 import { useState } from 'react';
 
-const screenImages = [facesImage, spielsImage, speechImage, projectsImage];
+const screenImages = [facesImage, spielsImage, speechImage, locationsImage, projectsImage];
 
 function _initHomeScreenConfigs() {
   return screenConfigs.filter((_screenConfig, screenNo) => screenNo !== Screen.HOME);

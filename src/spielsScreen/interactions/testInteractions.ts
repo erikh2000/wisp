@@ -1,5 +1,6 @@
 import {addText} from "./transcriptInteractions";
 import {centerCanvasComponent} from "common/canvasComponentUtil";
+import {scaleDimensionsToFit} from "common/scaleUtil";
 import ConversationManager, {ConversationState} from "conversations/ConversationManager";
 import ConversationSpeed from "conversations/ConversationSpeed";
 import {spielEmotionToEmotion} from "conversations/spielEmotionUtil";
@@ -20,11 +21,15 @@ let recognizer:Recognizer|null = null;
 let _isRecognizerReady:boolean = false;
 let lastState = ConversationState.STOPPED;
 
+const CY_SUBTITLES = 30;
 export function onDrawFaceCanvas(context:CanvasRenderingContext2D, headComponent:CanvasComponent) {
   const canvasWidth = context.canvas.width, canvasHeight = context.canvas.height;
-  centerCanvasComponent(headComponent, canvasWidth, canvasHeight);
   context.fillStyle = 'white';
   context.fillRect(0, 0, canvasWidth, canvasHeight);
+  const [scaledWidth, scaledHeight] = scaleDimensionsToFit(headComponent.width, headComponent.height, canvasWidth, canvasHeight - (CY_SUBTITLES*2));
+  if (isNaN(scaledWidth) || isNaN(scaledHeight) || !scaledWidth || !scaledHeight) return;
+  headComponent.resize(scaledWidth, scaledHeight);
+  centerCanvasComponent(headComponent, canvasWidth, canvasHeight);
   headComponent.render(context);
 }
 

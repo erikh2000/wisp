@@ -1,23 +1,31 @@
+import {performDisablingOperation} from "./coreUtil";
 import RevisionManager from "documents/RevisionManager";
-import {UNSPECIFIED_NAME, updateActiveProject} from "persistence/projects";
-import {performDisablingOperation} from "projectsScreen/interactions/coreUtil";
 
-export type Revision = {
-  aboutText:string,
-  creditsText:string,
-  entrySpiel:string
+export type FacePlacement = {
+  characterName:string,
+  x:number,
+  y:number,
+  w:number,
+  h:number
 }
 
+export type Revision = {
+  backgroundImage:ImageBitmap|null,
+  facePlacements:FacePlacement[],
+  selectedFaceNo:number
+}
+
+const UNSELECTED = -1;
+
 async function onPersistRevision(revision:Revision):Promise<void> {
-  const {aboutText, creditsText, entrySpiel} = revision;
-  await updateActiveProject({aboutText, creditsText, entrySpiel});
+  // TODO
 }
 
 export function createDefaultRevision():Revision {
   return {
-    aboutText: '',
-    creditsText: '',
-    entrySpiel: UNSPECIFIED_NAME
+    backgroundImage:null,
+    facePlacements:[],
+    selectedFaceNo:UNSELECTED
   };
 }
 

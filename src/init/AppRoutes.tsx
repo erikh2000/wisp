@@ -1,8 +1,9 @@
 import FacesScreen from "facesScreen/FacesScreen";
+import HomeScreen from "homeScreen/HomeScreen";
+import LocationsScreen from "locationsScreen/LocationsScreen";
 import ProjectsScreen from "projectsScreen/ProjectsScreen";
 import SpeechScreen from "speechScreen/SpeechScreen";
 import SpielsScreen from "spielsScreen/SpielsScreen";
-import HomeScreen from "homeScreen/HomeScreen";
 
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import React from 'react';
@@ -13,6 +14,7 @@ function AppRoutes() {
       <Routes>
         <Route path="" element={<HomeScreen />} />
         <Route path="faces" element={<FacesScreen />} />
+        <Route path="locations" element={<LocationsScreen />} />
         <Route path="projects" element={<ProjectsScreen />} />
         <Route path="speech" element={<SpeechScreen />} />
         <Route path="spiels" element={<SpielsScreen />} />

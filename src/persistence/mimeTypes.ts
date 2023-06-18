@@ -5,6 +5,9 @@ export const MIMETYPE_WISP_PROJECT = 'application/vnd.seespacelabs.wisp.project'
 export const MIMETYPE_WISP_SPIEL = 'application/vnd.seespacelabs.wisp.spiel';
 export const MIMETYPE_FOUNTAIN = 'text/vnd.fountain'; // I don't actually know the "official" MIME type of Fountain. Please holler at me if you do.
 export const MIMETYPE_AUDIO_WAV = 'audio/wav';
+export const MIMETYPE_PNG = 'image/png';
+export const MIMETYPE_JPEG = 'image/jpeg';
+export const MIMETYPE_GIF = 'image/gif';
 
 export const MIMETYPE_WISP_SETTING = 'application/vnd.seespacelabs.wisp.setting';
 
