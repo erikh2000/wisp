@@ -1,35 +1,36 @@
 import {performDisablingOperation} from "./coreUtil";
 import RevisionManager from "documents/RevisionManager";
-
-export type FacePlacement = {
-  characterName:string,
-  x:number,
-  y:number,
-  w:number,
-  h:number
-}
+import {UNSPECIFIED_IMAGE_KEY} from "persistence/imageUtil";
+import {setLocation} from "persistence/locations";
+import {getActiveLocationName} from "persistence/projects";
+import Location from "persistence/types/Location";
 
 export type Revision = {
-  backgroundImage:ImageBitmap|null,
-  facePlacements:FacePlacement[],
+  location:Location,
   selectedFaceNo:number
 }
 
-const UNSELECTED = -1;
+export const UNSELECTED = -1;
 
 async function onPersistRevision(revision:Revision):Promise<void> {
-  // TODO
+  const locationName = await getActiveLocationName();
+  await setLocation(locationName, revision.location);
 }
 
 export function createDefaultRevision():Revision {
   return {
-    backgroundImage:null,
-    facePlacements:[],
+    location:{backgroundImageKey:UNSPECIFIED_IMAGE_KEY, facePlacements:[]},
     selectedFaceNo:UNSELECTED
   };
 }
 
 const revisionManager:RevisionManager<Revision> = new RevisionManager<Revision>(createDefaultRevision(), onPersistRevision);
+
+export function duplicateCurrentRevisionLocation():Location {
+  const location = {...revisionManager.currentRevision.location};
+  location.facePlacements = [...location.facePlacements];
+  return location;
+}
 
 export function getRevisionManager() { return revisionManager; }
 

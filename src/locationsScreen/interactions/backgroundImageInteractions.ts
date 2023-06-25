@@ -1,20 +1,22 @@
-import {MIMETYPE_PNG, MIMETYPE_JPEG, MIMETYPE_GIF} from "persistence/mimeTypes";
+import {duplicateCurrentRevisionLocation, getRevisionManager} from "./revisionUtil";
 import {errorToast} from "ui/toasts/toastUtil";
-import {getRevisionManager} from "./revisionUtil";
+import {setLocationImage} from "persistence/locations";
+import {MIMETYPE_PNG, MIMETYPE_JPEG, MIMETYPE_GIF} from "persistence/mimeTypes";
+
+import {imageBitmapToPngBytes} from 'sl-web-face';
+import {createOffScreenContext} from "../../common/canvasUtil";
 
 async function _selectImageFileHandle():Promise<FileSystemFileHandle|null> {
   const openFileOptions = {
     excludeAcceptAllOption: true,
     multiple:false,
     types: [{
-      description: 'PNG',
-      accept: {[MIMETYPE_PNG]: ['.png']}
-    },{
-      description: 'JPG',
-      accept: {[MIMETYPE_JPEG]: ['.jpeg','.jpg']}
-    },{
-      description: 'GIF',
-      accept: {[MIMETYPE_GIF]: ['.gif']}
+      description: 'images',
+      accept: {
+        [MIMETYPE_PNG]: ['.png'],
+        [MIMETYPE_JPEG]: ['.jpeg','.jpg'],
+        [MIMETYPE_GIF]: ['.gif']
+      }
     }]
   };
   try {
@@ -25,15 +27,26 @@ async function _selectImageFileHandle():Promise<FileSystemFileHandle|null> {
   }
 }
 
+async function _getPngImageBytes(imageBuffer:ArrayBuffer, imageBitmap:ImageBitmap, mimeType:string):Promise<Uint8Array> {
+  const imageBytes = new Uint8Array(imageBuffer);
+  if (mimeType === MIMETYPE_PNG) return imageBytes;
+  const preRenderContext = createOffScreenContext(imageBitmap.width, imageBitmap.height);
+  return imageBitmapToPngBytes(imageBitmap, preRenderContext);
+}
+
 export async function onImportImage(onChoose:Function) {
   const fileHandle = await _selectImageFileHandle();
   if (fileHandle) {
     try {
       const file = await fileHandle.getFile();
+      const filename = file.name;
+      const mimeType = file.type;
       const buffer = await file.arrayBuffer();
-      const blob = new Blob([buffer], {type: file.type});
+      const blob = new Blob([buffer], {type: mimeType});
       const imageBitmap = await createImageBitmap(blob);
-      onChoose(imageBitmap);
+      const imageBytes = await _getPngImageBytes(buffer, imageBitmap, mimeType);
+      const backgroundImageKey = await setLocationImage(filename, imageBytes);
+      onChoose(imageBitmap, backgroundImageKey);
     } catch(e) {
       console.error(e);
       errorToast('Failed to load image.');
@@ -41,9 +54,17 @@ export async function onImportImage(onChoose:Function) {
   }
 }
 
-export function onChooseBackground(backgroundImage:ImageBitmap, setModalDialog:Function, setRevision:Function) {
+export function onChooseBackground(backgroundImage:ImageBitmap, backgroundImageKey:string, setBackgroundImage:Function, setModalDialog:Function, setRevision:Function) {
   const revisionManager = getRevisionManager();
-  revisionManager.addChanges({backgroundImage});
+  if (revisionManager.currentRevision.location.backgroundImageKey === backgroundImageKey) { // Possible for user to pick the same image as I already have.
+    setModalDialog(null);
+    return;
+  }
+  
+  const location = duplicateCurrentRevisionLocation();
+  location.backgroundImageKey = backgroundImageKey;
+  revisionManager.addChanges({location});
   setRevision(revisionManager.currentRevision);
+  setBackgroundImage(backgroundImage);
   setModalDialog(null);
 }

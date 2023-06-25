@@ -14,7 +14,7 @@ function _onChooseLocation(locationName:string) {
 interface IProps {
   isOpen:boolean,
   onCancel:() => void,
-  onChoose:(backroundImage:ImageBitmap) => void
+  onChoose:(backgroundImage:ImageBitmap, backgroundImageKey:string) => void
 }
 
 const TITLE = 'Choose Background Image';

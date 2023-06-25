@@ -13,8 +13,6 @@ function _drawNoBackground(context:CanvasRenderingContext2D) {
   context.fillText(CHOOSE_BACKGROUND_TEXT, (context.canvas.width - textMetrics.width) / 2, context.canvas.height / 2);
 }
 
-
-
 function _drawBackground(context:CanvasRenderingContext2D, backgroundImage:ImageBitmap) {
   const { width:canvasWidth, height:canvasHeight } = context.canvas;
   context.clearRect(0, 0, canvasWidth, canvasHeight);

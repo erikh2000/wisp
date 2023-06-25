@@ -18,7 +18,7 @@ import {
   setText
 } from "./pathStore";
 import {fillTemplate, isValidName} from "./pathUtil";
-import Project from "./Project";
+import Project from "./types/Project";
 import {CURRENT_DATA_VERSION} from "./versions";
 
 import {parse, stringify} from 'yaml';
@@ -50,6 +50,7 @@ export async function createProject(projectName:string) {
   const project:Project = { 
     created:Date.now(), 
     activeFace:UNSPECIFIED_NAME, 
+    activeLocation:UNSPECIFIED_NAME,
     activeSpiel:UNSPECIFIED_NAME, 
     entrySpiel:UNSPECIFIED_NAME, 
     aboutText:'', 
@@ -98,6 +99,18 @@ export async function setActiveFaceName(faceName:string) {
   const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:activeProjectName});
   const project:Project = await _getProjectByKey(key);
   project.activeFace = faceName;
+  await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
+}
+
+export async function getActiveLocationName():Promise<string> {
+  const project = await getActiveProject();
+  return project.activeLocation ?? UNSPECIFIED_NAME;
+}
+
+export async function setActiveLocationName(locationName:string) {
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:activeProjectName});
+  const project:Project = await _getProjectByKey(key);
+  project.activeLocation = locationName;
   await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
 }
 

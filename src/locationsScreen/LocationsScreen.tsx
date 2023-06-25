@@ -3,7 +3,6 @@ import BackgroundChooser from "./dialogs/BackgroundChooser";
 import {onChooseBackground} from "./interactions/backgroundImageInteractions";
 import {init} from './interactions/initialization';
 import {getRevisionForMount, onUndo, onRedo, updateUndoRedoDisabled, Revision} from "./interactions/revisionUtil";
-import styles from "./LocationsScreen.module.css";
 import LocationSettingsPane from "./panes/LocationSettingsPane";
 import useEffectAfterMount from "common/useEffectAfterMount";
 import {UNSPECIFIED_NAME} from "persistence/projects";
@@ -20,11 +19,13 @@ function LocationsScreen() {
   const [redoDisabled, setRedoDisabled] = useState<boolean>(true);
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
+  const [backgroundImage, setBackgroundImage] = useState<ImageBitmap|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
 
-  useEffectAfterMount(() => {
+  useEffect(() => {
     init(setDisabled, setRevision).then(nextInitResults => {
       setDocumentName(nextInitResults.locationName);
+      setBackgroundImage(nextInitResults.backgroundImage);
       setDisabled(false);
     });
   }, []);
@@ -48,7 +49,7 @@ function LocationsScreen() {
   return (
     <ScreenContainer documentName={documentName} isControlPaneOpen={true} activeScreen={Screen.LOCATIONS} actionBarButtons={actionBarButtons}>
         <LocationSettingsPane
-          backgroundImage={revision.backgroundImage}
+          backgroundImage={backgroundImage}
           onAddFace={emptyCallback}
           onDeleteFace={emptyCallback}
           onChooseBackground={() => setModalDialog(BackgroundChooser.name)}
@@ -57,7 +58,8 @@ function LocationsScreen() {
         <BackgroundChooser 
           isOpen={modalDialog === BackgroundChooser.name} 
           onCancel={() => setModalDialog(null)} 
-          onChoose={(nextBackgroundImage) => onChooseBackground(nextBackgroundImage, setModalDialog, setRevision)} 
+          onChoose={(nextBackgroundImage, backgroundImageKey) => 
+            onChooseBackground(nextBackgroundImage, backgroundImageKey, setBackgroundImage, setModalDialog, setRevision)} 
         />
     </ScreenContainer>
   );
