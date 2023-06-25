@@ -10,7 +10,8 @@ import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
 
 import React, {useEffect, useState} from "react";
-import {onNewLocation, onOpenLocation} from "./interactions/fileInteractions";
+import {onNewLocation, onOpenLocation, onRenameLocation} from "./interactions/fileInteractions";
+import RenameLocationDialog from "./dialogs/RenameLocationDialog";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -41,7 +42,7 @@ function LocationsScreen() {
   const actionBarButtons = [
     {text:'New', onClick:() => setModalDialog(NewLocationDialog.name), groupNo:0, disabled},
     {text:'Open', onClick:() => setModalDialog(OpenLocationChooser.name), groupNo:0, disabled},
-    {text:'Rename', onClick:emptyCallback, groupNo:0, disabled:true},
+    {text:'Rename', onClick:() => setModalDialog(RenameLocationDialog.name), groupNo:0, disabled},
     {text:'Delete', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Export', onClick:emptyCallback, groupNo:0, disabled:true},
@@ -76,6 +77,11 @@ function LocationsScreen() {
           onCancel={() => setModalDialog(null)} 
           onChoose={(locationName) => onOpenLocation(locationName, setDocumentName, setBackgroundImage, setModalDialog, setRevision)} 
           originalDocumentName={documentName} 
+        />
+        <RenameLocationDialog
+          isOpen={modalDialog === RenameLocationDialog.name}
+          onCancel={() => setModalDialog(null)}
+          onSubmit={(locationName) => onRenameLocation(documentName, locationName, setDocumentName, setModalDialog)}
         />
     </ScreenContainer>
   );

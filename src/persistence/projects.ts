@@ -184,6 +184,13 @@ export async function renameSpielReferencesInProject(currentSpielName:string, ne
   await setText(key, stringify(currentProject), MIMETYPE_WISP_PROJECT);
 }
 
+export async function renameLocationReferencesInProject(currentLocationName:string, nextLocationName:string, projectName:string = getActiveProjectName()) {
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName});
+  const currentProject:Project = await _getProjectByKey(key);
+  if (currentProject.activeLocation === currentLocationName) currentProject.activeSpiel = nextLocationName;
+  await setText(key, stringify(currentProject), MIMETYPE_WISP_PROJECT);
+}
+
 export function projectKeyToName(key:string):string {
   // Parsing PROJECT NAME from /projects/PROJECT NAME/project
   if (!key.startsWith(PROJECTS_PATH)) throw Error('Unexpected');
