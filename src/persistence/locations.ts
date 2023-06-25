@@ -4,7 +4,15 @@ import {
   LOCATIONS_PATH_TEMPLATE,
   SPIELS_PATH_TEMPLATE
 } from "./keyPaths";
-import {getAllKeysAtPath, getAllValuesAtPath, getBytes, getText, KeyValueRecord, setText} from "./pathStore";
+import {
+  deleteAllKeysAtPathExcept,
+  getAllKeysAtPath,
+  getAllValuesAtPath,
+  getBytes,
+  getText,
+  KeyValueRecord,
+  setText
+} from "./pathStore";
 import {fillTemplate, keyToName} from "./pathUtil";
 import {getActiveProjectName} from "./projects";
 import {MIMETYPE_WISP_LOCATION} from "./mimeTypes";
@@ -50,4 +58,29 @@ export async function getLocationNames(projectName:string = getActiveProjectName
   const locationsPath = fillTemplate(LOCATIONS_PATH_TEMPLATE, {projectName})
   const keys = await getAllKeysAtPath(locationsPath);
   return keys.map(key => keyToName(key));
+}
+
+export async function getAllLocationKeys(projectName:string = getActiveProjectName()):Promise<string[]> {
+  const locationsPath = fillTemplate(LOCATIONS_PATH_TEMPLATE, {projectName})
+  return await getAllKeysAtPath(locationsPath);
+}
+
+export async function getAllLocationImageKeys(projectName:string = getActiveProjectName()):Promise<string[]> {
+  const locationImagesPath = fillTemplate(LOCATION_IMAGES_PATH_TEMPLATE, {projectName})
+  return await getAllKeysAtPath(locationImagesPath);
+}
+
+export async function deleteUnusedLocationImages(projectName:string = getActiveProjectName()) {
+  const locationKeys = await getAllLocationKeys(projectName);
+  const usedImageKeys:string[] = [];
+  for(let locationKeyI = 0; locationKeyI < locationKeys.length; ++locationKeyI) {
+    const locationKey = locationKeys[locationKeyI];
+    const location = await getLocation(keyToName(locationKey), projectName);
+    if (!location) throw Error('Unexpected');
+    const backgroundImageKey = location.backgroundImageKey;
+    if (backgroundImageKey && !locationKeys.includes(backgroundImageKey)) usedImageKeys.push(backgroundImageKey);
+  }
+  
+  const locationImagesPath = fillTemplate(LOCATION_IMAGES_PATH_TEMPLATE, {projectName})
+  await deleteAllKeysAtPathExcept(locationImagesPath, usedImageKeys);
 }

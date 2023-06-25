@@ -305,6 +305,13 @@ export async function deleteAllKeys(keys:string[]):Promise<void> {
   });
 }
 
+export async function deleteAllKeysAtPathExcept(path:string, exceptKeys:string[]) {
+  const keys = await getAllKeysAtPath(path);
+  const keysToDelete = keys.filter(key => !exceptKeys.includes(key));
+  if (!keysToDelete.length) return;
+  await deleteAllKeys(keysToDelete);
+}
+
 export async function deleteAllKeysAtPath(path:string):Promise<void> {
   const keys = await getAllKeysAtPath(path);
   if (!keys.length) return;
