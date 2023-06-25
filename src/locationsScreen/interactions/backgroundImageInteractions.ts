@@ -6,6 +6,7 @@ import {MIMETYPE_PNG, MIMETYPE_JPEG, MIMETYPE_GIF} from "persistence/mimeTypes";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 
 import {imageBitmapToPngBytes, pngBytesToImageBitmap} from 'sl-web-face';
+import {splitFilenameAndExtension} from "../../persistence/pathUtil";
 
 async function _selectImageFileHandle():Promise<FileSystemFileHandle|null> {
   const openFileOptions = {

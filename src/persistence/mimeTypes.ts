@@ -15,10 +15,6 @@ type MimeTypeToExtensionMap = {
   [key:string]:string
 }
 
-type ExtensionToMimeTypeMap = {
-  [extension:string]:string
-}
-
 const MIMETYPE_TO_EXTENSION_MAP:MimeTypeToExtensionMap = {
   [MIMETYPE_AUDIO_WAV]: 'wav',
   [MIMETYPE_FOUNTAIN]: 'fountain',
@@ -34,30 +30,11 @@ const MIMETYPE_TO_EXTENSION_MAP:MimeTypeToExtensionMap = {
   [MIMETYPE_WISP_SPIEL]: 'spiel'
 };
 
-const ALTERNATE_EXTENSION_TO_MIMETYPE:ExtensionToMimeTypeMap = {
-  jpeg: MIMETYPE_JPEG
-}
-
-function _createExtensionToMimeTypeMap(mimeTypeToExtensionMap:MimeTypeToExtensionMap):ExtensionToMimeTypeMap {
-  const extensionToMimeTypeMap:ExtensionToMimeTypeMap = {};
-  for (const [mimeType, extension] of Object.entries(mimeTypeToExtensionMap)) {
-    extensionToMimeTypeMap[extension] = mimeType;
-  }
-  for (const [extension, mimeType] of Object.entries(ALTERNATE_EXTENSION_TO_MIMETYPE)) {
-    extensionToMimeTypeMap[extension] = mimeType;
-  }
-  return extensionToMimeTypeMap;
-}
-
-const EXTENSION_TO_MIMETYPE_MAP:ExtensionToMimeTypeMap = _createExtensionToMimeTypeMap(MIMETYPE_TO_EXTENSION_MAP);
 
 const DEFAULT_EXTENSION = '';
-const DEFAULT_MIME_TYPE = MIMETYPE_OCTET_STREAM;
 
 export function mimeTypeToExtension(mimeType:string):string {
   return MIMETYPE_TO_EXTENSION_MAP[mimeType] ?? DEFAULT_EXTENSION;
 }
 
-export function extensionToMimeType(extension:string):string {
-  return EXTENSION_TO_MIMETYPE_MAP[extension] ?? DEFAULT_MIME_TYPE;
-}
+// Code for extensionToMimeType() deleted on 6/25/23. See commits if you want it back.
