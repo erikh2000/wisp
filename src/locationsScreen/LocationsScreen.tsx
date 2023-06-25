@@ -1,5 +1,6 @@
 import BackgroundChooser from "./dialogs/BackgroundChooser";
 import NewLocationDialog from "./dialogs/NewLocationDialog";
+import OpenLocationChooser from "./dialogs/OpenLocationChooser";
 import {onChooseBackground} from "./interactions/backgroundImageInteractions";
 import {init} from './interactions/initialization';
 import {getRevisionForMount, onUndo, onRedo, updateUndoRedoDisabled, Revision} from "./interactions/revisionUtil";
@@ -9,7 +10,7 @@ import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
 
 import React, {useEffect, useState} from "react";
-import {onNewLocation} from "./interactions/fileInteractions";
+import {onNewLocation, onOpenLocation} from "./interactions/fileInteractions";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -28,11 +29,7 @@ function LocationsScreen() {
       setBackgroundImage(initResults.backgroundImage);
       setDisabled(false);
       if (initResults.locationName === UNSPECIFIED_NAME) {
-        if (initResults.locationCount === 0) {
-          setModalDialog(NewLocationDialog.name);
-        } else {
-          // TODO - open dialog to choose location
-        }
+        setModalDialog(initResults.locationCount === 0 ? NewLocationDialog.name : OpenLocationChooser.name);
       }
     });
   }, []);
@@ -43,7 +40,7 @@ function LocationsScreen() {
 
   const actionBarButtons = [
     {text:'New', onClick:() => setModalDialog(NewLocationDialog.name), groupNo:0, disabled},
-    {text:'Open', onClick:emptyCallback, groupNo:0, disabled:true},
+    {text:'Open', onClick:() => setModalDialog(OpenLocationChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Delete', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
@@ -73,6 +70,12 @@ function LocationsScreen() {
           isOpen={modalDialog === NewLocationDialog.name} 
           onCancel={() => setModalDialog(null)}
           onSubmit={(locationName) => onNewLocation(locationName, setDocumentName, setBackgroundImage, setModalDialog, setRevision)}
+        />
+        <OpenLocationChooser 
+          isOpen={modalDialog === OpenLocationChooser.name} 
+          onCancel={() => setModalDialog(null)} 
+          onChoose={(locationName) => onOpenLocation(locationName, setDocumentName, setBackgroundImage, setModalDialog, setRevision)} 
+          originalDocumentName={documentName} 
         />
     </ScreenContainer>
   );
