@@ -1,10 +1,14 @@
-import {LOCATION_IMAGES_PATH_TEMPLATE, LOCATION_KEY_TEMPLATE, LOCATIONS_PATH_TEMPLATE} from "./keyPaths";
+import {
+  LOCATION_IMAGES_PATH_TEMPLATE,
+  LOCATION_KEY_TEMPLATE,
+  LOCATIONS_PATH_TEMPLATE,
+  SPIELS_PATH_TEMPLATE
+} from "./keyPaths";
 import {getAllKeysAtPath, getAllValuesAtPath, getBytes, getText, KeyValueRecord, setText} from "./pathStore";
-import {fillTemplate} from "./pathUtil";
+import {fillTemplate, keyToName} from "./pathUtil";
 import {getActiveProjectName} from "./projects";
 import {MIMETYPE_WISP_LOCATION} from "./mimeTypes";
 import {storeImageAtPath} from "./imageUtil";
-import FacePlacement from "./types/FacePlacement";
 import Location from "./types/Location";
 
 import {parse, stringify} from "yaml";
@@ -40,4 +44,10 @@ export async function setLocation(locationName:string, location:Location, projec
   const key = fillTemplate(LOCATION_KEY_TEMPLATE, {projectName, locationName});
   const locationYaml = stringify(location);
   await setText(key, locationYaml, MIMETYPE_WISP_LOCATION);
+}
+
+export async function getLocationNames(projectName:string = getActiveProjectName()):Promise<string[]> {
+  const locationsPath = fillTemplate(LOCATIONS_PATH_TEMPLATE, {projectName})
+  const keys = await getAllKeysAtPath(locationsPath);
+  return keys.map(key => keyToName(key));
 }

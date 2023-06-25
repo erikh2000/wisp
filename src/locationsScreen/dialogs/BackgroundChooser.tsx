@@ -1,6 +1,7 @@
 import {onImportImage} from "locationsScreen/interactions/backgroundImageInteractions";
 import {KeyValueRecord} from "persistence/pathStore";
 import {getAllLocationRecords, getLocation, getLocationImage} from "persistence/locations";
+import {keyToName} from "persistence/pathUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ConfirmCancelDialog from "ui/dialog/ConfirmCancelDialog";
 import DocumentChooser from "ui/dialog/DocumentChooser";
@@ -20,6 +21,7 @@ async function _onChooseLocation(locationName:string, onChoose:Function) {
 }
 
 interface IProps {
+  locationName:string,
   isOpen:boolean,
   onCancel:() => void,
   onChoose:(backgroundImage:ImageBitmap, backgroundImageKey:string) => void
@@ -29,12 +31,15 @@ const TITLE = 'Choose Background Image';
 const IMPORT_IMAGE = 'Import Image';
 
 function BackgroundChooser(props:IProps) {
-  const { isOpen, onCancel, onChoose } = props;
+  const { isOpen, onCancel, onChoose, locationName } = props;
   const [locationDocuments, setLocationDocuments] = useState<KeyValueRecord[]>([]);
 
   useEffect(() => {
     if (!isOpen) return;
-    getAllLocationRecords().then(records => setLocationDocuments(records));
+    getAllLocationRecords().then(records => {
+      const excludingCurrentLocation = records.filter(record => keyToName(record.key) !== locationName);
+      setLocationDocuments(excludingCurrentLocation);
+    });
   }, [isOpen]);
 
   const mustImport = locationDocuments.length === 0;

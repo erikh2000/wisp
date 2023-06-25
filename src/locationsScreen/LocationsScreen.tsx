@@ -1,15 +1,15 @@
-
 import BackgroundChooser from "./dialogs/BackgroundChooser";
+import NewLocationDialog from "./dialogs/NewLocationDialog";
 import {onChooseBackground} from "./interactions/backgroundImageInteractions";
 import {init} from './interactions/initialization';
 import {getRevisionForMount, onUndo, onRedo, updateUndoRedoDisabled, Revision} from "./interactions/revisionUtil";
 import LocationSettingsPane from "./panes/LocationSettingsPane";
-import useEffectAfterMount from "common/useEffectAfterMount";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
 
 import React, {useEffect, useState} from "react";
+import {onNewLocation} from "./interactions/fileInteractions";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -23,10 +23,17 @@ function LocationsScreen() {
   const [modalDialog, setModalDialog] = useState<string|null>(null);
 
   useEffect(() => {
-    init(setDisabled, setRevision).then(nextInitResults => {
-      setDocumentName(nextInitResults.locationName);
-      setBackgroundImage(nextInitResults.backgroundImage);
+    init(setDisabled, setRevision).then(initResults => {
+      setDocumentName(initResults.locationName);
+      setBackgroundImage(initResults.backgroundImage);
       setDisabled(false);
+      if (initResults.locationName === UNSPECIFIED_NAME) {
+        if (initResults.locationCount === 0) {
+          setModalDialog(NewLocationDialog.name);
+        } else {
+          // TODO - open dialog to choose location
+        }
+      }
     });
   }, []);
 
@@ -35,7 +42,7 @@ function LocationsScreen() {
   }, [disabled, revision, setUndoDisabled, setRedoDisabled]);
 
   const actionBarButtons = [
-    {text:'New', onClick:emptyCallback, groupNo:0, disabled:true},
+    {text:'New', onClick:() => setModalDialog(NewLocationDialog.name), groupNo:0, disabled},
     {text:'Open', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Rename', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Delete', onClick:emptyCallback, groupNo:0, disabled:true},
@@ -57,9 +64,15 @@ function LocationsScreen() {
         />
         <BackgroundChooser 
           isOpen={modalDialog === BackgroundChooser.name} 
+          locationName={documentName}
           onCancel={() => setModalDialog(null)} 
           onChoose={(nextBackgroundImage, backgroundImageKey) => 
             onChooseBackground(nextBackgroundImage, backgroundImageKey, setBackgroundImage, setModalDialog, setRevision)} 
+        />
+        <NewLocationDialog 
+          isOpen={modalDialog === NewLocationDialog.name} 
+          onCancel={() => setModalDialog(null)}
+          onSubmit={(locationName) => onNewLocation(locationName, setDocumentName, setBackgroundImage, setModalDialog, setRevision)}
         />
     </ScreenContainer>
   );
