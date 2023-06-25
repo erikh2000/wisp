@@ -1,10 +1,11 @@
+import {createOffScreenContext} from "common/canvasUtil";
 import {duplicateCurrentRevisionLocation, getRevisionManager} from "./revisionUtil";
 import {errorToast} from "ui/toasts/toastUtil";
-import {setLocationImage} from "persistence/locations";
+import {getLocationImage, setLocationImage} from "persistence/locations";
 import {MIMETYPE_PNG, MIMETYPE_JPEG, MIMETYPE_GIF} from "persistence/mimeTypes";
+import {UNSPECIFIED_NAME} from "persistence/projects";
 
-import {imageBitmapToPngBytes} from 'sl-web-face';
-import {createOffScreenContext} from "../../common/canvasUtil";
+import {imageBitmapToPngBytes, pngBytesToImageBitmap} from 'sl-web-face';
 
 async function _selectImageFileHandle():Promise<FileSystemFileHandle|null> {
   const openFileOptions = {
@@ -67,4 +68,10 @@ export function onChooseBackground(backgroundImage:ImageBitmap, backgroundImageK
   setRevision(revisionManager.currentRevision);
   setBackgroundImage(backgroundImage);
   setModalDialog(null);
+}
+
+export async function getBackgroundImageBitmap(backgroundImageKey:string):Promise<ImageBitmap|null> {
+  if (backgroundImageKey === UNSPECIFIED_NAME) return null;
+  const imageBytes = await getLocationImage(backgroundImageKey);
+  return imageBytes ? await pngBytesToImageBitmap(imageBytes) : null;
 }

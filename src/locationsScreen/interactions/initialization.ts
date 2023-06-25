@@ -1,13 +1,12 @@
+import {getBackgroundImageBitmap} from "./backgroundImageInteractions";
 import {bindSetDisabled, initCore} from "./coreUtil";
-import {getLocation, getLocationCount, getLocationImage} from "persistence/locations";
+import {getLocation, getLocationCount} from "persistence/locations";
 import {
   getActiveLocationName,
   getActiveProjectName,
   UNSPECIFIED_NAME
 } from "persistence/projects";
 import {getRevisionManager, UNSELECTED} from "./revisionUtil";
-
-import { pngBytesToImageBitmap } from 'sl-web-face';
 
 type InitResults = {
   locationName:string,
@@ -25,12 +24,6 @@ function _setInitialized() {
   initializedProjectName = getActiveProjectName();
 }
 
-async function _getBackgroundImageBitmap(backgroundImageKey:string):Promise<ImageBitmap|null> {
-  if (backgroundImageKey === UNSPECIFIED_NAME) return null;
-  const imageBytes = await getLocationImage(backgroundImageKey);
-  return imageBytes ? await pngBytesToImageBitmap(imageBytes) : null;
-}
-
 /* Handle any initialization needed for mount after a previous initialization was completed. This will cover
    refreshing any module-scope vars that stored instances tied to a React component's lifetime and calling setters
    to on React components to synchronize their state with module-scope vars. */
@@ -38,7 +31,7 @@ async function _initForSubsequentMount(setDisabled:Function):Promise<ImageBitmap
   bindSetDisabled(setDisabled);
   const revisionManager = getRevisionManager();
   const backgroundImageKey = revisionManager.currentRevision.location.backgroundImageKey;
-  return await _getBackgroundImageBitmap(backgroundImageKey);
+  return await getBackgroundImageBitmap(backgroundImageKey);
 }
 
 export async function init(setDisabled:Function, _setRevision:Function):Promise<InitResults> {
@@ -62,7 +55,7 @@ export async function init(setDisabled:Function, _setRevision:Function):Promise<
   const location = await getLocation(locationName);
   if (location) {
     const nextRevision = { location, selectedFaceNo:UNSELECTED };
-    initResults.backgroundImage = await _getBackgroundImageBitmap(location.backgroundImageKey);
+    initResults.backgroundImage = await getBackgroundImageBitmap(location.backgroundImageKey);
     revisionManager.clear(nextRevision);
   }
   _setRevision(revisionManager.currentRevision);

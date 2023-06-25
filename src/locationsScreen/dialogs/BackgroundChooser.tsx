@@ -1,14 +1,22 @@
-import DocumentChooser from "ui/dialog/DocumentChooser";
+import {onImportImage} from "locationsScreen/interactions/backgroundImageInteractions";
 import {KeyValueRecord} from "persistence/pathStore";
-import {getAllLocationRecords} from "persistence/locations";
+import {getAllLocationRecords, getLocation, getLocationImage} from "persistence/locations";
 import {UNSPECIFIED_NAME} from "persistence/projects";
+import ConfirmCancelDialog from "ui/dialog/ConfirmCancelDialog";
+import DocumentChooser from "ui/dialog/DocumentChooser";
+import { importantToast } from "ui/toasts/toastUtil";
 
 import {useEffect, useState} from "react";
-import ConfirmCancelDialog from "../../ui/dialog/ConfirmCancelDialog";
-import {onImportImage} from "../interactions/backgroundImageInteractions";
+import { pngBytesToImageBitmap } from "sl-web-face";
 
-function _onChooseLocation(locationName:string) {
-  //TODO
+async function _onChooseLocation(locationName:string, onChoose:Function) {
+  const location = await getLocation(locationName);
+  if (!location) throw Error('Unexpected');
+  if (!location.backgroundImageKey) { importantToast(`"${locationName}" location does not have a background image to copy.`); return; }
+  const imageBytes = await getLocationImage(location.backgroundImageKey);
+  if (!imageBytes) throw Error('Unexpected');
+  const imageBitmap = await pngBytesToImageBitmap(imageBytes);
+  onChoose(imageBitmap, location.backgroundImageKey);
 }
 
 interface IProps {
@@ -47,7 +55,7 @@ function BackgroundChooser(props:IProps) {
       isOpen={isOpen}
       newText={IMPORT_IMAGE}
       onCancel={onCancel}
-      onChoose={(locationName) => _onChooseLocation(locationName)}
+      onChoose={(locationName) => _onChooseLocation(locationName, onChoose)}
       onNew={() => onImportImage(onChoose)}
       originalDocumentName={UNSPECIFIED_NAME}
       title={TITLE}

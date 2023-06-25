@@ -4,6 +4,7 @@ import {UNSPECIFIED_IMAGE_KEY} from "persistence/imageUtil";
 import {setLocation} from "persistence/locations";
 import {getActiveLocationName} from "persistence/projects";
 import Location from "persistence/types/Location";
+import {getBackgroundImageBitmap} from "./backgroundImageInteractions";
 
 export type Revision = {
   location:Location,
@@ -38,19 +39,29 @@ export function getRevisionForMount():Revision {
   return revisionManager.currentRevision;
 }
 
-export async function onUndo(setRevision:Function) {
-  await performDisablingOperation(() => {
-    const _revisionManager = getRevisionManager();
-    _revisionManager.prev();
-    setRevision(_revisionManager.currentRevision);
+async function _changeBackgroundImageAsNeeded(previousBackgroundImageKey:string, setBackgroundImage:Function) {
+  const currentBackgroundImageKey = revisionManager.currentRevision.location.backgroundImageKey;
+  if (currentBackgroundImageKey !== previousBackgroundImageKey) {
+    const backgroundImage = await getBackgroundImageBitmap(currentBackgroundImageKey);
+    setBackgroundImage(backgroundImage);
+  }
+}
+
+export async function onUndo(setRevision:Function, setBackgroundImage:Function) {
+  await performDisablingOperation(async () => {
+    const currentBackgroundImageKey = revisionManager.currentRevision.location.backgroundImageKey;
+    revisionManager.prev();
+    setRevision(revisionManager.currentRevision);
+    await _changeBackgroundImageAsNeeded(currentBackgroundImageKey, setBackgroundImage);
   });
 }
 
-export async function onRedo(setRevision:Function) {
-  await performDisablingOperation(() => {
-    const _revisionManager = getRevisionManager();
-    _revisionManager.next();
-    setRevision(_revisionManager.currentRevision);
+export async function onRedo(setRevision:Function, setBackgroundImage:Function) {
+  await performDisablingOperation(async () => {
+    const currentBackgroundImageKey = revisionManager.currentRevision.location.backgroundImageKey;
+    revisionManager.next();
+    setRevision(revisionManager.currentRevision);
+    await _changeBackgroundImageAsNeeded(currentBackgroundImageKey, setBackgroundImage);
   });
 }
 

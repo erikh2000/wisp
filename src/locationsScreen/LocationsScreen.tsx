@@ -42,8 +42,8 @@ function LocationsScreen() {
     {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
     {text:'Export', onClick:emptyCallback, groupNo:0, disabled:true},
 
-    {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled:undoDisabled},
-    {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled:redoDisabled}
+    {text:'Undo', onClick:() => onUndo(setRevision, setBackgroundImage), groupNo:1, disabled:undoDisabled},
+    {text:'Redo', onClick:() => onRedo(setRevision, setBackgroundImage), groupNo:1, disabled:redoDisabled}
   ];
 
   return (
