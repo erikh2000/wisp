@@ -4,6 +4,7 @@
 .row {
     list-style-type: none;
     margin-right: 1.5rem;
+    cursor: pointer;
 }
 
 .rowSelected {
@@ -15,6 +16,7 @@
 .rowDisabled {
     composes: row;
     color: button-text-disabled;
+    cursor: default;
 }
 
 .date {
