@@ -49,3 +49,12 @@
     composes: menuBarButtonText;
     color: button-text-highlight;
 }
+
+/* The 90 degree rotation on texts wrecks the centering. The corrections below are based on the text. This seems
+   hard to maintain and likely to fail on different browsers. Maybe there is a better solution. Worst case, I can
+   create images for button text, but that's cumbersome for localization. */
+.faces { margin-top: .5rem; }
+.spiels { margin-top: 1.3rem; }
+.locations { margin-top: 3.2rem; }
+.speech { margin-top: 1.9rem; }
+.projects { margin-top: 2.3rem; }
