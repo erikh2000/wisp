@@ -181,7 +181,7 @@ function FacesScreen() {
       setInitResults(nextInitResults);
       setDisabled(false);
     });
-    return deinit();
+    return () => deinit();
   }, []);
   
   useEffect(() => {
