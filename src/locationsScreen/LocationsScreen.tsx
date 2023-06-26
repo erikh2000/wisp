@@ -1,7 +1,15 @@
 import BackgroundChooser from "./dialogs/BackgroundChooser";
+import ConfirmDeleteLocationDialog from "./dialogs/ConfirmDeleteLocationDialog";
 import NewLocationDialog from "./dialogs/NewLocationDialog";
 import OpenLocationChooser from "./dialogs/OpenLocationChooser";
+import RenameLocationDialog from "./dialogs/RenameLocationDialog";
 import {onChooseBackground} from "./interactions/backgroundImageInteractions";
+import {
+  onConfirmDeleteLocation,
+  onNewLocation,
+  onOpenLocation,
+  onRenameLocation
+} from "./interactions/fileInteractions";
 import {init} from './interactions/initialization';
 import {getRevisionForMount, onUndo, onRedo, updateUndoRedoDisabled, Revision} from "./interactions/revisionUtil";
 import LocationSettingsPane from "./panes/LocationSettingsPane";
@@ -10,8 +18,7 @@ import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
 
 import React, {useEffect, useState} from "react";
-import {onNewLocation, onOpenLocation, onRenameLocation} from "./interactions/fileInteractions";
-import RenameLocationDialog from "./dialogs/RenameLocationDialog";
+import {useNavigate} from "react-router-dom";
 
 const emptyCallback = () => {}; // TODO delete when not using
 
@@ -23,6 +30,7 @@ function LocationsScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [backgroundImage, setBackgroundImage] = useState<ImageBitmap|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     init(setDisabled, setRevision).then(initResults => {
@@ -43,9 +51,7 @@ function LocationsScreen() {
     {text:'New', onClick:() => setModalDialog(NewLocationDialog.name), groupNo:0, disabled},
     {text:'Open', onClick:() => setModalDialog(OpenLocationChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:() => setModalDialog(RenameLocationDialog.name), groupNo:0, disabled},
-    {text:'Delete', onClick:emptyCallback, groupNo:0, disabled:true},
-    {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
-    {text:'Export', onClick:emptyCallback, groupNo:0, disabled:true},
+    {text:'Delete', onClick:() => setModalDialog(ConfirmDeleteLocationDialog.name), groupNo:0, disabled},
 
     {text:'Undo', onClick:() => onUndo(setRevision, setBackgroundImage), groupNo:1, disabled:undoDisabled},
     {text:'Redo', onClick:() => onRedo(setRevision, setBackgroundImage), groupNo:1, disabled:redoDisabled}
@@ -82,6 +88,12 @@ function LocationsScreen() {
           isOpen={modalDialog === RenameLocationDialog.name}
           onCancel={() => setModalDialog(null)}
           onSubmit={(locationName) => onRenameLocation(documentName, locationName, setDocumentName, setModalDialog)}
+        />
+        <ConfirmDeleteLocationDialog
+          isOpen={modalDialog === ConfirmDeleteLocationDialog.name}
+          locationName={documentName}
+          onCancel={() => setModalDialog(null)}
+          onConfirm={() => onConfirmDeleteLocation(documentName, navigate)}
         />
     </ScreenContainer>
   );

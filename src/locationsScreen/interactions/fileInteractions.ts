@@ -1,7 +1,10 @@
-import {createDefaultRevision, getRevisionManager, Revision, UNSELECTED} from "./revisionUtil";
-import {setActiveLocationName} from "persistence/projects";
-import {getLocation, renameLocation} from "persistence/locations";
 import {getBackgroundImageBitmap} from "./backgroundImageInteractions";
+import {createDefaultRevision, getRevisionManager, Revision, UNSELECTED} from "./revisionUtil";
+import {deleteLocation, getLocation, renameLocation} from "persistence/locations";
+import {setActiveLocationName, UNSPECIFIED_NAME} from "persistence/projects";
+import Screen, {screenConfigs} from "ui/screen/screens";
+
+import {NavigateFunction} from "react-router";
 
 export async function onNewLocation(locationName:string, setDocumentName:Function, setBackgroundImage:Function, setModalDialog:Function, setRevision:Function) {
   await setActiveLocationName(locationName);
@@ -36,4 +39,15 @@ export async function onRenameLocation(currentLocationName:string, nextLocationN
   await setActiveLocationName(nextLocationName);
   setDocumentName(nextLocationName);
   setModalDialog(null);
+}
+
+export async function onConfirmDeleteLocation(locationName:string, navigate:NavigateFunction) {
+  try {
+    await deleteLocation(locationName);
+    await setActiveLocationName(UNSPECIFIED_NAME);
+    const revisionManager = getRevisionManager();
+    revisionManager.clear();
+  } finally {
+    navigate(screenConfigs[Screen.HOME].url);
+  }
 }

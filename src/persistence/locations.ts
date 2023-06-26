@@ -1,22 +1,22 @@
+import {storeImageAtPath} from "./imageUtil";
 import {
   LOCATION_IMAGES_PATH_TEMPLATE,
   LOCATION_KEY_TEMPLATE,
-  LOCATIONS_PATH_TEMPLATE,
-  SPIELS_PATH_TEMPLATE
+  LOCATIONS_PATH_TEMPLATE
 } from "./keyPaths";
+import {MIMETYPE_WISP_LOCATION} from "./mimeTypes";
 import {
-  deleteAllKeysAtPathExcept,
+  deleteAllKeysAtPathExcept, deleteByKey,
   getAllKeysAtPath,
   getAllValuesAtPath,
   getBytes,
   getText,
-  KeyValueRecord, renameKey,
+  KeyValueRecord, 
+  renameKey,
   setText
 } from "./pathStore";
 import {fillTemplate, keyToName} from "./pathUtil";
 import {getActiveProjectName, renameLocationReferencesInProject} from "./projects";
-import {MIMETYPE_WISP_LOCATION} from "./mimeTypes";
-import {storeImageAtPath} from "./imageUtil";
 import Location from "./types/Location";
 
 import {parse, stringify} from "yaml";
@@ -65,11 +65,6 @@ export async function getAllLocationKeys(projectName:string = getActiveProjectNa
   return await getAllKeysAtPath(locationsPath);
 }
 
-export async function getAllLocationImageKeys(projectName:string = getActiveProjectName()):Promise<string[]> {
-  const locationImagesPath = fillTemplate(LOCATION_IMAGES_PATH_TEMPLATE, {projectName})
-  return await getAllKeysAtPath(locationImagesPath);
-}
-
 export async function deleteUnusedLocationImages(projectName:string = getActiveProjectName()) {
   const locationKeys = await getAllLocationKeys(projectName);
   const usedImageKeys:string[] = [];
@@ -90,4 +85,9 @@ export async function renameLocation(currentLocationName:string, nextLocationNam
   const nextKey = fillTemplate(LOCATION_KEY_TEMPLATE, {projectName, locationName:nextLocationName});
   await renameKey(currentKey, nextKey);
   await renameLocationReferencesInProject(currentLocationName, nextLocationName, projectName);
+}
+
+export async function deleteLocation(locationName:string, projectName:string = getActiveProjectName()):Promise<void> {
+  const key = fillTemplate(LOCATION_KEY_TEMPLATE, {projectName, locationName});
+  await deleteByKey(key);
 }
