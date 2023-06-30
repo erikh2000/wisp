@@ -1,13 +1,15 @@
+import {getBackgroundImageBitmap} from "./backgroundImageInteractions";
 import {performDisablingOperation} from "./coreUtil";
 import RevisionManager from "documents/RevisionManager";
+import LocationFaces from "locationsScreen/interactions/LocationFaces";
 import {UNSPECIFIED_IMAGE_KEY} from "persistence/imageUtil";
 import {setLocation} from "persistence/locations";
 import {getActiveLocationName} from "persistence/projects";
 import Location from "persistence/types/Location";
-import {getBackgroundImageBitmap} from "./backgroundImageInteractions";
 
 export type Revision = {
   location:Location,
+  locationFaces:LocationFaces,
   selectedFaceNo:number
 }
 
@@ -21,6 +23,7 @@ async function onPersistRevision(revision:Revision):Promise<void> {
 export function createDefaultRevision():Revision {
   return {
     location:{backgroundImageKey:UNSPECIFIED_IMAGE_KEY, facePlacements:[]},
+    locationFaces:{},
     selectedFaceNo:UNSELECTED
   };
 }

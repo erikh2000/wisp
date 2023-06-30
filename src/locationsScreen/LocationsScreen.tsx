@@ -10,9 +10,11 @@ import {
   onOpenLocation,
   onRenameLocation
 } from "./interactions/fileInteractions";
-import {init} from './interactions/initialization';
+import {init, InitResults} from './interactions/initialization';
+import {onAddFace} from "./interactions/placementInteractions";
 import {getRevisionForMount, onUndo, onRedo, updateUndoRedoDisabled, Revision} from "./interactions/revisionUtil";
 import LocationSettingsPane from "./panes/LocationSettingsPane";
+import OpenFaceChooser from "facesCommon/dialogs/OpenFaceChooser";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
@@ -30,10 +32,12 @@ function LocationsScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [backgroundImage, setBackgroundImage] = useState<ImageBitmap|null>(null);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
+  const [initResults, setInitResults] = useState<InitResults|null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     init(setDisabled, setRevision).then(initResults => {
+      setInitResults(initResults);
       setDocumentName(initResults.locationName);
       setBackgroundImage(initResults.backgroundImage);
       setDisabled(false);
@@ -61,7 +65,12 @@ function LocationsScreen() {
     <ScreenContainer documentName={documentName} isControlPaneOpen={true} activeScreen={Screen.LOCATIONS} actionBarButtons={actionBarButtons}>
         <LocationSettingsPane
           backgroundImage={backgroundImage}
-          onAddFace={emptyCallback}
+          facePlacements={revision.location.facePlacements}
+          locationFaces={revision.locationFaces}
+          onAddFace={() => setModalDialog(OpenFaceChooser.name)}
+          onCanvasMouseDown={initResults?.onCanvasMouseDown}
+          onCanvasMouseMove={initResults?.onCanvasMouseMove}
+          onCanvasMouseUp={initResults?.onCanvasMouseUp}
           onDeleteFace={emptyCallback}
           onChooseBackground={() => setModalDialog(BackgroundChooser.name)}
           disabled={disabled}
@@ -94,6 +103,12 @@ function LocationsScreen() {
           locationName={documentName}
           onCancel={() => setModalDialog(null)}
           onConfirm={() => onConfirmDeleteLocation(documentName, navigate)}
+        />
+        <OpenFaceChooser
+          isOpen={modalDialog === OpenFaceChooser.name}
+          onCancel={() => setModalDialog(null)}
+          onChoose={(faceName) => onAddFace(faceName, setModalDialog, setRevision)}
+          originalDocumentName={UNSPECIFIED_NAME}
         />
     </ScreenContainer>
   );

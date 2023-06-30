@@ -26,6 +26,7 @@ export async function onOpenLocation(locationName:string, setDocumentName:Functi
   const revisionManager = getRevisionManager();
   const nextRevision:Revision = {
     location,
+    locationFaces:{}, // TODO: Load from location
     selectedFaceNo: location.facePlacements.length ? 0 : UNSELECTED
   }
   revisionManager.clear(nextRevision);

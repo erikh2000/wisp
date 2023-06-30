@@ -1,6 +1,6 @@
 import {getHead, getPartUiManager, performDisablingOperation, setHead} from "./coreUtil";
 import {getRevisionManager, setUpRevisionForNewFace} from "./revisionUtil";
-import NewFaceDialog from "facesScreen/fileDialogs/NewFaceDialog";
+import NewFaceDialog from "facesScreen/dialogs/NewFaceDialog";
 import {DEFAULT_FACE_URL, loadFaceFromName, loadDefaultFace} from "facesCommon/interactions/fileInteractions";
 import {deleteFace} from "persistence/faces";
 import {MIMETYPE_WISP_FACE} from "persistence/mimeTypes";

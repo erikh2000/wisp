@@ -1,9 +1,9 @@
 import FacesScreenSettings from "./FacesScreenSettings";
 import styles from './FacesScreen.module.css';
-import ConfirmDeleteFaceDialog from "./fileDialogs/ConfirmDeleteFaceDialog";
-import NewFaceDialog from "./fileDialogs/NewFaceDialog";
-import RenameFaceDialog from "./fileDialogs/RenameFaceDialog";
-import OpenFaceChooser from "./fileDialogs/OpenFaceChooser";
+import ConfirmDeleteFaceDialog from "./dialogs/ConfirmDeleteFaceDialog";
+import NewFaceDialog from "./dialogs/NewFaceDialog";
+import RenameFaceDialog from "./dialogs/RenameFaceDialog";
+import OpenFaceChooser from "facesCommon/dialogs/OpenFaceChooser";
 import PartSelector, {PartType} from "./PartSelector";
 import {isHeadReady, UNSPECIFIED} from "./interactions/coreUtil";
 import {
