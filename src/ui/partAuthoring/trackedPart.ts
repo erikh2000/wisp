@@ -1,12 +1,24 @@
 import {CanvasComponent} from "sl-web-face";
 import {loadSelectionBox} from "./SelectionBoxCanvasComponent";
 
-export type TrackedPart = {
-  component:CanvasComponent,
+export type TrackedPartOptions = {
   isMovable:boolean,
   isResizable:boolean,
+  resizeChildren:boolean,
+  constrainAspectRatio:boolean
+}
+
+export type TrackedPart = TrackedPartOptions & {
+  component:CanvasComponent,
   selectionBox:CanvasComponent
 };
+
+export const DEFAULT_TRACKED_PART_OPTIONS:TrackedPartOptions = {
+  isMovable: true,
+  isResizable: false,
+  resizeChildren: false,
+  constrainAspectRatio: false
+}
 
 export async function loadPartUi(component:CanvasComponent, isResizable:boolean):Promise<CanvasComponent> {
   const selectionBox:CanvasComponent = await loadSelectionBox(component.width, component.height, isResizable);
@@ -66,9 +78,9 @@ export function createTrackedPartsForFace(headComponent:CanvasComponent):Tracked
   const childCount = children.length;
   for (let childI = childCount-1; childI >= 0; --childI) {
     const child = children[childI];
-    trackedParts.push({component:child, selectionBox:componentPlaceholder, isResizable:true, isMovable:true});
+    trackedParts.push({component:child, selectionBox:componentPlaceholder, isResizable:true, isMovable:true, resizeChildren:false, constrainAspectRatio:false});
   }
-  trackedParts.push({component:headComponent, selectionBox:componentPlaceholder, isResizable:true, isMovable:false});
+  trackedParts.push({component:headComponent, selectionBox:componentPlaceholder, isResizable:true, isMovable:false, resizeChildren:false, constrainAspectRatio:false});
   return trackedParts;
 }
 

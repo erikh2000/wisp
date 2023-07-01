@@ -15,15 +15,15 @@ import {
   ResizeOperation
 } from "./resizeOperation";
 import {
-  createTrackedPartsForFace,
+  createTrackedPartsForFace, DEFAULT_TRACKED_PART_OPTIONS,
   findNextPartAtCoords,
   findPartAtCoords,
-  findPartByComponent, 
+  findPartByComponent,
   findPartById,
   hidePartUi, isPartAtCoords,
   loadPartUi, removeMissingParts,
   showPartUi,
-  TrackedPart
+  TrackedPart, TrackedPartOptions
 } from "./trackedPart";
 import {CanvasComponent} from "sl-web-face";
 
@@ -154,11 +154,11 @@ class PartUiManager {
     }
   }
 
-  async addPart(component:CanvasComponent, isMovable:boolean, isResizable:boolean) {
-    this._trackedParts.push({
-      component, isMovable, isResizable,
-      selectionBox: await loadPartUi(component, isResizable)
-    });
+  async addPart(component:CanvasComponent, options:Partial<TrackedPartOptions>) {
+    const {isMovable, isResizable, resizeChildren, constrainAspectRatio} =
+      {...DEFAULT_TRACKED_PART_OPTIONS, ...options};
+    const selectionBox = await loadPartUi(component, isResizable);
+    this._trackedParts.push({ component, isMovable, isResizable, resizeChildren, constrainAspectRatio, selectionBox });
   }
   
   async replacePart(oldComponent:CanvasComponent, newComponent:CanvasComponent) {
@@ -187,7 +187,7 @@ class PartUiManager {
           await this.replacePart(currentPart.component, nextPart.component);
         }
       } else {
-        await this.addPart(nextPart.component, nextPart.isMovable, nextPart.isResizable);
+        await this.addPart(nextPart.component, {isMovable:nextPart.isMovable, isResizable:nextPart.isResizable});
       }
     }
   }

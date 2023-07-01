@@ -88,56 +88,67 @@ export function onResizeDuringDrag(part:TrackedPart, operation:ResizeOperation, 
   operation.resizeButton.y = constrainedY;
   const deltaX = constrainedX - operation.previousResizeX;
   const deltaY = constrainedY - operation.previousResizeY;
-
+  
   const { selectionBox, component } = part;
+  let nextX = component.x, nextY = component.y;
+  let nextWidth = component.width, nextHeight = component.height;
   switch(operation.resizingType) {
     case ResizingType.TOPLEFT:
-      component.width = operation.previousWidth - deltaX;
-      component.height = operation.previousHeight - deltaY;
+      nextWidth = operation.previousWidth - deltaX;
+      nextHeight = operation.previousHeight - deltaY;
       if (part.isMovable) {
-        component.x = operation.previousX + deltaX;
-        component.y = operation.previousY + deltaY;
+        nextX = operation.previousX + deltaX;
+        nextY = operation.previousY + deltaY;
       }
       break;
 
     case ResizingType.TOP:
-      component.height = operation.previousHeight - deltaY;
-      if (part.isMovable) component.y = operation.previousY + deltaY;
+      nextHeight = operation.previousHeight - deltaY;
+      if (part.isMovable) nextY = operation.previousY + deltaY;
       break;
 
     case ResizingType.TOPRIGHT:
-      component.width = operation.previousWidth + deltaX;
-      component.height = operation.previousHeight - deltaY;
-      if (part.isMovable) component.y = operation.previousY + deltaY;
+      nextWidth = operation.previousWidth + deltaX;
+      nextHeight = operation.previousHeight - deltaY;
+      if (part.isMovable) nextY = operation.previousY + deltaY;
       break;
 
     case ResizingType.LEFT:
-      component.width = operation.previousWidth - deltaX;
-      if (part.isMovable) component.x = operation.previousX + deltaX;
+      nextWidth = operation.previousWidth - deltaX;
+      if (part.isMovable) nextX = operation.previousX + deltaX;
       break;
 
     case ResizingType.RIGHT:
-      component.width = operation.previousWidth + deltaX;
+      nextWidth = operation.previousWidth + deltaX;
       break;
 
     case ResizingType.BOTTOMLEFT:
-      component.width = operation.previousWidth - deltaX;
-      component.height = operation.previousHeight + deltaY;
-      if (part.isMovable) component.x = operation.previousX + deltaX;
+      nextWidth = operation.previousWidth - deltaX;
+      nextHeight = operation.previousHeight + deltaY;
+      if (part.isMovable) nextX = operation.previousX + deltaX;
       break;
 
     case ResizingType.BOTTOM:
-      component.height = operation.previousHeight + deltaY;
+      nextHeight = operation.previousHeight + deltaY;
       break;
 
     case ResizingType.BOTTOMRIGHT:
-      component.width = operation.previousWidth + deltaX;
-      component.height = operation.previousHeight + deltaY;
+      nextWidth = operation.previousWidth + deltaX;
+      nextHeight = operation.previousHeight + deltaY;
       break;
   }
-
-  selectionBox.width = component.width;
-  selectionBox.height = component.height;
+  
+  if (part.constrainAspectRatio) {
+    // TODO
+  }
+  if (part.resizeChildren) {
+    component.resize(nextWidth, nextHeight);
+  } else {
+    component.width = selectionBox.width = nextWidth;
+    component.height = selectionBox.height = nextHeight;
+  }
+  component.x = nextX;
+  component.y = nextY;
   updateResizingButtonPositions(selectionBox);
 }
 

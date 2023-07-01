@@ -54,7 +54,7 @@ function _startLoadingLocationFaces(facePlacements:FacePlacement[], partUiManage
       face.y = facePlacement.y;
       if (facePlacement.w !== face.width || facePlacement.h !== face.height) face.resize(facePlacement.w, facePlacement.h);
       locationFaces[facePlacement.characterName] = face;
-      partUiManager.addPart(face, true, true);
+      partUiManager.addPart(face, {isMovable:true, isResizable:true, resizeChildren:true, constrainAspectRatio:true});
     });
   }
   return locationFaces;
