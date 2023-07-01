@@ -4,7 +4,9 @@ import FacePlacement from "persistence/types/FacePlacement";
 
 import { CanvasComponent } from "sl-web-face";
 import {loadFaceFromName} from "../../facesCommon/interactions/fileInteractions";
-import {getRevisionManager} from "./revisionUtil";
+import {getRevisionManager, UNSELECTED} from "./revisionUtil";
+import {UNSPECIFIED_NAME} from "../../persistence/projects";
+import {getPartUiManager} from "./coreUtil";
 
 function _drawSolidBackground(context:CanvasRenderingContext2D) {
   context.fillStyle = 'white';
@@ -47,11 +49,11 @@ export async function onAddFace(faceName:string, setModalDialog:Function, setRev
   const facePlacements = [...currentRevision.location.facePlacements];
   let facePlacement = _findFacePlacementByName(facePlacements, faceName);
   if (!facePlacement) {
-    facePlacement = { characterName:faceName, x: 0, y: 0, w:0, h:0 };
+    facePlacement = { characterName:faceName, x: 0, y: 0, width:0, height:0 };
     facePlacements.push(facePlacement);
   }
-  facePlacement.w = headComponent.width;
-  facePlacement.h = headComponent.height;
+  facePlacement.width = headComponent.width;
+  facePlacement.height = headComponent.height;
   const location = {...currentRevision.location, facePlacements};
   revisionManager.addChanges({locationFaces, location});
   setRevision(revisionManager.currentRevision);
@@ -75,16 +77,75 @@ export function onDrawPlacementCanvas(context:CanvasRenderingContext2D, backgrou
   }
 }
 
-export function onPartFocused(part:CanvasComponent|null):void {
-  // TODO
+function _findFaceNameForCanvasComponent(locationFaces:LocationFaces, canvasComponent:CanvasComponent):string {
+  for(const faceName in locationFaces) {
+    const faceComponent = locationFaces[faceName];
+    if (!faceComponent) throw Error('Unexpected');
+    if (faceComponent.id === canvasComponent.id) return faceName; 
+  }
+  return UNSPECIFIED_NAME;
 }
 
-export function onPartMoved(part:CanvasComponent, x:number, y:number):boolean {
-  // TODO
+function _findFaceNoForName(facePlacements:FacePlacement[], faceName:string):number {
+  for(let faceNo = 0; faceNo < facePlacements.length; ++faceNo) {
+    const facePlacement = facePlacements[faceNo];
+    if (facePlacement.characterName === faceName) return faceNo;
+  }
+  return UNSELECTED;
+}
+
+function _findFaceMatchingCanvasComponent(locationFaces:LocationFaces, facePlacements:FacePlacement[], canvasComponent:CanvasComponent):number {
+  let matchedFaceName = _findFaceNameForCanvasComponent(locationFaces, canvasComponent);
+  return _findFaceNoForName(facePlacements, matchedFaceName);
+}
+
+export function onPartFocused(part:CanvasComponent|null, setRevision:Function):void {
+  const revisionManager = getRevisionManager();
+  const currentRevision = revisionManager.currentRevision;
+  const {location, locationFaces} = currentRevision;
+  const selectedFaceNo = part === null ? UNSELECTED : _findFaceMatchingCanvasComponent(locationFaces, location.facePlacements, part);
+  if (currentRevision.selectedFaceNo !== selectedFaceNo) {
+    revisionManager.addChanges({selectedFaceNo});
+    setRevision(revisionManager.currentRevision);
+  }
+}
+
+function _updateLocationForPartMovement(part:CanvasComponent, x:number, y:number, width:number, height:number, setRevision:Function) {
+  const revisionManager = getRevisionManager();
+  const currentRevision = revisionManager.currentRevision;
+  const location = {...currentRevision.location};
+  const facePlacements = location.facePlacements = [...location.facePlacements];
+  const faceNo = _findFaceMatchingCanvasComponent(currentRevision.locationFaces, facePlacements, part);
+  if (faceNo === UNSELECTED) throw Error('Unexpected');
+  const facePlacement = facePlacements[faceNo];
+  if (x === facePlacement.x && y === facePlacement.y && width === facePlacement.width && height === facePlacement.height) return;
+  facePlacements[faceNo] = {...facePlacement, x, y, width, height};
+  revisionManager.addChanges({location});
+  setRevision(revisionManager.currentRevision);
+}
+
+export function onPartMoved(part:CanvasComponent, x:number, y:number, setRevision:Function):boolean {
+  _updateLocationForPartMovement(part, x, y, part.width, part.height, setRevision);
   return true;
 }
 
-export function onPartResized(part:CanvasComponent, x:number, y:number, width:number, height:number):boolean {
-  // TODO
+export function onPartResized(part:CanvasComponent, x:number, y:number, width:number, height:number, setRevision:Function):boolean {
+  _updateLocationForPartMovement(part, x, y, width, height, setRevision);
   return true;
+}
+
+export function onRemoveFace(faceNo:number, setRevision:Function) {
+  if (faceNo === UNSELECTED) throw Error('Unexpected');
+  const revisionManager = getRevisionManager();
+  const currentRevision = revisionManager.currentRevision;
+  const location = {...currentRevision.location};
+  const facePlacements = location.facePlacements = [...location.facePlacements];
+  const locationFaces = {...currentRevision.locationFaces};
+  const faceName = facePlacements[faceNo].characterName;
+  const headComponent = locationFaces[faceName];
+  if (headComponent) getPartUiManager().removePart(headComponent);
+  delete locationFaces[faceName];
+  facePlacements.splice(faceNo, 1);
+  revisionManager.addChanges({locationFaces, location, selectedFaceNo:UNSELECTED});
+  setRevision(revisionManager.currentRevision);
 }

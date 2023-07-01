@@ -41,9 +41,9 @@ export interface IPartFocusedCallback {
 
 class PartUiManager {
   private _trackedParts:TrackedPart[];
-  private readonly _onPartFocused:IPartFocusedCallback;
-  private readonly _onPartMoved:IPartMovedCallback;
-  private readonly _onPartResized:IPartResizedCallback;
+  private _onPartFocused:IPartFocusedCallback;
+  private _onPartMoved:IPartMovedCallback;
+  private _onPartResized:IPartResizedCallback;
   private _focusedPart:TrackedPart|null;
   private _operation:Operation|null;
   private _operationType:OperationType;
@@ -66,6 +66,10 @@ class PartUiManager {
     showPartUi(nextFocusedPart);
     this._focusedPart = nextFocusedPart;
     this._onPartFocused(nextFocusedPart.component);
+  }
+  
+  isFocused(component:CanvasComponent) {
+    return this._focusedPart && this._focusedPart.component.id === component.id;
   }
   
   clearFocus() {
@@ -171,6 +175,7 @@ class PartUiManager {
   }
   
   removePart(component:CanvasComponent) {
+    if (this.isFocused(component)) this.clearFocus();
     this._trackedParts = this._trackedParts.filter(part => part.component.id !== component.id);
   }
   
@@ -191,6 +196,19 @@ class PartUiManager {
       }
     }
   }
+  
+  bindOnPartFocused(onPartFocused:IPartFocusedCallback) {
+    this._onPartFocused = onPartFocused;
+  }
+  
+  bindOnPartMoved(onPartMoved:IPartMovedCallback) {
+    this._onPartMoved = onPartMoved;
+  }
+  
+  bindOnPartResized(onPartResized:IPartResizedCallback) {
+    this._onPartResized = onPartResized;
+  }
+  
 }
 
 export default PartUiManager;

@@ -6,6 +6,7 @@ import Canvas from "ui/Canvas";
 import InnerContentPane, {ButtonDefinition} from "ui/innerContentPane/InnerContentPane";
 
 import React from "react";
+import {UNSELECTED} from "../interactions/revisionUtil";
 
 interface IProps {
   backgroundImage:ImageBitmap|null,
@@ -13,26 +14,28 @@ interface IProps {
   facePlacements:FacePlacement[],
   locationFaces:LocationFaces,
   onAddFace:() => void,
-  onDeleteFace:(faceName:string) => void,
+  onRemoveFace:(faceNo:number) => void,
   onCanvasMouseUp?:Function,
   onCanvasMouseDown?:Function,
   onCanvasMouseMove?:Function,
-  onChooseBackground:(backgroundImage:ImageBitmap) => void
+  onChooseBackground:(backgroundImage:ImageBitmap) => void,
+  selectedFaceNo:number
 }
 
-function _generateButtonDefinitions(onAddFace:Function, onDeleteFace:Function, onChooseBackground:Function, disabled:boolean):ButtonDefinition[] {
+function _generateButtonDefinitions(selectedFaceNo:number, onAddFace:Function, onRemoveFace:Function, onChooseBackground:Function, disabled:boolean):ButtonDefinition[] {
   return [
     {text:'Add Face', onClick:() => onAddFace(), disabled},
-    {text:'Delete Face', onClick:() => onDeleteFace(), disabled:true},
+    {text:'Remove Face', onClick:() => onRemoveFace(selectedFaceNo), disabled:selectedFaceNo === UNSELECTED},
     {text:'Choose Background', onClick:() => onChooseBackground(), disabled}
   ];
 }
 
 function LocationSettingsPane(props:IProps) {
-  const {backgroundImage, disabled, onAddFace, onCanvasMouseMove, onCanvasMouseUp, onCanvasMouseDown, 
-    onDeleteFace, onChooseBackground, locationFaces, facePlacements} = props;
+  const {backgroundImage, disabled, onAddFace, onCanvasMouseMove, 
+    onCanvasMouseUp, onCanvasMouseDown, onRemoveFace, onChooseBackground, 
+    locationFaces, facePlacements, selectedFaceNo} = props;
 
-  const buttons = _generateButtonDefinitions(onAddFace, onDeleteFace, onChooseBackground, disabled);
+  const buttons = _generateButtonDefinitions(selectedFaceNo, onAddFace, onRemoveFace, onChooseBackground, disabled);
   
   return  (
     <InnerContentPane className={styles.locationSettingsPane} caption='Location Settings' buttons={buttons}>

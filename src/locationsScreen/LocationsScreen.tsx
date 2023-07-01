@@ -11,7 +11,7 @@ import {
   onRenameLocation
 } from "./interactions/fileInteractions";
 import {init, InitResults} from './interactions/initialization';
-import {onAddFace} from "./interactions/placementInteractions";
+import {onAddFace, onRemoveFace} from "./interactions/placementInteractions";
 import {getRevisionForMount, onUndo, onRedo, updateUndoRedoDisabled, Revision} from "./interactions/revisionUtil";
 import LocationSettingsPane from "./panes/LocationSettingsPane";
 import OpenFaceChooser from "facesCommon/dialogs/OpenFaceChooser";
@@ -21,8 +21,6 @@ import Screen from "ui/screen/screens";
 
 import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-
-const emptyCallback = () => {}; // TODO delete when not using
 
 function LocationsScreen() {
   const [disabled, setDisabled] = useState<boolean>(true);
@@ -71,8 +69,9 @@ function LocationsScreen() {
           onCanvasMouseDown={initResults?.onCanvasMouseDown}
           onCanvasMouseMove={initResults?.onCanvasMouseMove}
           onCanvasMouseUp={initResults?.onCanvasMouseUp}
-          onDeleteFace={emptyCallback}
+          onRemoveFace={(removeFaceNo) => onRemoveFace(removeFaceNo, setRevision)}
           onChooseBackground={() => setModalDialog(BackgroundChooser.name)}
+          selectedFaceNo={revision.selectedFaceNo}
           disabled={disabled}
         />
         <BackgroundChooser 
