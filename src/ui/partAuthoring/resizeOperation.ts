@@ -1,4 +1,4 @@
-import { clamp } from 'common/numberUtil';
+import {clamp} from 'common/numberUtil';
 import ResizingType from "./ResizingTypes";
 import {resizingTypeForComponent, updateResizingButtonPositions} from "./SelectionBoxCanvasComponent";
 import {TrackedPart} from "./trackedPart";
@@ -26,11 +26,18 @@ export type ResizeOperation = {
   previousResizeX:number,
   previousResizeY:number,
   previousWidth:number,
-  previousHeight:number
+  previousHeight:number,
+  
+  // Original aspect ratio of the part component.
+  aspectRatio:number
 }
 
 export interface IPartResizedCallback {
   (part:CanvasComponent, x:number, y:number, width:number, height:number):boolean
+}
+
+function _calcComponentAspectRatio(component:CanvasComponent):number {
+  return component.width / component.height;
 }
 
 function _findResizeButtonInComponentAtCoords(component:CanvasComponent, x:number, y:number):CanvasComponent|null {
@@ -80,6 +87,47 @@ function _getConstrainedResizeCoordinates(operation:ResizeOperation, mouseMoveX:
   const resizeButtonX = clamp(mouseMoveX + operation.dragOffsetX, operation.dragMinX, operation.dragMaxX);
   const resizeButtonY = clamp(mouseMoveY + operation.dragOffsetY, operation.dragMinY, operation.dragMaxY);
   return [resizeButtonX, resizeButtonY];
+}
+
+function _constrain(operation:ResizeOperation, x:number, y:number, width:number, height:number):[nextX:number, nextY:number, nextWidth:number, nextHeight:number] {
+  const aspectRatio = width / height;
+  const constrainHeight = (width / height) > aspectRatio;
+  if (constrainHeight) {
+    height = width / aspectRatio;
+    if (operation.resizingType === ResizingType.TOPLEFT || operation.resizingType === ResizingType.TOP || operation.resizingType === ResizingType.TOPRIGHT) {
+      y = operation.previousY + operation.previousHeight - height;
+    }
+  } else { // Constrain width
+    width = height * aspectRatio;
+    if (operation.resizingType === ResizingType.TOPLEFT || operation.resizingType === ResizingType.LEFT || operation.resizingType === ResizingType.BOTTOMLEFT) {
+      x = operation.previousX + operation.previousWidth - width;
+    }
+  }
+  return [x, y, width, height];
+}
+
+function _constrainToAspectRatio(operation:ResizeOperation, x:number, y:number, width:number, height:number):[nextX:number, nextY:number, nextWidth:number, nextHeight:number] {
+  const aspectRatio = operation.aspectRatio;
+  
+  if (operation.resizingType === ResizingType.TOP || operation.resizingType === ResizingType.BOTTOM) {
+    width = height * aspectRatio;
+    if (operation.resizingType === ResizingType.TOP) y = operation.previousY + operation.previousHeight - height;
+    return [x, y, width, height];
+  }
+  
+  const constrainHeight = (width / height) > aspectRatio || operation.resizingType === ResizingType.LEFT || operation.resizingType === ResizingType.RIGHT;
+  if (constrainHeight) {
+    height = width / aspectRatio;
+    if (operation.resizingType === ResizingType.TOPLEFT || operation.resizingType === ResizingType.TOPRIGHT) {
+      y = operation.previousY + operation.previousHeight - height;
+    }
+  } else { // Constrain width
+    width = height * aspectRatio;
+    if (operation.resizingType === ResizingType.TOPLEFT || operation.resizingType === ResizingType.LEFT || operation.resizingType === ResizingType.BOTTOMLEFT) {
+      x = operation.previousX + operation.previousWidth - width;
+    }
+  }
+  return [x, y, width, height];
 }
 
 export function onResizeDuringDrag(part:TrackedPart, operation:ResizeOperation, mouseMoveX:number, mouseMoveY:number) {
@@ -138,11 +186,12 @@ export function onResizeDuringDrag(part:TrackedPart, operation:ResizeOperation, 
       break;
   }
   
-  if (part.constrainAspectRatio) {
-    // TODO
-  }
+  if (part.constrainAspectRatio) [nextX, nextY, nextWidth, nextHeight] = _constrainToAspectRatio(operation, nextX, nextY, nextWidth, nextHeight);
+  
   if (part.resizeChildren) {
     component.resize(nextWidth, nextHeight);
+    selectionBox.width = nextWidth;
+    selectionBox.height = nextHeight;
   } else {
     component.width = selectionBox.width = nextWidth;
     component.height = selectionBox.height = nextHeight;
@@ -188,6 +237,7 @@ export function createResizeOperation(part:TrackedPart, resizeButton:CanvasCompo
     previousX: x, previousY: y,
     previousWidth: width, previousHeight: height,
     previousResizeX: resizeButton.x, previousResizeY: resizeButton.y,
-    dragOffsetX, dragOffsetY
+    dragOffsetX, dragOffsetY,
+    aspectRatio: _calcComponentAspectRatio(part.component)
   };
 }
