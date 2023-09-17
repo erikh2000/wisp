@@ -5,7 +5,7 @@ import ConversationManager, {ConversationState} from "conversations/Conversation
 import ConversationSpeed from "conversations/ConversationSpeed";
 import {spielEmotionToEmotion} from "conversations/spielEmotionUtil";
 import {loadDefaultFace, loadFaceFromName} from "facesCommon/interactions/fileInteractions";
-import {setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
+import {getActiveLanguageCode, setActiveFaceName, UNSPECIFIED_NAME} from "persistence/projects";
 import {setSpielsScreenSettings} from "persistence/settings";
 import {setEmotion, startListening, stopListening} from "facesCommon/interactions/faceEventUtil";
 import {setHead} from "spielsScreen/interactions/coreUtil"
@@ -57,6 +57,7 @@ export async function initTest():Promise<void> {
     setEmotion(emotion);
   });
   if (!recognizer) {
+    const languageCode = await getActiveLanguageCode();
     return new Promise((resolve) => {
       recognizer = new Recognizer(() => {
         _isRecognizerReady = true;
@@ -64,7 +65,7 @@ export async function initTest():Promise<void> {
         conversationManager.bindRecognizer(recognizer);
         conversationManager.bindOnTranscribe(addText);
         resolve();
-      });
+      }, languageCode);
     });
   }
 }

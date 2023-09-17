@@ -4,7 +4,7 @@ import OpenProjectChooser from "./dialogs/OpenProjectChooser";
 import RenameProjectDialog from "./dialogs/RenameProjectDialog";
 import {createNewProject, onConfirmDeleteProject, onRenameProject, openProject} from "./interactions/fileInteractions";
 import {init} from './interactions/initialization';
-import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText} from "./interactions/projectInteractions";
+import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText, onChangeLanguageCode} from "./interactions/projectInteractions";
 import {onRedo, onUndo, updateUndoRedoDisabled} from "./interactions/revisionUtil";
 import GeneralSettingsPane from "./panes/GeneralSettingsPane";
 import styles from "./ProjectsScreen.module.css";
@@ -64,12 +64,14 @@ function ProjectsScreen() {
         <GeneralSettingsPane
           aboutText={revision.aboutText}
           creditsText={revision.creditsText}
-          spielNames={spielNames}
+          disabled={disabled}  
           entrySpielName={revision.entrySpiel}
+          languageCode={revision.languageCode}
           onChangeAboutText={nextAboutText => onChangeAboutText(nextAboutText, setRevision)}
           onChangeCreditsText={nextCreditsText => onChangeCreditsText(nextCreditsText, setRevision)}
           onChangeEntrySpielName={nextEntrySpielName => onChangeEntrySpielName(nextEntrySpielName, setRevision)}
-          disabled={disabled}  
+          onChangeLanguage={nextLanguageCode => onChangeLanguageCode(nextLanguageCode, setRevision)}
+          spielNames={spielNames}
         />
       </div>
       <ExportProjectDialog

@@ -21,7 +21,9 @@ import {fillTemplate, isValidName} from "./pathUtil";
 import Project from "./types/Project";
 import {CURRENT_DATA_VERSION} from "./versions";
 
+import {DEFAULT_LANGUAGE_CODE} from "sl-web-speech";
 import {parse, stringify} from 'yaml';
+import {doesSpielExist} from "./spiels";
 
 export const DEFAULT_PROJECT_NAME = 'default';
 export const UNSPECIFIED_NAME = '';
@@ -52,7 +54,8 @@ export async function createProject(projectName:string) {
     activeFace:UNSPECIFIED_NAME, 
     activeLocation:UNSPECIFIED_NAME,
     activeSpiel:UNSPECIFIED_NAME, 
-    entrySpiel:UNSPECIFIED_NAME, 
+    entrySpiel:UNSPECIFIED_NAME,
+    language:DEFAULT_LANGUAGE_CODE,
     aboutText:'', 
     creditsText:'',
     version: CURRENT_DATA_VERSION
@@ -72,6 +75,7 @@ async function _getProjectByKey(key:string):Promise<Project> {
   let projectYaml = await getText(key);
   if (!projectYaml) throw Error('Unexpected');
   if (projectYaml.indexOf('version:') === -1) projectYaml=`version: ${CURRENT_DATA_VERSION}\n${projectYaml}`; // TODO add support for chained upgrades.
+  if (projectYaml.indexOf('language:') === -1) projectYaml=`language: ${DEFAULT_LANGUAGE_CODE}\n${projectYaml}`; // TODO add support for chained upgrades.
   return parse(projectYaml);
 }
 
@@ -116,7 +120,9 @@ export async function setActiveLocationName(locationName:string) {
 
 export async function getActiveSpielName():Promise<string> {
   const project = await getActiveProject();
-  return project.activeSpiel ?? UNSPECIFIED_NAME;
+  const spielName = project.activeSpiel ?? UNSPECIFIED_NAME;
+  if (spielName !== UNSPECIFIED_NAME && await doesSpielExist(spielName)) return spielName;
+  return UNSPECIFIED_NAME;
 }
 
 export async function setActiveSpielName(spielName:string) {
@@ -124,6 +130,11 @@ export async function setActiveSpielName(spielName:string) {
   const project:Project = await _getProjectByKey(key);
   project.activeSpiel = spielName;
   await setText(key, stringify(project), MIMETYPE_WISP_PROJECT);
+}
+
+export async function getActiveLanguageCode():Promise<string> {
+  const project = await getActiveProject();
+  return project.language ?? DEFAULT_LANGUAGE_CODE;
 }
 
 export async function renameActiveFaceName(nextFaceName:string) {
@@ -141,6 +152,7 @@ export async function updateActiveProject(changes:Partial<Project>) {
   currentProject.entrySpiel = changes.entrySpiel ?? currentProject.entrySpiel ?? UNSPECIFIED_NAME;
   currentProject.aboutText = changes.aboutText ?? currentProject.aboutText ?? '';
   currentProject.creditsText = changes.creditsText ?? currentProject.creditsText ?? '';
+  currentProject.language = changes.language ?? currentProject.language ?? DEFAULT_LANGUAGE_CODE; 
   await setText(key, stringify(currentProject), MIMETYPE_WISP_PROJECT);
 }
 

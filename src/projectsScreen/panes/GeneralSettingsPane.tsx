@@ -1,6 +1,8 @@
 import styles from "./GeneralSettingsPane.module.css";
 import InnerContentPane from "ui/innerContentPane/InnerContentPane";
 
+import { LANGUAGE_CODES, codeToLanguage } from "sl-web-speech";
+
 import React from "react";
 
 interface IProps {
@@ -8,9 +10,11 @@ interface IProps {
   creditsText:string,
   disabled:boolean,
   entrySpielName:string,
+  languageCode:string,
   onChangeAboutText:(aboutText:string) => void,
   onChangeCreditsText:(creditsText:string) => void,
   onChangeEntrySpielName:(entrySpielName:string) => void,
+  onChangeLanguage:(languageCode:string) => void,
   spielNames:string[]
 }
 
@@ -25,15 +29,32 @@ function _renderEntrySpielNameSelector(spielNames:string[], entrySpielName:strin
   );
 }
 
+function _renderLanguageSelector(selectedLanguageCode:string, onChangeLanguage:Function, disabled:boolean) {
+  const options = LANGUAGE_CODES.map((languageCode) => {
+    const language:string = codeToLanguage(languageCode);
+    return (<option key={languageCode} value={languageCode}>{language}</option>);
+  });
+  return (
+    <select name='language' className={styles.language} value={selectedLanguageCode} 
+            onChange={event => {onChangeLanguage(event.target.value)}} disabled={disabled}>
+      {options}
+    </select>
+  );
+}
+
 function GeneralSettingsPane(props:IProps) {
-  const {aboutText, creditsText, disabled, spielNames, entrySpielName, onChangeAboutText, onChangeCreditsText, onChangeEntrySpielName} = props;
+  const {aboutText, creditsText, disabled, spielNames, entrySpielName, languageCode, 
+    onChangeAboutText, onChangeCreditsText, onChangeEntrySpielName, onChangeLanguage} = props;
   
   const entrySpielNameSelector = _renderEntrySpielNameSelector(spielNames, entrySpielName, onChangeEntrySpielName, disabled);
+  const languageSelector = _renderLanguageSelector(languageCode, onChangeLanguage, disabled);
 
   return  (
     <InnerContentPane className={styles.generalSettingsPane} caption='General Settings'>
       <label htmlFor='entrySpielName'>Entry Spiel:</label>
       {entrySpielNameSelector}
+      <label htmlFor='language'>Conversation Language:</label>
+      {languageSelector}
       <label htmlFor='aboutText'>About:</label>
       <textarea 
         className={styles.aboutTextArea} 

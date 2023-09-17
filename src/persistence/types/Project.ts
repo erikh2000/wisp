@@ -1,11 +1,12 @@
 type Project = {
-  created:number,
+  aboutText:string,
   activeFace:string,
   activeLocation:string,
   activeSpiel:string,
-  entrySpiel:string,
-  aboutText:string,
+  created:number,
   creditsText:string,
+  entrySpiel:string,
+  language:string,
   version:number
 };
 

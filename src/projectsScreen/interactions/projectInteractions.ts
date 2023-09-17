@@ -20,3 +20,10 @@ export function onChangeCreditsText(creditsText:string, setRevision:Function) {
   const nextRevision = revisionManager.currentRevision;
   setRevision(nextRevision);
 }
+
+export function onChangeLanguageCode(languageCode:string, setRevision:Function) {
+  const revisionManager = getRevisionManager();
+  revisionManager.addChanges({languageCode});
+  const nextRevision = revisionManager.currentRevision;
+  setRevision(nextRevision);
+}

@@ -2,22 +2,26 @@ import RevisionManager from "documents/RevisionManager";
 import {UNSPECIFIED_NAME, updateActiveProject} from "persistence/projects";
 import {performDisablingOperation} from "projectsScreen/interactions/coreUtil";
 
+import {DEFAULT_LANGUAGE_CODE} from "sl-web-speech";
+
 export type Revision = {
   aboutText:string,
   creditsText:string,
-  entrySpiel:string
+  entrySpiel:string,
+  languageCode:string
 }
 
 async function onPersistRevision(revision:Revision):Promise<void> {
-  const {aboutText, creditsText, entrySpiel} = revision;
-  await updateActiveProject({aboutText, creditsText, entrySpiel});
+  const {aboutText, creditsText, entrySpiel, languageCode} = revision;
+  await updateActiveProject({aboutText, creditsText, entrySpiel, language:languageCode});
 }
 
 export function createDefaultRevision():Revision {
   return {
     aboutText: '',
     creditsText: '',
-    entrySpiel: UNSPECIFIED_NAME
+    entrySpiel: UNSPECIFIED_NAME,
+    languageCode: DEFAULT_LANGUAGE_CODE
   };
 }
 

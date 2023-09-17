@@ -2,7 +2,7 @@ import {getActiveProjectName, getAllProjectKeys, projectKeyToName, renameSpielRe
 import {fillTemplate, keyToName} from "./pathUtil";
 import {SPIELS_PATH_TEMPLATE, SPIEL_PATH_TEMPLATE} from "./keyPaths";
 import {
-  deleteByKey,
+  deleteByKey, doesKeyExist,
   getAllKeysAtPath,
   getAllValuesAtPath,
   getText,
@@ -21,6 +21,11 @@ export async function getSpielByKey(key:string):Promise<string> {
 export async function getSpiel(spielName:string, projectName:string = getActiveProjectName()):Promise<string> {
   const key = fillTemplate(SPIEL_PATH_TEMPLATE, {projectName, spielName});
   return getSpielByKey(key);
+}
+
+export async function doesSpielExist(spielName:string, projectName:string = getActiveProjectName()):Promise<boolean> {
+  const key = fillTemplate(SPIEL_PATH_TEMPLATE, {projectName, spielName});
+  return await doesKeyExist(key);
 }
 
 export async function setSpiel(spielName:string, spielYaml:string, projectName:string = getActiveProjectName()):Promise<void> {

@@ -41,8 +41,8 @@ export async function init(setDisabled:Function, setRevision:Function):Promise<I
   
   const project = await getActiveProject();
   const revision = createDefaultRevision();
-  revision.entrySpiel = project.entrySpiel 
-    ?? spielNames.length ? spielNames[0] : UNSPECIFIED_NAME; 
+  revision.entrySpiel = project.entrySpiel ?? spielNames.length ? spielNames[0] : UNSPECIFIED_NAME; 
+  revision.languageCode = project.language;
   revision.aboutText = project.aboutText;
   revision.creditsText = project.creditsText;
   revisionManager.add(revision);
