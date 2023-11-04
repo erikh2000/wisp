@@ -89,23 +89,6 @@ function _getConstrainedResizeCoordinates(operation:ResizeOperation, mouseMoveX:
   return [resizeButtonX, resizeButtonY];
 }
 
-function _constrain(operation:ResizeOperation, x:number, y:number, width:number, height:number):[nextX:number, nextY:number, nextWidth:number, nextHeight:number] {
-  const aspectRatio = width / height;
-  const constrainHeight = (width / height) > aspectRatio;
-  if (constrainHeight) {
-    height = width / aspectRatio;
-    if (operation.resizingType === ResizingType.TOPLEFT || operation.resizingType === ResizingType.TOP || operation.resizingType === ResizingType.TOPRIGHT) {
-      y = operation.previousY + operation.previousHeight - height;
-    }
-  } else { // Constrain width
-    width = height * aspectRatio;
-    if (operation.resizingType === ResizingType.TOPLEFT || operation.resizingType === ResizingType.LEFT || operation.resizingType === ResizingType.BOTTOMLEFT) {
-      x = operation.previousX + operation.previousWidth - width;
-    }
-  }
-  return [x, y, width, height];
-}
-
 function _constrainToAspectRatio(operation:ResizeOperation, x:number, y:number, width:number, height:number):[nextX:number, nextY:number, nextWidth:number, nextHeight:number] {
   const aspectRatio = operation.aspectRatio;
   

@@ -69,7 +69,7 @@ import EmotionSelector from "./view/EmotionSelector";
 import LidLevelSelector from "./view/LidLevelSelector";
 import TestVoiceSelector from "./view/TestVoiceSelector";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
-import useEffectAfterMount from "common/useEffectAfterMount";
+import useEffectOnce from "common/useEffectOnce";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import Canvas from "ui/Canvas";
 import LoadingBox from "ui/LoadingBox";
@@ -169,7 +169,7 @@ function FacesScreen() {
   const navigate = useNavigate();
   const { partType} = revision;
   
-  useEffectAfterMount(() => {
+  useEffectOnce(() => {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
     init(setRevision, setEyeParts, setExtraParts, setHeadParts, setMouthParts, setNoseParts, setDisabled).then((nextInitResults:InitResults) => {
       if (nextInitResults.faceName === UNSPECIFIED_NAME) { 

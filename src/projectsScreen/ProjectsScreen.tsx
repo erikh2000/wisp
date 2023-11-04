@@ -9,7 +9,7 @@ import {onRedo, onUndo, updateUndoRedoDisabled} from "./interactions/revisionUti
 import GeneralSettingsPane from "./panes/GeneralSettingsPane";
 import styles from "./ProjectsScreen.module.css";
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
-import useEffectAfterMount from "common/useEffectAfterMount";
+import useEffectOnce from "common/useEffectOnce";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
@@ -29,7 +29,7 @@ function ProjectsScreen() {
   const [spielNames, setSpielNames] = useState<string[]>([]);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
 
-  useEffectAfterMount(() => {
+  useEffectOnce(() => {
     
     init(setDisabled, setRevision).then(nextInitResults => {
       if (nextInitResults.projectName === UNSPECIFIED_NAME) {

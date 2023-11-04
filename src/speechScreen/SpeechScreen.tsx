@@ -21,7 +21,7 @@ import {
   onCancelRecording, onCompleteFinalization,
   onCompleteRecording, onDeleteTake, onFinalizeTake
 } from './interactions/takeInteractions';
-import useEffectAfterMount from "common/useEffectAfterMount";
+import useEffectOnce from "common/useEffectOnce";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import OpenSpielChooser from "spielsCommon/dialogs/OpenSpielChooser";
@@ -41,7 +41,7 @@ function SpeechScreen() {
   const [finalizingAudioBuffer, setFinalizingAudioBuffer] = useState<AudioBuffer|null>(null);
   const navigate = useNavigate();
 
-  useEffectAfterMount(() => {
+  useEffectOnce(() => {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
     init(setDisabled, setRevision).then(nextInitResults => {
       if (nextInitResults.spielName !== UNSPECIFIED_NAME) {

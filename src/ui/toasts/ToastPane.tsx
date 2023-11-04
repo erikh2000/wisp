@@ -6,7 +6,7 @@ import {
   subscribeToToasts,
   unsubscribeFromToasts
 } from "./toastUtil";
-import useEffectAfterMount from "common/useEffectAfterMount";
+import useEffectOnce from "common/useEffectOnce";
 
 import {MutableRefObject, useEffect, useRef, useState} from "react";
 
@@ -78,7 +78,7 @@ function ToastPane() {
   
   _updateTrackedToastsForAnimation(toastsRef);
   
-  useEffectAfterMount(() => {
+  useEffectOnce(() => {
     subscribeToToasts(onNewToast);
     return () => unsubscribeFromToasts(onNewToast);
   },[]);

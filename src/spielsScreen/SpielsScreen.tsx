@@ -55,7 +55,7 @@ import EditRootReplyDialog from "./spielDialogs/EditRootReplyDialog";
 import SpielsScreenSettings from "./SpielsScreenSettings";
 import TestOptionsDialog from "./testDialogs/TestOptionsDialog";
 import {navigateToHomeIfMissingAudioContext} from "common/navigationUtil";
-import useEffectAfterMount from "common/useEffectAfterMount";
+import useEffectOnce from "common/useEffectOnce";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ChangeFaceChooser from "./fileDialogs/ChangeFaceChooser";
 import NewSpielDialog from "./fileDialogs/NewSpielDialog";
@@ -109,7 +109,7 @@ function SpielsScreen() {
   const [testNodeNo, setTestNodeNo] = useState<number>(0);
   const navigate = useNavigate();
 
-  useEffectAfterMount(() => {
+  useEffectOnce(() => {
     if (navigateToHomeIfMissingAudioContext(navigate)) return;
     init(setTranscriptLines, setDisabled, setRevision).then(nextInitResults => {
       if (nextInitResults.spielName === UNSPECIFIED_NAME) {

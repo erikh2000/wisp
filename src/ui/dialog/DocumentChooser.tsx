@@ -1,4 +1,5 @@
 import styles from './DocumentChooser.module.css';
+import {getDateGrouping} from "common/dateUtil";
 import ModalDialog from "ui/dialog/ModalDialog";
 import DialogFooter from "ui/dialog/DialogFooter";
 import DialogButton from "ui/dialog/DialogButton";
@@ -7,7 +8,6 @@ import {keyToName} from "persistence/pathUtil";
 
 import { useState, useEffect } from 'react';
 import DocumentChooserRow from "./DocumentChooserRow";
-import {getDateGrouping} from "../../common/dateUtil";
 
 export type ChooseCallback = (documentName:string) => void;
 
@@ -55,7 +55,7 @@ function DocumentChooser(props:IProps) {
     if (!isOpen) return;
     const nextRows = _renderRows(documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName, onChoose, getNameFromKey);
     setRows(nextRows);
-  }, [isOpen, documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName]);
+  }, [isOpen, documents, originalDocumentName, selectedDocumentName, setSelectedDocumentName, getNameFromKey, onChoose]);
 
   const disabled = selectedDocumentName === null;
   const cancelButtonRender = onCancel ? <DialogButton onClick={onCancel} text={'Cancel'} /> : null;

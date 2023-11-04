@@ -40,7 +40,7 @@ function BackgroundChooser(props:IProps) {
       const excludingCurrentLocation = records.filter(record => keyToName(record.key) !== locationName);
       setLocationDocuments(excludingCurrentLocation);
     });
-  }, [isOpen]);
+  }, [isOpen, locationName]);
 
   const mustImport = locationDocuments.length === 0;
   
