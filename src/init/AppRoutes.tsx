@@ -10,7 +10,7 @@ import React from 'react';
 
 function AppRoutes() {
   return (
-    <BrowserRouter basename='/wisp-tool'>
+    <BrowserRouter basename='/'>
       <Routes>
         <Route path="" element={<HomeScreen />} />
         <Route path="faces" element={<FacesScreen />} />
