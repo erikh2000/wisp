@@ -155,11 +155,11 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   await partUiManager.trackPartsForFace(head);
   partUiManager.setFocus(head);
   const partLoader = new PartLoader(onPartLoaderUpdated);
-  await partLoader.loadManifest('${process.env.PUBLIC_URL}/parts/part-manifest.yml');
+  await partLoader.loadManifest(`${process.env.PUBLIC_URL}/parts/part-manifest.yml`);
   initCore(head, partUiManager, partLoader, _setDisabled);
   initRevisionManager(head);
   const [faceEventManager, faceId] = initFaceEvents(head);
-  await initViewSettings('${process.env.PUBLIC_URL}/speech/test-voices/test-voice-manifest.yml', faceEventManager, faceId, screenSettings);
+  await initViewSettings(`${process.env.PUBLIC_URL}/speech/test-voices/test-voice-manifest.yml`, faceEventManager, faceId, screenSettings);
   
   setUpRevisionForNewFace(head, setRevision);
   
