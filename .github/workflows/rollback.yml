@@ -1,0 +1,16 @@
+name: Rollback
+
+on:
+  workflow_dispatch: # Allows manual triggering of workflow
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Revert index.html to rollback.html
+        run: aws s3 cp s3://wisp.studio/rollback.html s3://wisp.studio/index.html
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'us-east-1'
