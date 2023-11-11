@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get short SHA
+        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c 1-7)" >> $GITHUB_ENV
+        
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -23,14 +26,12 @@ jobs:
         run: npm ci
 
       - name: Build static content
-        run: |
-          echo "PUBLIC_URL = ${PUBLIC_URL}"
-          npm run build
+        run: npm run build
         env:
-          PUBLIC_URL: /${{ github.sha }}
+          PUBLIC_URL: /${{ env.SHORT_SHA }}
 
       - name: Update redirection URL.
-        run: sed -i "s|%PUBLIC_URL%|/${{ github.sha }}|" build/root-redirect.html
+        run: sed -i "s|%PUBLIC_URL%|/${{ env.SHORT_SHA }}|" build/root-redirect.html
         
       - name: Store rollback information.
         run: aws s3 cp s3://wisp.studio/index.html s3://wisp.studio/rollback.html
@@ -41,11 +42,10 @@ jobs:
 
       - name: Deploy to S3 using AWS CLI
         run: |
-          echo "Deploying commit ${COMMIT_SHA} to S3..."
-          aws s3 sync build s3://wisp.studio/${COMMIT_SHA} --delete
+          echo "Deploying commit ${{ github.sha }} to S3..."
+          aws s3 sync build s3://wisp.studio/${{ env.SHORT_SHA }} --delete
           aws s3 cp build/root-redirect.html s3://wisp.studio/index.html
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: 'us-east-1'
-          COMMIT_SHA: ${{ github.sha }}
