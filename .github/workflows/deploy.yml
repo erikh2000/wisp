@@ -24,7 +24,7 @@ jobs:
 
       - name: Build static content
         run: |
-          @echo "PUBLIC_URL = ${PUBLIC_URL}"
+          echo "PUBLIC_URL = ${PUBLIC_URL}"
           npm run build
         
       - name: Update base href in index.html
@@ -32,7 +32,7 @@ jobs:
 
       - name: Deploy to S3 using AWS CLI
         run: |
-          @echo "Deploying commit ${COMMIT_SHA} to S3..."
+          echo "Deploying commit ${COMMIT_SHA} to S3..."
           aws s3 sync build s3://wisp.studio/${COMMIT_SHA} --delete --exclude "fonts/simply-olive/private/*"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
