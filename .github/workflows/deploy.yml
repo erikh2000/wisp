@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # Allows manual triggering of workflow
 
 jobs:
   build-and-deploy:
@@ -22,7 +23,11 @@ jobs:
         run: npm ci
 
       - name: Build static content
-        run: npm run build
+        run: |
+          echo "PUBLIC_URL = ${PUBLIC_URL}"
+          npm run build
+        env:
+          PUBLIC_URL: /${{ github.sha }}
         
       - name: Update base href in index.html
         run: sed -i "s|<base href=\"/\">|<base href=\"/${{ github.sha }}/\">|" build/index.html
