@@ -28,14 +28,12 @@ jobs:
           npm run build
         env:
           PUBLIC_URL: /${{ github.sha }}
-        
-      - name: Update base href in index.html
-        run: sed -i "s|<base href=\"/\">|<base href=\"/${{ github.sha }}/\">|" build/index.html
 
       - name: Deploy to S3 using AWS CLI
         run: |
           echo "Deploying commit ${COMMIT_SHA} to S3..."
-          aws s3 sync build s3://wisp.studio/${COMMIT_SHA} --delete --exclude "fonts/simply-olive/private/*"
+          aws s3 sync build s3://wisp.studio/${COMMIT_SHA} --delete
+          aws s3 cp build/root-redirect.html s3://wisp.studio/index.html
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
