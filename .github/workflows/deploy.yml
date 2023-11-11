@@ -29,6 +29,9 @@ jobs:
         env:
           PUBLIC_URL: /${{ github.sha }}
 
+      - name: Update redirection URL.
+        run: sed -i "s|%PUBLIC_URL%|/${{ github.sha }}|" build/root-redirect.html
+
       - name: Deploy to S3 using AWS CLI
         run: |
           echo "Deploying commit ${COMMIT_SHA} to S3..."
