@@ -7,7 +7,7 @@ import {
   initCore, 
   isHeadReady
 } from "./coreUtil";
-import {makePublicUrl} from "common/fetchUtil";
+import {makeSharedUrl} from "common/fetchUtil";
 import {initFaceEvents} from "facesCommon/interactions/faceEventUtil";
 import {loadDefaultFace, loadFaceFromName} from "facesCommon/interactions/fileInteractions";
 import FacesScreenSettings from "facesScreen/FacesScreenSettings";
@@ -156,11 +156,11 @@ export async function init(setRevision:any, setEyeParts:any, setExtraParts:any, 
   await partUiManager.trackPartsForFace(head);
   partUiManager.setFocus(head);
   const partLoader = new PartLoader(onPartLoaderUpdated);
-  await partLoader.loadManifest(makePublicUrl('parts/part-manifest.yml'));
+  await partLoader.loadManifest(makeSharedUrl('parts/part-manifest.yml'));
   initCore(head, partUiManager, partLoader, _setDisabled);
   initRevisionManager(head);
   const [faceEventManager, faceId] = initFaceEvents(head);
-  await initViewSettings(makePublicUrl('speech/test-voices/test-voice-manifest.yml'), faceEventManager, faceId, screenSettings);
+  await initViewSettings(makeSharedUrl('speech/test-voices/test-voice-manifest.yml'), faceEventManager, faceId, screenSettings);
   
   setUpRevisionForNewFace(head, setRevision);
   

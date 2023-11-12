@@ -11,10 +11,17 @@ export async function fetchYaml(url:string):Promise<any> {
   return parse(yaml);  
 }
 
-export function makePublicUrl(url:string):string {
-  let publicUrl = `${process.env.PUBLIC_URL}` ?? '';
-  if (!publicUrl.length || url.startsWith(publicUrl)) return url;
-  if (publicUrl.endsWith('/')) publicUrl = publicUrl.substring(0, publicUrl.length - 1);
-  if (url.startsWith('/')) url = url.substring(1);
-  return `${publicUrl}/${url}`;
+function _changePathStartAsNeeded(path:string, start:string):string {
+  if (!start.length || path.startsWith(start)) return path;
+  if (start.endsWith('/')) start = start.substring(0, start.length - 1);
+  if (path.startsWith('/')) path = path.substring(1);
+  return `${start}/${path}`;
+}
+
+export function makePublicUrl(path:string):string {
+  return _changePathStartAsNeeded(path, process.env.PUBLIC_URL ?? '');
+}
+
+export function makeSharedUrl(url:string):string {
+  return _changePathStartAsNeeded(url, 'https://shared.wisp.studio');
 }
