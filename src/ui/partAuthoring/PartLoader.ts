@@ -1,4 +1,4 @@
-import {fetchYaml} from "common/fetchUtil";
+import {fetchYaml, makeSharedUrl} from "common/fetchUtil";
 
 import {
   CanvasComponent,
@@ -51,7 +51,7 @@ function _resizeComponentToFit(width:number, height:number, component:CanvasComp
 async function _loadPart(part:LoadablePart, thumbnailContext:CanvasRenderingContext2D, partTypeName:string, onUpdate?:UpdateCallback) {
   // TODO - persistent caching of thumbnails
   if (part.thumbnail) return;
-  const component = await loadComponentFromPartUrl(part.url);
+  const component = await loadComponentFromPartUrl(makeSharedUrl(part.url));
   _resizeComponentToFit(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, component);
   component.height = thumbnailContext.canvas.height;
   clearContext(thumbnailContext);
