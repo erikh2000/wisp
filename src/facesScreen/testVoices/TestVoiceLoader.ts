@@ -1,11 +1,11 @@
-import {fetchYaml} from "common/fetchUtil";
+import {fetchYaml, makePublicUrl} from "common/fetchUtil";
 import TestVoices, {PerEmotionSpeech, PerVoiceSpeech} from "facesScreen/testVoices/TestVoices";
 import TestVoiceManifest, {PerVoiceManifest} from "facesScreen/testVoices/TestVoiceManifest";
 
 import {FaceEventManager, loadSpeechFromUrl} from "sl-web-face";
 
 async function _loadManifest(manifestUrl:string):Promise<TestVoiceManifest> {
-  return await fetchYaml(manifestUrl) as TestVoiceManifest;
+  return await fetchYaml(makePublicUrl(manifestUrl)) as TestVoiceManifest;
 }
 
 function _loadPerEmotionSpeech(waveUrls:string[]):PerEmotionSpeech {
@@ -14,7 +14,7 @@ function _loadPerEmotionSpeech(waveUrls:string[]):PerEmotionSpeech {
     nextVariationNo:0
   };
   waveUrls.forEach((waveUrl, variationI) => {
-    loadSpeechFromUrl(waveUrl).then((speechAudio) => {
+    loadSpeechFromUrl(makePublicUrl(waveUrl)).then((speechAudio) => {
       // Useful to uncomment the line below if console warnings appear about invalid phonemes.
       // console.log('finished loading waveUrl ' + waveUrl); 
       perEmotionSpeech.variations[variationI] = speechAudio;

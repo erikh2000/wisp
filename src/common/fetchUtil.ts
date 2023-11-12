@@ -10,3 +10,11 @@ export async function fetchYaml(url:string):Promise<any> {
   const yaml = await fetchText(url);
   return parse(yaml);  
 }
+
+export function makePublicUrl(url:string):string {
+  let publicUrl = `${process.env.PUBLIC_URL}` ?? '';
+  if (!publicUrl.length || url.startsWith(publicUrl)) return url;
+  if (publicUrl.endsWith('/')) publicUrl = publicUrl.substring(0, publicUrl.length - 1);
+  if (url.startsWith('/')) url = url.substring(1);
+  return `${publicUrl}/${url}`;
+}
