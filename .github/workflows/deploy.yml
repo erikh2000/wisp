@@ -13,6 +13,12 @@ jobs:
     steps:
       - name: Get short SHA
         run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c 1-7)" >> $GITHUB_ENV
+      
+      - name: Get subfolder name
+        run: |
+          CURRENT_DATE=$(date +"%Y-%m")
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c 1-7)
+          echo "SUBFOLDER_NAME=${CURRENT_DATE}-${SHORT_SHA}" >> $GITHUB_ENV
         
       - name: Checkout code
         uses: actions/checkout@v2
@@ -28,10 +34,10 @@ jobs:
       - name: Build static content
         run: npm run build
         env:
-          PUBLIC_URL: /${{ env.SHORT_SHA }}
+          PUBLIC_URL: /${{ env.SUBFOLDER_NAME }}
 
       - name: Update redirection URL.
-        run: sed -i "s|%PUBLIC_URL%|/${{ env.SHORT_SHA }}|" build/root-redirect.html
+        run: sed -i "s|%PUBLIC_URL%|/${{ env.SUBFOLDER_NAME }}|" build/root-redirect.html
         
       - name: Store rollback information.
         run: aws s3 cp s3://wisp.studio/index.html s3://wisp.studio/rollback.html
@@ -43,7 +49,7 @@ jobs:
       - name: Deploy to S3 using AWS CLI
         run: |
           echo "Deploying commit ${{ github.sha }} to S3..."
-          aws s3 sync build s3://wisp.studio/${{ env.SHORT_SHA }} --delete
+          aws s3 sync build s3://wisp.studio/${{ env.SUBFOLDER_NAME }} --delete
           aws s3 cp build/root-redirect.html s3://wisp.studio/index.html
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
