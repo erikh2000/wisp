@@ -71,7 +71,7 @@ class PartLoader {
   mouths:LoadablePart[];
   noses:LoadablePart[];
   extras:LoadablePart[];
-  private _onUpdate?:UpdateCallback;
+  private readonly _onUpdate?:UpdateCallback;
   
   constructor(onUpdate?:UpdateCallback) {
     this.heads = this.eyes = this.mouths = this.noses = this.extras = [];

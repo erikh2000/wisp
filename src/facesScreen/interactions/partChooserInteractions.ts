@@ -138,17 +138,24 @@ export function onRemoveExtra(extraSlotNo:number, extraSlotPartNos:number[], set
   _removeExtra(getHead(), extraSlotNo, extraSlotPartNos, setRevision);
 }
 
+function _normalizePartUrl(partUrl:string):string {
+  // Remove domain portion of URL, if present.
+  const url = new URL(partUrl);
+  return url.pathname;
+}
+
 export function findLoadablePartNo(loadableParts:LoadablePart[], headComponent:CanvasComponent, partType:PartType):number {
   const component = findCanvasComponentForPartType(headComponent, partType);
   if (!component) return UNSPECIFIED;
-  return loadableParts.findIndex(loadablePart => loadablePart.url === component.partUrl);
+  const partUrl = _normalizePartUrl(component.partUrl);
+  return loadableParts.findIndex(loadablePart => loadablePart.url === partUrl);
 }
 
 export function findLoadablePartNosForExtras(loadableParts:LoadablePart[], headComponent:CanvasComponent):number[] {
   const extraComponents = headComponent.children.filter(child => child.partType === EXTRA_PART_TYPE);
   const partNos:number[] = [];
   for(let extraSlotNo = 0; extraSlotNo < extraComponents.length; ++extraSlotNo) {
-    partNos[extraSlotNo] = loadableParts.findIndex(loadablePart => loadablePart.url === extraComponents[extraSlotNo].partUrl);
+    partNos[extraSlotNo] = loadableParts.findIndex(loadablePart => loadablePart.url === _normalizePartUrl(extraComponents[extraSlotNo].partUrl));
   }
   return partNos;
 }
