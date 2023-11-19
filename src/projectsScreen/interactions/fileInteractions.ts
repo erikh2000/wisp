@@ -9,6 +9,8 @@ import {
 import OpenOrNewProjectChooser from "projectsScreen/dialogs/OpenOrNewProjectChooser";
 import {getSpielNames} from "persistence/spiels";
 import {infoToast} from "ui/toasts/toastUtil";
+import {ExportProjectSettings} from "../dialogs/ExportSettingsDialog";
+import ExportProgressDialog from "../dialogs/ExportProgressDialog";
 
 export async function createNewProject(projectName:string, setModalDialog:Function, setDocumentName:Function, setRevision:Function) {
   const revisionManager = getRevisionManager();
@@ -61,4 +63,9 @@ export async function onRenameProject(currentProjectName:string, newProjectName:
   await setDocumentName(newProjectName);
   setModalDialog(null);
   infoToast('Project renamed');
+}
+
+export function startExportProject(exportSettings:ExportProjectSettings, setModalDialog:Function, setExportSettings:Function) {
+  setExportSettings(exportSettings);
+  setModalDialog(ExportProgressDialog.name);
 }

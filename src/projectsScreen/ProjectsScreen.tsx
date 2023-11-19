@@ -1,8 +1,17 @@
 import ConfirmDeleteProjectDialog from "./dialogs/ConfirmDeleteProjectDialog";
+import ExportSettingsDialog, {ExportProjectSettings, defaultExportProjectSettings} from "./dialogs/ExportSettingsDialog";
+import ExportProgressDialog from './dialogs/ExportProgressDialog';
 import NewProjectDialog from "./dialogs/NewProjectDialog";
+import OpenOrNewProjectChooser from "./dialogs/OpenOrNewProjectChooser";
 import OpenProjectChooser from "./dialogs/OpenProjectChooser";
 import RenameProjectDialog from "./dialogs/RenameProjectDialog";
-import {createNewProject, onConfirmDeleteProject, onRenameProject, openProject} from "./interactions/fileInteractions";
+import {
+  createNewProject,
+  onConfirmDeleteProject,
+  onRenameProject,
+  openProject,
+  startExportProject
+} from "./interactions/fileInteractions";
 import {init} from './interactions/initialization';
 import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText, onChangeLanguageCode} from "./interactions/projectInteractions";
 import {onRedo, onUndo, updateUndoRedoDisabled} from "./interactions/revisionUtil";
@@ -13,8 +22,6 @@ import useEffectOnce from "common/useEffectOnce";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
-import ExportProjectDialog from './dialogs/ExportProjectDialog';
-import OpenOrNewProjectChooser from "./dialogs/OpenOrNewProjectChooser";
 
 import React, {useEffect, useState} from "react";
 
@@ -28,6 +35,7 @@ function ProjectsScreen() {
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [spielNames, setSpielNames] = useState<string[]>([]);
   const [modalDialog, setModalDialog] = useState<string|null>(null);
+  const [exportSettings, setExportSettings] = useState<ExportProjectSettings>(defaultExportProjectSettings());
 
   useEffectOnce(() => {
     
@@ -52,7 +60,7 @@ function ProjectsScreen() {
     {text:'Rename', onClick:() => setModalDialog(RenameProjectDialog.name), groupNo:0, disabled},
     {text:'Delete', onClick:() => setModalDialog(ConfirmDeleteProjectDialog.name), groupNo:0, disabled},
     {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
-    {text:'Export', onClick:() => setModalDialog(ExportProjectDialog.name), groupNo:0},
+    {text:'Export', onClick:() => setModalDialog(ExportSettingsDialog.name), groupNo:0},
 
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled:undoDisabled},
     {text:'Redo', onClick:() => onRedo(setRevision), groupNo:1, disabled:redoDisabled}
@@ -74,8 +82,15 @@ function ProjectsScreen() {
           spielNames={spielNames}
         />
       </div>
-      <ExportProjectDialog
-        isOpen={modalDialog === ExportProjectDialog.name}
+      <ExportSettingsDialog
+        isOpen={modalDialog === ExportSettingsDialog.name}
+        projectName={documentName}
+        onCancel={() => setModalDialog(null)}
+        onContinue={(exportSettings) => startExportProject(exportSettings, setModalDialog, setExportSettings)}
+      />
+      <ExportProgressDialog
+        exportSettings={exportSettings}
+        isOpen={modalDialog === ExportProgressDialog.name}
         projectName={documentName}
         onComplete={() => setModalDialog(null)}
         onCancel={() => setModalDialog(null)}
