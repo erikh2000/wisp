@@ -1,7 +1,11 @@
 import {bindSetDisabled, initCore} from "./coreUtil";
 import {getRevisionManager, initRevisionManager} from "./revisionUtil";
 import {getSpiel} from "persistence/spiels";
-import {getActiveProjectName, getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
+import {
+  getActiveProjectName,
+  getActiveSpielNameIfExists,
+  UNSPECIFIED_NAME
+} from "persistence/projects";
 import {
   getUniqueCharacterNames,
   spielToSpeechTable,
@@ -40,7 +44,7 @@ async function _loadSpielFromName(spielName:string):Promise<Spiel> {
 }
 
 export async function init(setDisabled:Function, setRevision:Function):Promise<InitResults> {
-  const spielName = await getActiveSpielName();
+  const spielName = await getActiveSpielNameIfExists();
   const initResults:InitResults = { spielName, characterNames:[] };
   
   if (_isInitialized()) {

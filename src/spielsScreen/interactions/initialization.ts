@@ -1,5 +1,10 @@
 import {getDefaultScreenSettings, initTest} from "./testInteractions";
-import {getActiveFaceName, getActiveProjectName, getActiveSpielName, UNSPECIFIED_NAME} from "persistence/projects";
+import {
+  getActiveFaceName,
+  getActiveProjectName,
+  getActiveSpielNameIfExists,
+  UNSPECIFIED_NAME
+} from "persistence/projects";
 import {loadDefaultFace, loadFaceFromNameIfModified} from "facesCommon/interactions/fileInteractions";
 import {initFaceEvents} from 'facesCommon/interactions/faceEventUtil';
 import {getSpielsScreenSettings} from "persistence/settings";
@@ -61,7 +66,7 @@ async function _loadScreenSettings():Promise<SpielsScreenSettings> {
 
 export async function init(setTranscriptLines:Function, setDisabled:Function, setRevision:Function):Promise<InitResults> {
   const faceName = await getActiveFaceName();
-  const spielName = await getActiveSpielName();
+  const spielName = await getActiveSpielNameIfExists();
   const spielCount = await getSpielCount();
   const screenSettings = await _loadScreenSettings();
   const initResults:InitResults = { faceName, spielName, spielCount, screenSettings };

@@ -120,9 +120,13 @@ export async function setActiveLocationName(locationName:string) {
 
 export async function getActiveSpielName():Promise<string> {
   const project = await getActiveProject();
-  const spielName = project.activeSpiel ?? UNSPECIFIED_NAME;
-  if (spielName !== UNSPECIFIED_NAME && await doesSpielExist(spielName)) return spielName;
-  return UNSPECIFIED_NAME;
+  return project.activeSpiel ?? UNSPECIFIED_NAME;
+}
+
+export async function getActiveSpielNameIfExists():Promise<string> {
+  const spielName = await getActiveSpielName();
+  if (spielName === UNSPECIFIED_NAME) return spielName;
+  return await doesSpielExist(spielName) ? spielName : UNSPECIFIED_NAME;
 }
 
 export async function setActiveSpielName(spielName:string) {
