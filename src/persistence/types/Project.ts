@@ -1,4 +1,5 @@
 type Project = {
+  title:string,
   aboutText:string,
   activeFace:string,
   activeLocation:string,

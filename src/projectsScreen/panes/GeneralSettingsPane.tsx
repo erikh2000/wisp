@@ -6,6 +6,7 @@ import { LANGUAGE_CODES, codeToLanguage } from "sl-web-speech";
 import React from "react";
 
 interface IProps {
+  title:string,
   aboutText:string,
   creditsText:string,
   disabled:boolean,
@@ -15,6 +16,7 @@ interface IProps {
   onChangeCreditsText:(creditsText:string) => void,
   onChangeEntrySpielName:(entrySpielName:string) => void,
   onChangeLanguage:(languageCode:string) => void,
+  onChangeTitle:(title:string) => void,
   spielNames:string[]
 }
 
@@ -44,13 +46,15 @@ function _renderLanguageSelector(selectedLanguageCode:string, onChangeLanguage:F
 
 function GeneralSettingsPane(props:IProps) {
   const {aboutText, creditsText, disabled, spielNames, entrySpielName, languageCode, 
-    onChangeAboutText, onChangeCreditsText, onChangeEntrySpielName, onChangeLanguage} = props;
+    title, onChangeTitle, onChangeAboutText, onChangeCreditsText, onChangeEntrySpielName, onChangeLanguage} = props;
   
   const entrySpielNameSelector = _renderEntrySpielNameSelector(spielNames, entrySpielName, onChangeEntrySpielName, disabled);
   const languageSelector = _renderLanguageSelector(languageCode, onChangeLanguage, disabled);
 
   return  (
     <InnerContentPane className={styles.generalSettingsPane} caption='General Settings'>
+      <label htmlFor='title'>Title:</label>
+      <input className={styles.title} disabled={disabled} name='title' onChange={event => onChangeTitle(event.target.value)} value={title} />
       <label htmlFor='entrySpielName'>Entry Spiel:</label>
       {entrySpielNameSelector}
       <label htmlFor='language'>Conversation Language:</label>

@@ -27,3 +27,10 @@ export function onChangeLanguageCode(languageCode:string, setRevision:Function) 
   const nextRevision = revisionManager.currentRevision;
   setRevision(nextRevision);
 }
+
+export function onChangeTitle(title:string, setRevision:Function) {
+  const revisionManager = getRevisionManager();
+  revisionManager.addChanges({title});
+  const nextRevision = revisionManager.currentRevision;
+  setRevision(nextRevision);
+}

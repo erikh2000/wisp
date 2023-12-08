@@ -5,6 +5,7 @@ import {performDisablingOperation} from "projectsScreen/interactions/coreUtil";
 import {DEFAULT_LANGUAGE_CODE} from "sl-web-speech";
 
 export type Revision = {
+  title:string,
   aboutText:string,
   creditsText:string,
   entrySpiel:string,
@@ -18,6 +19,7 @@ async function onPersistRevision(revision:Revision):Promise<void> {
 
 export function createDefaultRevision():Revision {
   return {
+    title: '',
     aboutText: '',
     creditsText: '',
     entrySpiel: UNSPECIFIED_NAME,

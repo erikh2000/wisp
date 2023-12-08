@@ -13,7 +13,13 @@ import {
   startExportProject
 } from "./interactions/fileInteractions";
 import {init} from './interactions/initialization';
-import {onChangeEntrySpielName, onChangeAboutText, onChangeCreditsText, onChangeLanguageCode} from "./interactions/projectInteractions";
+import {
+  onChangeEntrySpielName,
+  onChangeAboutText,
+  onChangeCreditsText,
+  onChangeLanguageCode,
+  onChangeTitle
+} from "./interactions/projectInteractions";
 import {onRedo, onUndo, updateUndoRedoDisabled} from "./interactions/revisionUtil";
 import GeneralSettingsPane from "./panes/GeneralSettingsPane";
 import styles from "./ProjectsScreen.module.css";
@@ -70,6 +76,7 @@ function ProjectsScreen() {
     <ScreenContainer documentName={documentName} isControlPaneOpen={true} activeScreen={Screen.PROJECTS} actionBarButtons={actionBarButtons}>
       <div className={styles.container}>
         <GeneralSettingsPane
+          title={revision.title}
           aboutText={revision.aboutText}
           creditsText={revision.creditsText}
           disabled={disabled}  
@@ -79,6 +86,7 @@ function ProjectsScreen() {
           onChangeCreditsText={nextCreditsText => onChangeCreditsText(nextCreditsText, setRevision)}
           onChangeEntrySpielName={nextEntrySpielName => onChangeEntrySpielName(nextEntrySpielName, setRevision)}
           onChangeLanguage={nextLanguageCode => onChangeLanguageCode(nextLanguageCode, setRevision)}
+          onChangeTitle={nextTitle => onChangeTitle(nextTitle, setRevision)}
           spielNames={spielNames}
         />
       </div>

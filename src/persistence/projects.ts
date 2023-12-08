@@ -49,7 +49,8 @@ export async function getAllProjectRecords():Promise<KeyValueRecord[]> {
 export async function createProject(projectName:string) {
   if (!isValidName(projectName)) throw Error('Invalid project name');
   const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName});
-  const project:Project = { 
+  const project:Project = {
+    title:projectName,
     created:Date.now(), 
     activeFace:UNSPECIFIED_NAME, 
     activeLocation:UNSPECIFIED_NAME,
@@ -153,6 +154,7 @@ export async function renameActiveFaceName(nextFaceName:string) {
 export async function updateActiveProject(changes:Partial<Project>) {
   const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:activeProjectName});
   const currentProject:Project = await _getProjectByKey(key);
+  currentProject.title = changes.title ?? currentProject.title ?? UNSPECIFIED_NAME;
   currentProject.entrySpiel = changes.entrySpiel ?? currentProject.entrySpiel ?? UNSPECIFIED_NAME;
   currentProject.aboutText = changes.aboutText ?? currentProject.aboutText ?? '';
   currentProject.creditsText = changes.creditsText ?? currentProject.creditsText ?? '';
