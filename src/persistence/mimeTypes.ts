@@ -10,6 +10,7 @@ export const MIMETYPE_WISP_LOCATION = 'application/vnd.seespacelabs.wisp.locatio
 export const MIMETYPE_WISP_PROJECT = 'application/vnd.seespacelabs.wisp.project';
 export const MIMETYPE_WISP_SETTING = 'application/vnd.seespacelabs.wisp.setting';
 export const MIMETYPE_WISP_SPIEL = 'application/vnd.seespacelabs.wisp.spiel';
+export const MIMETYPE_ZIP = 'application/zip';
 
 type MimeTypeToExtensionMap = {
   [key:string]:string

@@ -85,6 +85,11 @@ export async function getActiveProject():Promise<Project> {
   return _getProjectByKey(key);
 }
 
+export async function getProjectByName(projectName:string):Promise<Project> {
+  const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName});
+  return _getProjectByKey(key);
+}
+
 export async function setActiveProject(projectName:string) {
   if (projectName !== UNSPECIFIED_NAME) {
     const key = fillTemplate(PROJECT_KEY_TEMPLATE, {projectName:projectName});

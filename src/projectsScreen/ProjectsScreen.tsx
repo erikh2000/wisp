@@ -1,13 +1,15 @@
 import ConfirmDeleteProjectDialog from "./dialogs/ConfirmDeleteProjectDialog";
-import ExportSettingsDialog, {ExportProjectSettings, defaultExportProjectSettings} from "./dialogs/ExportSettingsDialog";
+import ConfirmMergeProjectDialog from "./dialogs/ConfirmMergeProjectDialog";
 import ExportProgressDialog from './dialogs/ExportProgressDialog';
+import ExportSettingsDialog, {ExportProjectSettings, defaultExportProjectSettings} from "./dialogs/ExportSettingsDialog";
+import ImportProgressDialog from "./dialogs/ImportProgressDialog";
 import NewProjectDialog from "./dialogs/NewProjectDialog";
 import OpenOrNewProjectChooser from "./dialogs/OpenOrNewProjectChooser";
 import OpenProjectChooser from "./dialogs/OpenProjectChooser";
 import RenameProjectDialog from "./dialogs/RenameProjectDialog";
 import {
-  createNewProject,
-  onConfirmDeleteProject,
+  createNewProject, importProject, onCancelMergeProject,
+  onConfirmDeleteProject, onConfirmMergeProject,
   onRenameProject,
   openProject,
   startExportProject
@@ -25,23 +27,24 @@ import GeneralSettingsPane from "./panes/GeneralSettingsPane";
 import styles from "./ProjectsScreen.module.css";
 import {getRevisionForMount, Revision} from "./interactions/revisionUtil";
 import useEffectOnce from "common/useEffectOnce";
+import {ProjectArchive} from "persistence/impExpUtil";
 import {UNSPECIFIED_NAME} from "persistence/projects";
 import ScreenContainer from "ui/screen/ScreenContainer";
 import Screen from "ui/screen/screens";
 
 import React, {useEffect, useState} from "react";
 
-const emptyCallback = () => {}; // TODO delete when not using
 
 function ProjectsScreen() {
   const [disabled, setDisabled] = useState<boolean>(true);
-  const [undoDisabled, setUndoDisabled] = useState<boolean>(true);
-  const [redoDisabled, setRedoDisabled] = useState<boolean>(true);
   const [documentName, setDocumentName] = useState<string>(UNSPECIFIED_NAME);
+  const [exportSettings, setExportSettings] = useState<ExportProjectSettings>(defaultExportProjectSettings());
+  const [modalDialog, setModalDialog] = useState<string|null>(null);
+  const [importProjectArchive, setImportProjectArchive] = useState<ProjectArchive|null>(null); 
+  const [redoDisabled, setRedoDisabled] = useState<boolean>(true);
   const [revision, setRevision] = useState<Revision>(getRevisionForMount());
   const [spielNames, setSpielNames] = useState<string[]>([]);
-  const [modalDialog, setModalDialog] = useState<string|null>(null);
-  const [exportSettings, setExportSettings] = useState<ExportProjectSettings>(defaultExportProjectSettings());
+  const [undoDisabled, setUndoDisabled] = useState<boolean>(true);
 
   useEffectOnce(() => {
     
@@ -65,7 +68,7 @@ function ProjectsScreen() {
     {text:'Open', onClick:() => setModalDialog(OpenProjectChooser.name), groupNo:0, disabled},
     {text:'Rename', onClick:() => setModalDialog(RenameProjectDialog.name), groupNo:0, disabled},
     {text:'Delete', onClick:() => setModalDialog(ConfirmDeleteProjectDialog.name), groupNo:0, disabled},
-    {text:'Import', onClick:emptyCallback, groupNo:0, disabled:true},
+    {text:'Import', onClick:() => importProject(setModalDialog, setImportProjectArchive), groupNo:0, disabled},
     {text:'Export', onClick:() => setModalDialog(ExportSettingsDialog.name), groupNo:0},
 
     {text:'Undo', onClick:() => onUndo(setRevision), groupNo:1, disabled:undoDisabled},
@@ -120,6 +123,12 @@ function ProjectsScreen() {
         onCancel={() => setModalDialog(null)}
         onConfirm={() => onConfirmDeleteProject(documentName, setModalDialog, setDocumentName, setRevision, setSpielNames)}
       />
+      <ConfirmMergeProjectDialog
+        isOpen={modalDialog === ConfirmMergeProjectDialog.name}
+        projectName={documentName}
+        onCancel={() => onCancelMergeProject(setModalDialog, setImportProjectArchive)}
+        onConfirm={() => onConfirmMergeProject(setModalDialog)}
+      />
       <OpenOrNewProjectChooser 
         isOpen={modalDialog === OpenOrNewProjectChooser.name}
         originalDocumentName={documentName}
@@ -130,6 +139,12 @@ function ProjectsScreen() {
         isOpen={modalDialog === RenameProjectDialog.name}
         onCancel={() => setModalDialog(null)}
         onSubmit={(newProjectName) => onRenameProject(documentName, newProjectName, setModalDialog, setDocumentName)}
+      />
+      <ImportProgressDialog
+        isOpen={modalDialog === ImportProgressDialog.name}
+        projectArchive={importProjectArchive}
+        onCancel={() => setModalDialog(null)}
+        onComplete={() => setModalDialog(null)}
       />
     </ScreenContainer>
   );

@@ -3,29 +3,29 @@
   "version": "1.0.3",
   "private": true,
   "dependencies": {
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.8",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
     "jszip": "^3.10.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^6.4.4",
-    "react-router-dom": "^6.4.4",
-    "sl-spiel": "*",
-    "sl-web-audio": "*",
-    "sl-web-face": "*",
-    "sl-web-speech": "*",
-    "yaml": "^2.1.3"
+    "react-router-dom": "^6.20.1",
+    "sl-spiel": "^1.0.1",
+    "sl-web-audio": "^1.0.1",
+    "sl-web-face": "^1.1.5",
+    "sl-web-speech": "^1.1.3",
+    "yaml": "^2.3.4"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@babel/plugin-transform-private-property-in-object": "^7.23.3",
-    "@testing-library/jest-dom": "^5.16.5",
+    "@babel/plugin-transform-private-property-in-object": "^7.23.4",
+    "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.3",
+    "@types/node": "^16.18.68",
     "react-scripts": "5.0.1",
-    "typescript": "^4.8.4"
+    "typescript": "^4.9.5"
   },
   "scripts": {
     "start": "export PORT=3000 && react-scripts start",
