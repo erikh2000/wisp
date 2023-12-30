@@ -1,3 +1,4 @@
+import PostDelaySelector from "./PostDelaySelector";
 import {splitText, joinText} from "common/textFormatUtil";
 import DialogButton from "ui/dialog/DialogButton";
 import DialogFooter from "ui/dialog/DialogFooter";
@@ -20,12 +21,12 @@ interface IProps {
   title:string
 }
 
-function _createNodeToSubmit(dialogue:string, character:string, emotion:Emotion):SpielNode {
+function _createNodeToSubmit(dialogue:string, character:string, emotion:Emotion, postDelay:number):SpielNode {
   const replies:SpielReply[] = []; 
   const dialogueArray:string[] = splitText(dialogue);
   const spielEmotion:SpielEmotion = emotionToSpielEmotion(emotion);
   const line:SpielLine = new SpielLine(character, dialogueArray, spielEmotion);
-  return new SpielNode(line, replies);
+  return new SpielNode(line, replies, postDelay);
 }
 
 function LineDialogBase(props:IProps) {
@@ -33,7 +34,8 @@ function LineDialogBase(props:IProps) {
   const [character, setCharacter] = useState<string>('');
   const [dialogue, setDialogue] = useState<string>('');
   const [emotion, setEmotion] = useState<Emotion>(Emotion.NEUTRAL);
-  const isSubmitDisabled = false;
+  const [postDelay, setPostDelay] = useState<number>(0);
+  const isSubmitDisabled = dialogue.length === 0 || character.length === 0
   
   useEffect(() => {
     if (!isOpen) return;
@@ -41,10 +43,12 @@ function LineDialogBase(props:IProps) {
       setCharacter(originalNode.line.character);
       setDialogue(joinText(originalNode.line.dialogue));
       setEmotion(spielEmotionToEmotion(originalNode.line.emotion));
+      setPostDelay(originalNode.postDelay);
     } else {
       setCharacter(defaultCharacter ?? '');
       setDialogue('');
       setEmotion(Emotion.NEUTRAL);
+      setPostDelay(0);
     }
   }, [isOpen, originalNode, defaultCharacter]);
   
@@ -55,10 +59,11 @@ function LineDialogBase(props:IProps) {
       <DialogTextInput labelText='Character:' value={character} onChangeText={(text:string) => setCharacter(text)} />
       <DialogTextInput labelText='Says:' value={dialogue} onChangeText={(text:string) => setDialogue(text)} />
       <EmotionSelector emotion={emotion} onChange={setEmotion} />
+      <PostDelaySelector postDelay={postDelay} onChange={setPostDelay} />
       <DialogFooter>
         <DialogButton text='Cancel' onClick={onCancel} />
         {deleteButton}
-        <DialogButton text='Update' onClick={() => onSubmit(_createNodeToSubmit(dialogue, character, emotion))} disabled={isSubmitDisabled} isPrimary/> 
+        <DialogButton text='Update' onClick={() => onSubmit(_createNodeToSubmit(dialogue, character, emotion, postDelay))} disabled={isSubmitDisabled} isPrimary/> 
       </DialogFooter>
     </ModalDialog>
   )

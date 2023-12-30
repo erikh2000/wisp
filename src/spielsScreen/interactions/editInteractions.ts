@@ -26,6 +26,7 @@ export function updateNodeAfterEdit(nextNode:SpielNode, spiel:Spiel, setRevision
   line.character = nextNode.line.character;
   line.emotion = nextNode.line.emotion;
   spiel.updateDialogue(nextNode.line.dialogue);
+  spiel.setPostDelay(nextNode.postDelay);
   updateRevisionForSpiel(spiel, setRevision);
   setModalDialog(null);
 }
@@ -99,7 +100,7 @@ export function openDialogToAddSpielNode(setModalDialog:Function) {
 }
 
 export function addSpielNode(spiel:Spiel, node:SpielNode, setRevision:Function, setModalDialog:Function) {
-  spiel.createNode(node.line.character, node.line.emotion, node.line.dialogue);
+  spiel.createNode(node.line.character, node.line.emotion, node.line.dialogue, node.postDelay);
   updateRevisionForSpiel(spiel, setRevision);
   setModalDialog(null);
 }

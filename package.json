@@ -10,7 +10,7 @@
     "react-dom": "^18.2.0",
     "react-router": "^6.4.4",
     "react-router-dom": "^6.20.1",
-    "sl-spiel": "^1.0.1",
+    "sl-spiel": "^1.0.4",
     "sl-web-audio": "^1.0.1",
     "sl-web-face": "^1.1.5",
     "sl-web-speech": "^1.1.3",
