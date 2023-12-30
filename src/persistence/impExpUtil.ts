@@ -84,7 +84,7 @@ function _mergeObjects(oldObject:Object, newObject:Object):Object {
 async function _importProjectFile(project:Project, projectName:string) {
   const oldProject = await getProjectByName(projectName);
   if (oldProject) project = _mergeObjects(oldProject, project) as Project;
-  const projectKey = fillTemplate(PROJECT_PATH_REGEX_TEMPLATE, {projectName});
+  // const projectKey = fillTemplate(PROJECT_PATH_REGEX_TEMPLATE, {projectName});
   
   // TODO - You were thinking about how best to import the project. It should be designed out in some detail. I'm a little
   // worried about merging rules leading to trouble. And there needs to be integrity checks along the way rather than just
